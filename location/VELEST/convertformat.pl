@@ -15,7 +15,7 @@ print"isingle = $isingle\n";
 
 if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
 
-$reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
+# $reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
 $iusestacorr = 1; # station correction used or not
 $zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
 $iuseelev = 0; # station elevation used or not (recommend: 0)
@@ -56,7 +56,7 @@ foreach $_(@par){
 	chomp($_);
 	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
     #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
-	$vsn = "N";$vew = "E";
+	$vsn = "N";$vew = "W";
 	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
 	if($lon < 0.0){$vew = "W";$lon = -1*$lon;}
     $p1 = $elev*1000;
@@ -156,7 +156,7 @@ foreach $file(@par){
             print EV "\n";
         }
 		$year_short = substr($year,2,2); # VELEST format
-		$vsn = "N";$vew = "E";
+		$vsn = "N";$vew = "W";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
 		
