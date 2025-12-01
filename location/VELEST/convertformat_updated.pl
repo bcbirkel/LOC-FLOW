@@ -188,7 +188,7 @@ foreach $file(@par){
 		
         my $hourmin = sprintf("%02d%02d", $hour, $min);
         # New header format for velest.pha (ised=0), matching format (3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-		printf EV "%2d%2d%2d %s %5.2f %7.4f%s%8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
+		printf EV "%2d%2d%2d %s %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
 		
         # Original format for initial.cat
         printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
