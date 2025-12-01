@@ -1,4 +1,4 @@
-#!/bin/bash -w
+#!/bin/bash
 # input 1: location alone
 #       0: location + model + sta. corr.
 ((!$#)) && echo bash $0 0,1 && exit 1

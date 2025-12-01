@@ -162,7 +162,22 @@ foreach $file(@par){
         # DEBUG: Found a phase line
         print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";
         ($station,$tpick,$jk,$phase) = @fields;
-		$iwt = "0";
+
+        # Added logic to handle phase types and weights correctly for VELEST
+        my $iwt;
+        if (not defined $phase or (uc($phase) ne 'P' and uc($phase) ne 'S')) {
+            print STDERR "DEBUG convertformat.pl: Skipping line with invalid or missing phase: '$phase' from line: $file\n";
+            next;
+        }
+        
+        $phase = uc($phase); # Ensure phase is uppercase
+
+        if ($phase eq 'P') {
+            $iwt = 0;
+        } elsif ($phase eq 'S') {
+            $iwt = 5; # VELEST uses weights >= 5 for S phases
+        }
+        
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
         #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
         #(2x,a6,2x,a1,3x,i1,3x,f6.2) the code was updated by M. Zhang
