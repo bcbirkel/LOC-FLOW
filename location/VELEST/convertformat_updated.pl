@@ -49,9 +49,13 @@ if($isingle == 1){
 # station format conversion
 ##############################################
 $stause = "velest.sta"; #station format for VELEST
-open(JK,"<$station");
+open(JK,"<$station") or die "Could not open station file '$station': $!\n";
 @par = <JK>;
 close(JK);
+
+if (scalar(@par) == 0) {
+    die "Station file '$station' is empty.\n";
+}
 
 $p1=0;
 $p2=1;

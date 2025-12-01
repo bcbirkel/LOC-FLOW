@@ -7689,6 +7689,11 @@ c
 c determine maximum-value of an integer-array
       implicit none
       integer jndex,i,n,imax, nx(n)
+      if (n .le. 0) then
+         imax = 0
+         jndex = 0
+         return
+      endif
       jndex=1
       do 1 i=1,n
    1  if(nx(jndex).le.nx(i)) jndex=i
