@@ -11,7 +11,7 @@ mode=$1 # 1: update locations alone (fast, usually good enough for your study)
            # 0: first udpate locations and velocitiy using high-quanlity events and picks
            #    second relocate all events (slow, only for specific analysis), 
 
-station=../../Data/station_filt.dat # station direcotry
+station=../../Data/stations.dat # station direcotry
 vel=../../REAL/tt_db/mymodel.nd # velocity model directory
 phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
 # phasein=../../REAL/phase_allday.txt # use the relocated SA locations
