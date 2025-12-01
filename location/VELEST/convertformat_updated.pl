@@ -63,8 +63,8 @@ $p3=1;
 $v1=0.00;
 $v2=0.00;
 open(OT,">$stause");
-#print OT "(a4,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in old code
-print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
+print OT "(a4,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n";
+#print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
 foreach $_(@par){
 	chomp($_);
 	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
@@ -73,7 +73,7 @@ foreach $_(@par){
 	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
 	if($lon < 0.0){$vew = "W";$lon = -1*$lon;}
     $p1 = $elev*1000;
-	printf OT "%-6s%7.4f%1s %8.4f%s %4d %1d %3d %5.2f  %5.2f\n",$sta,$lat,$vsn,$lon,$vew,$p1,$p2,$p3,$v1,$v2;
+	printf OT "%-4s%7.4f%1s %8.4f%s %4d %1d %3d %5.2f  %5.2f\n", substr($sta, 0, 4), $lat, $vsn, $lon, $vew, $p1, $p2, $p3, $v1, $v2;
 	$p3++;
 }
 print OT "\n";
