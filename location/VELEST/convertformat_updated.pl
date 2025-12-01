@@ -63,7 +63,7 @@ open(OT,">$stause");
 print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
 foreach $_(@par){
 	chomp($_);
-	($lon,$lat,$net,$sta,$comp,$elev) = split(" ",$_);
+	($lon,$lat,$net,$sta,$comp,$elev) = split(/\s+/, $_);
     #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
 	$vsn = "N";$vew = "E";
 	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
