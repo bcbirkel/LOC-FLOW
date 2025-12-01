@@ -28,7 +28,7 @@ print "Phase selection: $phase_select\n";
 
 if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
 
-$reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
+# $reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
 $iusestacorr = 1; # station correction used or not
 $zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
 $iuseelev = 0; # station elevation used or not (recommend: 0)
