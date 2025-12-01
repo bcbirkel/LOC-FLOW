@@ -209,7 +209,11 @@ foreach $file(@par){
         my $iwt = 0; # Use weight 0 for P and S phases
         
         my $sta_short = substr($station, 0, 4);
-        $sta_short = sprintf("%-4s", $sta_short); # Pad to 4 chars
+        # VELEST ised=0 format requires a 4-character station code.
+        # Pad with underscores if shorter.
+        while (length($sta_short) < 4) {
+            $sta_short .= '_';
+        }
         
         my $phase_item = sprintf("%s%s%d %5.2f ", $sta_short, $phase, $iwt, $tpick);
         push @phase_buffer, $phase_item;
