@@ -148,6 +148,9 @@ foreach $file(@par){
         print STDERR "DEBUG convertformat.pl: Found event line: $file\n";
 		($jk,$year,$month,$day,$hour,$min,$sec,$lat,$lon,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
         $neqs++;
+        if ($neqs > 1) {
+            print EV "\n";
+        }
 		$year = substr($year,2,2); # VELEST format
 		$vsn = "N";$vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
@@ -155,13 +158,11 @@ foreach $file(@par){
 		
         #$mag = $num/100; #you may want to label the event as needed
         #(3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-        print EV "\n";
 		printf EV "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 		printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 	}else{
         # DEBUG: Found a phase line
         print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";
-        print STDERR "DEBUG convertformat.pl: \@fields are: (" . join(", ", @fields) . ")\n"; # 2025-12-01
         ($station,$tpick,$jk,$phase) = @fields;
 
         # Added logic to handle phase types and weights correctly for VELEST
@@ -182,8 +183,6 @@ foreach $file(@par){
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
         #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
         #(2x,a6,2x,a1,3x,i1,3x,f6.2) the code was updated by M. Zhang
-        my $output_line_for_debug = sprintf("  %-6s  %-1s   %1d   %6.2f", $station, $phase, $iwt, $tpick); # 2025-12-01
-        print STDERR "DEBUG convertformat.pl: Writing to velest.pha: |$output_line_for_debug|\n"; # 2025-12-01
         printf EV "  %-6s  %-1s   %1d   %6.2f\n",$station,$phase,$iwt,$tpick;
     }
 }
