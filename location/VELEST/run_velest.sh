@@ -26,7 +26,7 @@ then
     perl convertformat.pl $lat $lon $distmax $mode $station $vel $phasein
     echo perl convertformat.pl $lat $lon $distmax $mode $station $vel $phasein
     # run velest
-    # velest
+    velest
 elif (($mode == 0))
 then
     # 1. update location, velocity, station correction using high-quanlity events and picks

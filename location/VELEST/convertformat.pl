@@ -131,6 +131,9 @@ open(JK,"<$phasein");
 @par = <JK>;
 close(JK);
 
+# DEBUG: Print number of lines read from phasein file
+print STDERR "DEBUG convertformat.pl: Read " . scalar(@par) . " lines from $phasein\n";
+
 $neqs = 0;
 open(EV,">$phaseout");
 open(CT,">$phasecat");
@@ -141,6 +144,8 @@ foreach $file(@par){
     $test = $fields[0];
 
     if($test eq "#"){
+        # DEBUG: Found an event header line
+        print STDERR "DEBUG convertformat.pl: Found event line: $file\n";
 		($jk,$year,$month,$day,$hour,$min,$sec,$lat,$lon,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
         $neqs++;
 		$year = substr($year,2,2); # VELEST format
@@ -154,6 +159,8 @@ foreach $file(@par){
 		printf EV "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 		printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 	}else{
+        # DEBUG: Found a phase line
+        print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";
         ($station,$tpick,$jk,$phase) = @fields;
 		$iwt = "0";
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
@@ -165,6 +172,9 @@ foreach $file(@par){
 print EV "\n";
 close(EV);
 close(CT);
+
+# DEBUG: Print total number of events processed
+print STDERR "DEBUG convertformat.pl: Total events processed: $neqs\n";
 
 
 ################################################

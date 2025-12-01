@@ -13,9 +13,23 @@ chomp($dele);
 $relocate = "final.CNV"; # output by VELEST
 if (-e $relo){`rm $relo $dele`;}
 
+# DEBUG: Check if input file exists and is readable
+unless (-f $relocate and -r $relocate) {
+    print STDERR "DEBUG convertoutput.pl: Error - Cannot find or read input file '$relocate'. It might not have been created by 'velest'.\n";
+    # Create empty files to avoid errors downstream
+    open(my $fh_relo, '>', $relo) or die "Cannot create $relo: $!";
+    close $fh_relo;
+    open(my $fh_dele, '>', $dele) or die "Cannot create $dele: $!";
+    close $fh_dele;
+    exit 0;
+}
+
 open(JK,"<$relocate");
 @par = <JK>;
 close(JK);
+
+# DEBUG: Print number of lines read from final.CNV
+print STDERR "DEBUG convertoutput.pl: Read " . scalar(@par) . " lines from $relocate\n";
 
 $i=0;
 open(OT,">$relo");
@@ -24,6 +38,8 @@ foreach $_(@par){
 	chomp($_);
 	#if(looks_like_number(substr($_,0,2))){
 	if(substr($_,25,1) eq 'N' || substr($_,25,1) eq 'S'){
+        # DEBUG: Processing a line
+        print STDERR "DEBUG convertoutput.pl: Processing line: $_\n";
 	$year = substr($_,0,2); $year=~s/^\s+//;
     $mon = substr($_,2,2); $mon=~s/^\s+//;
     $day = substr($_,4,2); $day=~s/^\s+//;
@@ -54,3 +70,6 @@ foreach $_(@par){
 }
 close(OT);
 close(DE);
+
+# DEBUG: Print total number of events written
+print STDERR "DEBUG convertoutput.pl: Wrote $i events to $relo\n";
