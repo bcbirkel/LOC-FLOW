@@ -187,8 +187,8 @@ foreach $file(@par){
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
 		
         my $hourmin = sprintf("%02d%02d", $hour, $min);
-        # New header format for velest.pha (ised=0)
-		printf EV "%d %d %d %s %5.2f %7.4f%s %8.4f%s %5.2f %4.2f %d\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag, $num;
+        # New header format for velest.pha (ised=0), matching format (3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
+		printf EV "%2d%2d%2d %s %5.2f %7.4f%s%8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
 		
         # Original format for initial.cat
         printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
@@ -209,13 +209,9 @@ foreach $file(@par){
         my $iwt = 0; # Use weight 0 for P and S phases
         
         my $sta_short = substr($station, 0, 4);
-        # VELEST ised=0 format requires a 4-character station code.
-        # Pad with underscores if shorter.
-        while (length($sta_short) < 4) {
-            $sta_short .= '_';
-        }
+        $sta_short = sprintf("%-4s", $sta_short); # Pad to 4 chars
         
-        my $phase_item = sprintf("%s%s%d %5.2f ", $sta_short, $phase, $iwt, $tpick);
+        my $phase_item = sprintf("%s%s%d%6.2f", $sta_short, $phase, $iwt, $tpick);
         push @phase_buffer, $phase_item;
     }
 }
