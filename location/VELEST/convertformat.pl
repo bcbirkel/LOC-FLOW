@@ -161,6 +161,7 @@ foreach $file(@par){
 	}else{
         # DEBUG: Found a phase line
         print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";
+        print STDERR "DEBUG convertformat.pl: \@fields are: (" . join(", ", @fields) . ")\n"; # 2025-12-01
         ($station,$tpick,$jk,$phase) = @fields;
 
         # Added logic to handle phase types and weights correctly for VELEST
@@ -181,6 +182,8 @@ foreach $file(@par){
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
         #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
         #(2x,a6,2x,a1,3x,i1,3x,f6.2) the code was updated by M. Zhang
+        my $output_line_for_debug = sprintf("  %-6s  %-1s   %1d   %6.2f", $station, $phase, $iwt, $tpick); # 2025-12-01
+        print STDERR "DEBUG convertformat.pl: Writing to velest.pha: |$output_line_for_debug|\n"; # 2025-12-01
         printf EV "  %-6s  %-1s   %1d   %6.2f\n",$station,$phase,$iwt,$tpick;
     }
 }
