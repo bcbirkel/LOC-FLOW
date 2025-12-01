@@ -54,7 +54,7 @@ open(OT,">$stause");
 print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
 foreach $_(@par){
 	chomp($_);
-	($lon,$lat,$net,$sta,$comp,$elev) = split(/\s+/, $_);
+	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
     #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
 	$vsn = "N";$vew = "E";
 	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
@@ -155,15 +155,15 @@ foreach $file(@par){
         if ($neqs > 1) {
             print EV "\n";
         }
-		$year = substr($year,2,2); # VELEST format
+		$year_short = substr($year,2,2); # VELEST format
 		$vsn = "N";$vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
 		
         #$mag = $num/100; #you may want to label the event as needed
         #(3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-		printf EV "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
-		printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
+		printf EV "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
+		printf CT "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 	}else{
         # DEBUG: Found a phase line
         print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";

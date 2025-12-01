@@ -28,7 +28,7 @@ print "Phase selection: $phase_select\n";
 
 if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
 
-# $reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
+$reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
 $iusestacorr = 1; # station correction used or not
 $zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
 $iuseelev = 0; # station elevation used or not (recommend: 0)
@@ -67,7 +67,7 @@ open(OT,">$stause");
 print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
 foreach $_(@par){
 	chomp($_);
-	($lon,$lat,$net,$sta,$comp,$elev) = split(/\s+/, $_);
+	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
     #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
 	$vsn = "N";$vew = "E";
 	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
@@ -192,10 +192,10 @@ foreach $file(@par){
 		
         my $hourmin = sprintf("%02d%02d", $hour, $min);
         # New header format for velest.pha (ised=0), matching format (3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-		printf EV "%2d%2d%2d %s %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
+		printf EV "%s%02d%02d %s %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
 		
         # Original format for initial.cat
-        printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
+        printf CT "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 
 	}else{
         my ($station,$tpick,$jk,$phase) = @fields;
