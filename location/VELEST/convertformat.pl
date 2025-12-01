@@ -136,11 +136,14 @@ open(EV,">$phaseout");
 open(CT,">$phasecat");
 foreach $file(@par){
     chomp($file);
-    ($test,$jk) = split(' ',$file);
+    @fields = split(/\s+/, $file);
+    if (!@fields) { next; } # Skip empty lines
+    $test = $fields[0];
+
     if($test eq "#"){
-		($jk,$year,$month,$day,$hour,$min,$sec,$lat,$lon,$dep,$mag,$jk,$jk,$jk,$num) = split(' ',,$file);
+		($jk,$year,$month,$day,$hour,$min,$sec,$lat,$lon,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
         $neqs++;
-		$year = substr($year,2,2); # VELEST format 
+		$year = substr($year,2,2); # VELEST format
 		$vsn = "N";$vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
@@ -151,7 +154,7 @@ foreach $file(@par){
 		printf EV "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 		printf CT "%2d%2d%2d %2d%2d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
 	}else{
-        ($station,$tpick,$jk,$phase) = split(' ',$file);
+        ($station,$tpick,$jk,$phase) = @fields;
 		$iwt = "0";
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
         #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
