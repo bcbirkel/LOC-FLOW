@@ -105,13 +105,6 @@ VIEW = (23, 15)
 # 2D depth view (lon vs dep)
 # VIEW = (0, 0)
 
-# View angles for saved individual PNG files
-VIEWS_TO_SAVE = {
-    'map': (0, 90),       # 2D map view (lon vs lat)
-    '3d': (23, 15),        # 3D view
-    'depth_lon': (0, 0),  # 2D depth view (lon vs dep)
-    'depth_lat': (90, 0)  # 2D depth view (lat vs dep)
-}
 
 # --- END CONFIGURATION ---
 
@@ -202,34 +195,67 @@ def get_catalog_info(picker, stage):
 
 
 def save_individual_plot(data, picker, stage, output_dir):
-    """Create a new figure for a single dataset and save it from multiple angles."""
-    fig = plt.figure(figsize=(8, 7))
-    ax = fig.add_subplot(111, projection='3d')
+    """Create a new figure with multiple 2D and 3D views and save it."""
+    fig = plt.figure(figsize=(12, 10))
+    fig.suptitle(f"{data['title']} ({len(data['lon'])} events)", fontsize=16)
 
-    ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+    # 1. Lat vs Lon (map view)
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax1.scatter(data['lon'], data['lat'], s=10, marker='o')
+    ax1.set_title('Map View (Lon vs Lat)')
+    ax1.set_xlabel('Longitude')
+    ax1.set_ylabel('Latitude')
+    ax1.set_xlim(XMIN, XMAX)
+    ax1.set_ylim(YMIN, YMAX)
+    ax1.set_xticks(np.arange(XMIN, XMAX + DX, DX))
+    ax1.set_yticks(np.arange(YMIN, YMAX + DY, DY))
+    ax1.grid(True)
 
-    title = f"{data['title']} ({len(data['lon'])} events)"
-    ax.set_title(title)
+    # 2. Lat vs Depth
+    ax2 = fig.add_subplot(2, 2, 2)
+    ax2.scatter(data['lat'], data['dep'], s=10, marker='o')
+    ax2.set_title('Depth Profile (vs Latitude)')
+    ax2.set_xlabel('Latitude')
+    ax2.set_ylabel('Depth (km)')
+    ax2.set_xlim(YMIN, YMAX)
+    ax2.set_ylim(ZMIN, ZMAX)
+    ax2.set_xticks(np.arange(YMIN, YMAX + DY, DY))
+    ax2.set_yticks(np.arange(ZMIN, ZMAX + DZ, DZ))
+    ax2.invert_yaxis()
+    ax2.grid(True)
 
-    ax.set_xlim(XMIN, XMAX)
-    ax.set_ylim(YMIN, YMAX)
-    ax.set_zlim(ZMIN, ZMAX)
+    # 3. Lon vs Depth
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax3.scatter(data['lon'], data['dep'], s=10, marker='o')
+    ax3.set_title('Depth Profile (vs Longitude)')
+    ax3.set_xlabel('Longitude')
+    ax3.set_ylabel('Depth (km)')
+    ax3.set_xlim(XMIN, XMAX)
+    ax3.set_ylim(ZMIN, ZMAX)
+    ax3.set_xticks(np.arange(XMIN, XMAX + DX, DX))
+    ax3.set_yticks(np.arange(ZMIN, ZMAX + DZ, DZ))
+    ax3.invert_yaxis()
+    ax3.grid(True)
 
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
-    ax.set_zlabel('Depth (km)')
+    # 4. 3D view
+    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+    ax4.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+    ax4.set_title('3D View')
+    ax4.set_xlabel('Longitude')
+    ax4.set_ylabel('Latitude')
+    ax4.set_zlabel('Depth (km)')
+    ax4.set_xlim(XMIN, XMAX)
+    ax4.set_ylim(YMIN, YMAX)
+    ax4.set_zlim(ZMIN, ZMAX)
+    ax4.set_xticks(np.arange(XMIN, XMAX + DX, DX))
+    ax4.set_yticks(np.arange(YMIN, YMAX + DY, DY))
+    ax4.set_zticks(np.arange(ZMIN, ZMAX + DZ, DZ))
+    ax4.invert_zaxis()
+    ax4.view_init(elev=VIEW[1], azim=VIEW[0])
 
-    ax.set_xticks(np.arange(XMIN, XMAX + DX, DX))
-    ax.set_yticks(np.arange(YMIN, YMAX + DY, DY))
-    ax.set_zticks(np.arange(ZMIN, ZMAX + DZ, DZ))
-
-    ax.invert_zaxis()
-
-    for view_name, (azim, elev) in VIEWS_TO_SAVE.items():
-        ax.view_init(elev=elev, azim=azim)
-        filename = f"{output_dir}/{picker}_{stage}_{view_name}.png"
-        plt.savefig(filename)
-
+    plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust for suptitle
+    filename = f"{output_dir}/{picker}_{stage}.png"
+    plt.savefig(filename)
     plt.close(fig)
 
 
