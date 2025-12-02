@@ -36,6 +36,7 @@ then
     velest
     # 2. run velest to locate all events using updated velocity model
     perl convertformat_updated.pl $lat $lon $distmax 1 $station $vel $phasein
+    sed -i '1s/.*/CALAVERAS1D-modell (mod1.1 EK280993)     Ref. station HGS/' velout.mod
     mv sta.COR velest.sta # replace the station file (now you have updated station correction)
     mv velest.mod velest.mod.org # copy your original velocity model
     mv velout.mod velest.mod # replace your original velocity model by the updated model
