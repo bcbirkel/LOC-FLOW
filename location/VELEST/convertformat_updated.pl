@@ -110,6 +110,7 @@ if ($nlayer > 0) {
     }
 }
 my $out_nlayer = $nlayer + $add_mantle;
+print STDERR "DEBUG convertformat_updated.pl: Writing $out_nlayer layers to velest.mod\n";
 
 # the second line - indicate the number of layers for Vp
 printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$out_nlayer;
