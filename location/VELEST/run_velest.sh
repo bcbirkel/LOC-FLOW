@@ -34,147 +34,104 @@ then
     perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein_best
     # run velest, adjust parameters in covertformat.pl following velest's manual
     velest
-    # 2. run velest to locate all events using updated velocity model
-    perl convertformat_updated.pl $lat $lon $distmax 1 $station $vel $phasein
 
-    mv sta.COR velest.sta # replace the station file (now you have updated station correction)
-    mv velest.mod velest.mod.org # copy your original velocity model
+    # Convert velout.mod to model1.nd
+    infile="velout.mod"
+    outfile="model1.nd"
+    echo "Converting VELEST output model $infile to $outfile"
+    # Constants for the last 3 columns
+    DENSITY=2.6
+    QP=1456.0
+    QS=600.0
+    awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
+    /P-VELOCITY MODEL/ { mode = "P"; next }
+    /S-VELOCITY MODEL/ { mode = "S"; next }
+    mode == "P" && NF >= 3 { vp[$2] = $1; next }
+    mode == "S" && NF >= 3 { vs[$2] = $1; next }
+    END {
+        for (d in vp) { if (d in vs) { use_depth[d] = 1 } }
+        n = 0; for (d in use_depth) { depths[++n] = d }
+        for (i = 1; i <= n; i++) {
+            for (j = i + 1; j <= n; j++) {
+                if (depths[i]+0 > depths[j]+0) {
+                    tmp = depths[i]; depths[i] = depths[j]; depths[j] = tmp
+                }
+            }
+        }
+        for (i = 1; i <= n; i++) {
+            d = depths[i]
+            printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
+        }
+    }' "$infile" > "$outfile"
+    echo "Wrote converted model to: $outfile"
 
-    # Read the contents of velout.mod and extract the necessary lines
-    {
-        read -r header
-        read -r num_layers
-        echo "OutNepal1D-model (mod1.1)     Ref. station 2D12" > velest.mod
-        echo "$num_layers        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)" >> velest.mod
-        read -r line
-        echo "$line P-VELOCITY MODEL" >> velest.mod
-        for i in {1..9}; do
-            read -r line
-            echo "$line" >> velest.mod
-        done
-        read -r num_layers
-        echo "$num_layers" >> velest.mod
-        read -r line
-        echo "$line S-VELOCITY MODEL" >> velest.mod
-        for i in {1..9}; do
-            read -r line
-            echo "$line" >> velest.mod
-        done
-    } < velout.mod
-    # mv sta.COR velest.sta # replace the station file (now you have updated station correction)
-    # mv velest.mod velest.mod.org # copy your original velocity model
-    # mv velout.mod velest.mod # replace your original velocity model by the updated model
+    # 2. run velest to locate all events using updated velocity model and station corrections
+    perl convertformat_updated.pl $lat $lon $distmax 1 $station $outfile $phasein
+
+    mv sta.COR velest.sta # use updated station corrections
+
     # run velest
     velest
 elif (($mode == 2))
 then
-    if [[ $# -lt 1 ]]; then
-        echo "Usage: $0 input_model_file [output_file]" >&2
+    if [[ $# -lt 2 ]]; then
+        echo "Usage for mode 2: $0 2 input_model.nd" >&2
         exit 1
     fi
+    vel_iter=$2
 
-    infile="velest.mod"
-    outfile="model1.nd"
+    # Determine output file name
+    if [[ $vel_iter =~ model([0-9]+)\.nd$ ]]; then
+        num=${BASH_REMATCH[1]}
+        outfile="model$((num + 1)).nd"
+    else
+        # if input is not modelN.nd, e.g. mymodel.nd, create model1.nd
+        outfile="model1.nd"
+    fi
 
+    echo "Running VELEST iteration with input model $vel_iter, output will be $outfile"
+    # 1. update location, velocity, station correction using high-quanlity events and picks
+    perl convertformat_updated.pl $lat $lon $distmax 0 $station "$vel_iter" $phasein_best
+    # run velest
+    velest
+
+    # Convert velout.mod to next iteration model file
+    infile="velout.mod"
+    echo "Converting VELEST output model $infile to $outfile"
     # Constants for the last 3 columns
-    DENSITY=2.6      # g/cc (or whatever units you want)
+    DENSITY=2.6
     QP=1456.0
     QS=600.0
-
     awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
     /P-VELOCITY MODEL/ { mode = "P"; next }
     /S-VELOCITY MODEL/ { mode = "S"; next }
-
-    mode == "P" && NF >= 3 {
-        # vp depth vdamp
-        vp[$2] = $1
-        next
-    }
-
-    mode == "S" && NF >= 3 {
-        # vs depth vdamp
-        vs[$2] = $1
-        next
-    }
-
+    mode == "P" && NF >= 3 { vp[$2] = $1; next }
+    mode == "S" && NF >= 3 { vs[$2] = $1; next }
     END {
-        # Collect depths that exist in both P and S arrays
-        for (d in vp) {
-            if ((d in vs) && d >= -6 && d <= 51) {
-                use_depth[d] = 1
-            }
-        }
-
-        # Put depths into a list and sort numerically
-        n = 0
-        for (d in use_depth) {
-            n++
-            depths[n] = d
-        }
-
-        # Simple bubble sort (n is tiny here, so it’s fine)
+        for (d in vp) { if (d in vs) { use_depth[d] = 1 } }
+        n = 0; for (d in use_depth) { depths[++n] = d }
         for (i = 1; i <= n; i++) {
             for (j = i + 1; j <= n; j++) {
-                if (depths[i] > depths[j]) {
-                    tmp = depths[i]
-                    depths[i] = depths[j]
-                    depths[j] = tmp
+                if (depths[i]+0 > depths[j]+0) {
+                    tmp = depths[i]; depths[i] = depths[j]; depths[j] = tmp
                 }
             }
         }
-
-        # Output: depth Vp Vs density Qp Qs
         for (i = 1; i <= n; i++) {
             d = depths[i]
-            printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n",
-                d, vp[d], vs[d], dens, qp, qs
+            printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
         }
-    }
-    ' "$infile" > "$outfile"
-
+    }' "$infile" > "$outfile"
     echo "Wrote converted model to: $outfile"
 
-    vel=$outfile
-    # 1. update location, velocity, station correction using high-quanlity events and picks
-    # please go to convertformat.pl and change the vel and sta. corr. damping following the VELEST manual
-    perl convertformat_updmod.pl $lat $lon $distmax 0 $station $vel $phasein_best
-    # run velest, adjust parameters in covertformat.pl following velest's manual
-    velest
-    # # 2. run velest to locate all events using updated velocity model
-    perl convertformat_updmod.pl $lat $lon $distmax 1 $station $vel $phasein
-
-    # # mv sta.COR velest.sta # replace the station file (now you have updated station correction)
-    # mv velest.mod velest.mod.1 # copy your original velocity model
-
-    # Read the contents of velout.mod and extract the necessary lines
-    {
-        read -r header
-        read -r num_layers
-        echo "OutNepal1D-model (mod1.1)     Ref. station 2D12" > velest.mod
-        echo "$num_layers        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)" >> velest.mod
-        read -r line
-        echo "$line P-VELOCITY MODEL" >> velest.mod
-        for i in {1..9}; do
-            read -r line
-            echo "$line" >> velest.mod
-        done
-        read -r num_layers
-        echo "$num_layers" >> velest.mod
-        read -r line
-        echo "$line S-VELOCITY MODEL" >> velest.mod
-        for i in {1..9}; do
-            read -r line
-            echo "$line" >> velest.mod
-        done
-    } < velout.mod
-    # # mv sta.COR velest.sta # replace the station file (now you have updated station correction)
-    # mv velest.mod velest.mod.2 # copy your original velocity model
-    # mv velout.mod velest.mod # replace your original velocity model by the updated model
-    # # run velest
+    # 2. run velest to relocate all events using the newly created model and station corrections
+    echo "Relocating all events with the new model: $outfile"
+    perl convertformat_updated.pl $lat $lon $distmax 1 $station "$outfile" $phasein
+    mv sta.COR velest.sta # use updated station corrections
     velest
 else
-   echo 'please choose your location mode 0 or 1'
-   echo 'bash run_velest.sh 0 or 1'
+   echo 'please choose your location mode 0, 1 or 2'
+   echo 'bash run_velest.sh 0, 1 or 2'
    exit
 fi
 
