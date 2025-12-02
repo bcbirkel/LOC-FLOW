@@ -189,8 +189,13 @@ foreach $file(@par){
 
     if($test eq "#"){
         # New event line. Print phases from previous event if they exist.
-        if ($neqs > 0 && @phase_buffer) {
-            print_phases(\*EV, @phase_buffer);
+        if ($neqs > 0) {
+            if (@phase_buffer) {
+                print_phases(\*EV, @phase_buffer);
+            } else {
+                # Print a blank line to terminate the previous event block if it had no phases.
+                print EV "\n";
+            }
         }
         @phase_buffer = ();
         %processed_phases = (); # Reset for new event
@@ -245,8 +250,13 @@ foreach $file(@par){
     }
 }
 # Print phases for the last event
-if ($neqs > 0 && @phase_buffer) {
-    print_phases(\*EV, @phase_buffer);
+if ($neqs > 0) {
+    if (@phase_buffer) {
+        print_phases(\*EV, @phase_buffer);
+    } else {
+        # Print a blank line to terminate the last event block if it had no phases.
+        print EV "\n";
+    }
 }
 
 close(EV);
