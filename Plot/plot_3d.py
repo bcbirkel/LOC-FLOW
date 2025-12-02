@@ -83,7 +83,7 @@ if 'GrowClust' in STAGE_DATA and STAGE_DATA['GrowClust'].get('filters'):
 # Plotting region (manually specify)
 # The whole region
 XMIN, XMAX = 85, 86.2         # Longitude
-YMIN, YMAX = 27, 29           # Latitude
+YMIN, YMAX = 26, 29           # Latitude
 ZMIN, ZMAX = -5, 40           # Depth
 DX, DY, DZ = 0.2, 0.2, 5      # Ticks step
 
