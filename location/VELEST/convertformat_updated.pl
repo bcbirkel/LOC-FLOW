@@ -69,9 +69,9 @@ foreach $_(@par){
 	chomp($_);
 	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
     #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
-	$vsn = "N";$vew = "W";
-	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
-	if($lon < 0.0){$vew = "W";$lon = -1*$lon;}
+	$vsn = "N";$vew = "E";
+	# if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
+	# if($lon < 0.0){$vew = "W";$lon = -1*$lon;}
     $p1 = $elev*1000;
 	printf OT "%-4s%7.4f%1s %8.4f%s %4d %1d %3d %5.2f  %5.2f\n", substr($sta, 0, 4), $lat, $vsn, $lon, $vew, $p1, $p2, $p3, $v1, $v2;
 	$p3++;
