@@ -141,6 +141,7 @@ print STDERR "DEBUG convertformat.pl: Read " . scalar(@par) . " lines from $phas
 $neqs = 0;
 open(EV,">$phaseout");
 open(CT,">$phasecat");
+my %processed_phases;
 foreach $file(@par){
     chomp($file);
     @fields = split(/\s+/, $file);
@@ -148,6 +149,7 @@ foreach $file(@par){
     $test = $fields[0];
 
     if($test eq "#"){
+        %processed_phases = (); # Reset for new event
         # DEBUG: Found an event header line
         print STDERR "DEBUG convertformat.pl: Found event line: $file\n";
 		($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
@@ -177,6 +179,12 @@ foreach $file(@par){
         }
         
         $phase = uc($phase); # Ensure phase is uppercase
+        my $sta_short = substr($station, 0, 4);
+
+        if (exists $processed_phases{"$sta_short.$phase"}) {
+            next; # Skip duplicate phase
+        }
+        $processed_phases{"$sta_short.$phase"} = 1;
 
         if ($phase eq 'P') {
             $iwt = 0;
@@ -187,7 +195,7 @@ foreach $file(@par){
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
         #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
         #(2x,a6,2x,a1,3x,i1,3x,f6.2) the code was updated by M. Zhang
-        printf EV "  %-4s  %-1s   %1d   %6.2f\n", substr($station, 0, 4), $phase, $iwt, $tpick;
+        printf EV "  %-4s  %-1s   %1d   %6.2f\n", $sta_short, $phase, $iwt, $tpick;
     }
 }
 print EV "\n";

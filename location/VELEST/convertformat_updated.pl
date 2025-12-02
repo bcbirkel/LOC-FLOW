@@ -150,6 +150,7 @@ open(EV,">$phaseout");
 open(CT,">$phasecat");
 
 my @phase_buffer = ();
+my %processed_phases;
 
 sub print_phases {
     my ($fh, @phases) = @_;
@@ -182,6 +183,7 @@ foreach $file(@par){
             print_phases(\*EV, @phase_buffer);
         }
         @phase_buffer = ();
+        %processed_phases = (); # Reset for new event
 
 		($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
         $neqs++;
@@ -210,9 +212,14 @@ foreach $file(@par){
         if ($phase_select eq 's' and $phase ne 'S') { next; }
         if ($phase ne 'P' and $phase ne 'S') { next; }
         
+        my $sta_short = substr($station, 0, 4);
+        if (exists $processed_phases{"$sta_short.$phase"}) {
+            next; # Skip duplicate phase
+        }
+        $processed_phases{"$sta_short.$phase"} = 1;
+        
         my $iwt = 0; # Use weight 0 for P and S phases
         
-        my $sta_short = substr($station, 0, 4);
         $sta_short = sprintf("%-4s", $sta_short); # Pad to 4 chars
         
         my $phase_item = sprintf("%s%s%d%6.2f", $sta_short, $phase, $iwt, $tpick);
