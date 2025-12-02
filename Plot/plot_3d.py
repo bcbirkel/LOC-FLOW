@@ -151,7 +151,12 @@ def load_data(stage_info):
             return None
 
     try:
-        data = np.loadtxt(path)
+        if path == '/project2/okaya_201/LOC-FLOW/Pick/QMigrate/all_events_trimmed.txt':
+            with open(path, 'r') as f:
+                lines = [line.split() for line in f if line.strip()]
+            data = np.array(lines, dtype=float)
+        else:
+            data = np.loadtxt(path)
         if data.ndim == 1:  # handle file with one line
             data = data.reshape(1, -1)
         if data.shape[0] == 0:
