@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D  # Required for projection='3d'
 # --- CONFIGURATION ---
 
 # Define the pickers and location stages to create a grid of plots
-PICKERS = ['STALTA', 'PhaseNet', 'QMigrate']
+PICKERS = ['PhaseNet', 'QMigrate'] #'STALTA', 
 STAGES = ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct']
 
 # Toggle which pickers and stages to plot
