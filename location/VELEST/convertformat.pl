@@ -151,7 +151,30 @@ print STDERR "DEBUG convertformat.pl: Read " . scalar(@par) . " lines from $phas
 $neqs = 0;
 open(EV,">$phaseout");
 open(CT,">$phasecat");
+
+my $header_line = "";
+my $cat_line = "";
+my @phase_lines = ();
 my %processed_phases;
+
+sub flush_event {
+    if ($header_line ne "" && scalar(@phase_lines) > 0) {
+        if ($neqs > 0) {
+            print EV "\n";
+        }
+        print EV $header_line;
+        print CT $cat_line;
+        foreach my $phase_line (@phase_lines) {
+            print EV $phase_line;
+        }
+        $neqs++;
+    }
+    $header_line = "";
+    $cat_line = "";
+    @phase_lines = ();
+    %processed_phases = ();
+}
+
 foreach $file(@par){
     chomp($file);
     @fields = split(/\s+/, $file);
@@ -159,32 +182,20 @@ foreach $file(@par){
     $test = $fields[0];
 
     if($test eq "#"){
-        %processed_phases = (); # Reset for new event
-        # DEBUG: Found an event header line
-        print STDERR "DEBUG convertformat.pl: Found event line: $file\n";
+        flush_event(); # Write previous event if it had phases
+
 		($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
-        $neqs++;
-        if ($neqs > 1) {
-            print EV "\n";
-        }
 		$year_short = substr($year,2,2); # VELEST format
 		$vsn = "N";$vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
 		
-        #$mag = $num/100; #you may want to label the event as needed
-        #(3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-		printf EV "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
-		printf CT "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
+		$header_line = sprintf("%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag);
+		$cat_line = sprintf("%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag);
 	}else{
-        # DEBUG: Found a phase line
-        print STDERR "DEBUG convertformat.pl: Found phase line: $file\n";
         ($station,$tpick,$jk,$phase) = @fields;
 
-        # Added logic to handle phase types and weights correctly for VELEST
-        my $iwt;
         if (not defined $phase or (uc($phase) ne 'P' and uc($phase) ne 'S')) {
-            print STDERR "DEBUG convertformat.pl: Skipping line with invalid or missing phase: '$phase' from line: $file\n";
             next;
         }
         
@@ -196,20 +207,18 @@ foreach $file(@par){
         }
         $processed_phases{"$sta_short.$phase"} = 1;
 
+        my $iwt;
         if ($phase eq 'P') {
             $iwt = 0;
         } elsif ($phase eq 'S') {
-            # In single-event mode, VELEST sets w=0.0 for ipwt > 4,
-            # effectively excluding them from location.
             $iwt = 5;
         }
         
-        #if(length($station)>4){$station = substr($station,1,4);} # in old version
-        #(2x,a4,2x,a1,3x,i1,3x,f6.2) # in old version
-        #(2x,a6,2x,a1,3x,i1,3x,f6.2) the code was updated by M. Zhang
-        printf EV "  %-4s  %-1s   %1d   %6.2f\n", $sta_short, $phase, $iwt, $tpick;
+        my $phase_line = sprintf("  %-4s  %-1s   %1d   %6.2f\n", $sta_short, $phase, $iwt, $tpick);
+        push @phase_lines, $phase_line;
     }
 }
+flush_event(); # Flush the last event
 print EV "\n";
 close(EV);
 close(CT);

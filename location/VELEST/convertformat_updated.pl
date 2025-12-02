@@ -155,30 +155,40 @@ open(JK,"<$phasein");
 @par = <JK>;
 close(JK);
 
-$neqs = 0;
+$neqs = 0; # This will count events written to file
 open(EV,">$phaseout");
 open(CT,">$phasecat");
 
+my $header_line = "";
+my $cat_line = "";
 my @phase_buffer = ();
 my %processed_phases;
 
-sub print_phases {
-    my ($fh, @phases) = @_;
-    
-    my $line = "";
-    my $count = 0;
-    foreach my $phase_item (@phases) {
-        $line .= $phase_item;
-        $count++;
-        # VELEST format appears to have up to 6 picks per line.
-        if ($count % 6 == 0) {
-            print $fh "$line\n";
-            $line = "";
+sub flush_event_buffer {
+    if ($header_line ne "" && scalar(@phase_buffer) > 0) {
+        print EV $header_line;
+        print CT $cat_line;
+        
+        my $line = "";
+        my $count = 0;
+        foreach my $phase_item (@phase_buffer) {
+            $line .= $phase_item;
+            $count++;
+            if ($count % 6 == 0) {
+                print EV "$line\n";
+                $line = "";
+            }
         }
+        if ($line ne "") {
+            print EV "$line\n";
+        }
+        print EV "\n"; # Blank line to terminate event phase block
+        $neqs++;
     }
-    if ($line ne "") {
-        print $fh "$line\n";
-    }
+    $header_line = "";
+    $cat_line = "";
+    @phase_buffer = ();
+    %processed_phases = ();
 }
 
 foreach $file(@par){
@@ -188,32 +198,18 @@ foreach $file(@par){
     $test = $fields[0];
 
     if($test eq "#"){
-        # New event line. Print phases from previous event if they exist.
-        if ($neqs > 0) {
-            if (@phase_buffer) {
-                print_phases(\*EV, @phase_buffer);
-            } else {
-                # Print a blank line to terminate the previous event block if it had no phases.
-                print EV "\n";
-            }
-        }
-        @phase_buffer = ();
-        %processed_phases = (); # Reset for new event
+        flush_event_buffer();
 
-		($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
-        $neqs++;
-		$year_short = substr($year,2,2); # VELEST format
-		$vsn = "N";$vew = "E";
+		my ($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
+		my $year_short = substr($year,2,2); # VELEST format
+		my $vsn = "N"; my $vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
         $mag=0.0; ## adjustment here bc mags are wrong
 		
         my $hourmin = sprintf("%02d%02d", $hour, $min);
-        # New header format for velest.pha (ised=0), matching format (3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
-		printf EV "%s%02d%02d %s %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag;
-		
-        # Original format for initial.cat
-        printf CT "%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag;
+        $header_line = sprintf("%s%02d%02d %s %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n", $year_short, $month, $day, $hourmin, $sec, $lat, $vsn, $lon, $vew, $dep, $mag);
+		$cat_line = sprintf("%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag);
 
 	}else{
         my ($station,$tpick,$jk,$phase) = @fields;
@@ -249,20 +245,12 @@ foreach $file(@par){
         push @phase_buffer, $phase_item;
     }
 }
-# Print phases for the last event
-if ($neqs > 0) {
-    if (@phase_buffer) {
-        print_phases(\*EV, @phase_buffer);
-    } else {
-        # Print a blank line to terminate the last event block if it had no phases.
-        print EV "\n";
-    }
-}
+flush_event_buffer(); # Flush the last event
 
 close(EV);
 close(CT);
 
-print STDERR "Total events processed: $neqs\n";
+print STDERR "Total events written: $neqs\n";
 
 ################################################
 # velest input file preparation
