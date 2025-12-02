@@ -36,30 +36,17 @@ then
     velest
     # 2. run velest to locate all events using updated velocity model
     perl convertformat_updated.pl $lat $lon $distmax 1 $station $vel $phasein
-    sed -i '1,21c\
-InitNepal1D-modell (mod1.1 EK280993)     Ref. station 2D12\
- 10        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\
- 5.30       -5.00    1.000   P-VELOCITY MODEL\
- 5.30        0.00    1.000\
- 5.65        1.00    1.000\
- 5.93        3.00    1.000\
- 6.20        7.00    1.000\
- 6.80       24.00    1.000\
- 7.50       31.00    1.000\
- 8.10       40.00    1.000\
- 8.10       50.00    1.000\
- 8.10       50.10    1.000\
- 10\
- 2.75       -5.00    1.000   S-VELOCITY MODEL\
- 2.75        0.00    1.000\
- 2.80        1.00    1.000\
- 3.10        3.00    1.000\
- 3.40        7.00    1.000\
- 3.90       24.00    1.000\
- 4.00       31.00    1.000\
- 4.48       40.00    1.000\
- 4.48       50.00    1.000\
- 4.50       50.10    1.000' velout.mod
+    # Read the contents of velout.mod and extract the necessary lines
+    {
+        read -r header
+        read -r num_layers
+        echo "$header" > velout.mod
+        echo "$num_layers" >> velout.mod
+        for i in {1..10}; do
+            read -r line
+            echo "$line" >> velout.mod
+        done
+    } < velout.mod
     mv sta.COR velest.sta # replace the station file (now you have updated station correction)
     mv velest.mod velest.mod.org # copy your original velocity model
     mv velout.mod velest.mod # replace your original velocity model by the updated model
