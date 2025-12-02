@@ -31,7 +31,7 @@ if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
 $reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
 $iusestacorr = 1; # station correction used or not
 $zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
-$iuseelev = 0; # station elevation used or not (recommend: 0)
+$iuseelev = 1; # station elevation used or not (recommend: 0)
 $lowvelocity = 0; # any low velocity layer in the region (recommend: 0)
 $vthet = 10; # damping of velocity
 $stathet = 1; # damping of station correction
@@ -89,7 +89,7 @@ close(JK);
 
 open(NV,">$newvel") or die "cannot write to file '$file' [$!]]\n";
 # the fist title line
-print NV "CALAVERAS1D-modell (mod1.1 EK280993)     Ref. station HGS\n";
+print NV "InitNepal1D-modell (mod1.1 EK280993)     Ref. station 2D12\n";
 
 for($i=0;$i<@par;$i++){
     chomp($par[$i]);
@@ -104,7 +104,7 @@ $nlayer = $i;
 printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$nlayer+2;
 # add a layer above the sea level (assume the velocity wrt the sea level)
 ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
-$hp = -3.0;
+$hp = -5.0;
 $vdamp = 1.0;
 printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
 
@@ -121,7 +121,7 @@ for($i=0;$i<$nlayer;$i++){
 printf NV "%3d\n",$nlayer+2;
 # add a layer above the sea level (assume the velocity wrt the sea level)
 ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
-$hs = -3.0;
+$hs = -5.0;
 $vdamp = 1.0;
 printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
 
@@ -191,6 +191,7 @@ foreach $file(@par){
 		$vsn = "N";$vew = "E";
 		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
 		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
+        $mag=0.0; ## adjustment here bc mags are wrong
 		
         my $hourmin = sprintf("%02d%02d", $hour, $min);
         # New header format for velest.pha (ised=0), matching format (3i2,1x,2i2,1x,f5.2,1x,f7.4,a1,1x,f8.4,a1,1x,f7.2,2x,f5.2)
@@ -224,7 +225,7 @@ foreach $file(@par){
         } elsif ($phase eq 'S') {
             # In single-event mode, VELEST sets w=0.0 for ipwt > 4,
             # effectively excluding them from location.
-            $iwt = 5;
+            $iwt = 1;
         }
         
         $sta_short = sprintf("%-4s", $sta_short); # Pad to 4 chars
