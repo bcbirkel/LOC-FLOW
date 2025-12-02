@@ -31,11 +31,11 @@ elif (($mode == 0))
 then
     # 1. update location, velocity, station correction using high-quanlity events and picks
     # please go to convertformat.pl and change the vel and sta. corr. damping following the VELEST manual
-    perl convertformat.pl $lat $lon $distmax $mode $station $vel $phasein_best
+    perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein_best
     # run velest, adjust parameters in covertformat.pl following velest's manual
     velest
     # 2. run velest to locate all events using updated velocity model
-    perl convertformat.pl $lat $lon $distmax 1 $station $vel $phasein
+    perl convertformat_updated.pl $lat $lon $distmax 1 $station $vel $phasein
     mv sta.COR velest.sta # replace the station file (now you have updated station correction)
     mv velest.mod velest.mod.org # copy your original velocity model
     mv velout.mod velest.mod # replace your original velocity model by the updated model
