@@ -6,7 +6,7 @@
 # change parameters as needed
 lat=28 # reference latitude
 lon=85.6 # reference longitude 
-distmax=50 # largest distance (stations with larger distance will be neglected) 
+distmax=100 # largest distance (stations with larger distance will be neglected) 
 mode=$1 # 1: update locations alone (fast, usually good enough for your study) 
            # 0: first udpate locations and velocitiy using high-quanlity events and picks
            #    second relocate all events (slow, only for specific analysis), 
