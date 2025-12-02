@@ -40,8 +40,8 @@ STAGE_DATA_DEFINITIONS = {
             'title': 'PhaseNet - REAL'
         },
         'QMigrate': {
-            'path': '../Pick/QMigrate/qmigrate.cat',
-            'cols': {'lon': 4, 'lat': 5, 'dep': 6}, # NOTE: Column indices are a guess
+            'path': '/project2/okaya_201/LOC-FLOW/Pick/QMigrate/all_events_trimmed.txt',
+            'cols': {'lon': 8, 'lat': 9, 'dep': 6}, # NOTE: Column indices are a guess
             'title': 'QMigrate - Initial'
         }
     },
