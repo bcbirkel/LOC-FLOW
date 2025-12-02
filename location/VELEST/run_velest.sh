@@ -23,8 +23,11 @@ if (($mode == 1))
 then
     # location alone
     # prepare the required phase file, velocity file, station file, and velest control file following VELEST's format
-    perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein both
-    echo perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein both
+    # Using only P phases to diagnose convergence errors. If this works,
+    # it indicates that S-phases are not being correctly weighted and excluded
+    # from the inversion, leading to singular matrices for S-only events.
+    perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein P
+    echo perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein P
     # run velest
     velest
 elif (($mode == 0))
