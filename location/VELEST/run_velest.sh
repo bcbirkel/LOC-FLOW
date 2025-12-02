@@ -26,8 +26,8 @@ then
     # Using only P phases to diagnose convergence errors. If this works,
     # it indicates that S-phases are not being correctly weighted and excluded
     # from the inversion, leading to singular matrices for S-only events.
-    perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein P
-    echo perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein P
+    perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein #P
+    echo perl convertformat_updated.pl $lat $lon $distmax $mode $station $vel $phasein #P
     # run velest
     velest
 elif (($mode == 0))
