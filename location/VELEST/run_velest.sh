@@ -44,22 +44,36 @@ then
     QP=1456.0
     QS=600.0
     awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
-    /P-VELOCITY MODEL/ { mode = "P"; next }
-    /S-VELOCITY MODEL/ { mode = "S"; next }
-    mode == "P" && NF >= 3 { vp[$2] = $1; next }
-    mode == "S" && NF >= 3 { vs[$2] = $1; next }
+    BEGIN { state = 0; }
+    /Output model:/ { state = 1; next }
+    state == 1 && NF == 1 { num_p_layers = $1; p_count = 0; state = 2; next }
+    state == 2 && NF >= 2 {
+        vp[$2] = $1
+        p_count++
+        if (p_count == num_p_layers) { state = 3 }
+        next
+    }
+    state == 3 && NF == 1 { num_s_layers = $1; s_count = 0; state = 4; next }
+    state == 4 && NF >= 2 {
+        vs[$2] = $1
+        s_count++
+        if (s_count == num_s_layers) { state = 5 }
+        next
+    }
     END {
-        for (d in vp) { if (d in vs) { use_depth[d] = 1 } }
-        n = 0; for (d in use_depth) { depths[++n] = d }
+        n = 0
+        for (d_str in vp) {
+            if (d_str in vs) { depth_list[++n] = d_str }
+        }
         for (i = 1; i <= n; i++) {
             for (j = i + 1; j <= n; j++) {
-                if (depths[i]+0 > depths[j]+0) {
-                    tmp = depths[i]; depths[i] = depths[j]; depths[j] = tmp
+                if (depth_list[i]+0 > depth_list[j]+0) {
+                    tmp = depth_list[i]; depth_list[i] = depth_list[j]; depth_list[j] = tmp
                 }
             }
         }
         for (i = 1; i <= n; i++) {
-            d = depths[i]
+            d = depth_list[i]
             printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
         }
     }' "$infile" > "$outfile"
@@ -103,22 +117,36 @@ then
     QP=1456.0
     QS=600.0
     awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
-    /P-VELOCITY MODEL/ { mode = "P"; next }
-    /S-VELOCITY MODEL/ { mode = "S"; next }
-    mode == "P" && NF >= 3 { vp[$2] = $1; next }
-    mode == "S" && NF >= 3 { vs[$2] = $1; next }
+    BEGIN { state = 0; }
+    /Output model:/ { state = 1; next }
+    state == 1 && NF == 1 { num_p_layers = $1; p_count = 0; state = 2; next }
+    state == 2 && NF >= 2 {
+        vp[$2] = $1
+        p_count++
+        if (p_count == num_p_layers) { state = 3 }
+        next
+    }
+    state == 3 && NF == 1 { num_s_layers = $1; s_count = 0; state = 4; next }
+    state == 4 && NF >= 2 {
+        vs[$2] = $1
+        s_count++
+        if (s_count == num_s_layers) { state = 5 }
+        next
+    }
     END {
-        for (d in vp) { if (d in vs) { use_depth[d] = 1 } }
-        n = 0; for (d in use_depth) { depths[++n] = d }
+        n = 0
+        for (d_str in vp) {
+            if (d_str in vs) { depth_list[++n] = d_str }
+        }
         for (i = 1; i <= n; i++) {
             for (j = i + 1; j <= n; j++) {
-                if (depths[i]+0 > depths[j]+0) {
-                    tmp = depths[i]; depths[i] = depths[j]; depths[j] = tmp
+                if (depth_list[i]+0 > depth_list[j]+0) {
+                    tmp = depth_list[i]; depth_list[i] = depth_list[j]; depth_list[j] = tmp
                 }
             }
         }
         for (i = 1; i <= n; i++) {
-            d = depths[i]
+            d = depth_list[i]
             printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
         }
     }' "$infile" > "$outfile"
