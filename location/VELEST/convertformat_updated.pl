@@ -114,8 +114,13 @@ for($i=0;$i<$nlayer;$i++){
     ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
     printf NV "%5.2f     %7.2f  %7.3f\n",$vp,$hp,$vdamp;
 }
-    ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i+1]);
-    printf NV "%5.2f     %7.2f  %7.3f\n",$vp,$hp+0.1,$vdamp; # include the upper mantle layer
+    my $vp_mantle = 8.1; # Default mantle velocity.
+    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
+        my @parts = split(" ", $par[$i+1]);
+        $vp_mantle = $parts[1] if @parts >= 2 && $parts[1] > 0;
+    }
+    # $hp is from the last iteration of the preceding loop, which is correct (bottom of crust)
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vp_mantle, $hp+0.1, $vdamp;
 
 # indicate the number of layers for Vs
 printf NV "%3d\n",$nlayer+2;
@@ -131,8 +136,13 @@ for($i=0;$i<$nlayer;$i++){
     ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
     printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs,$vdamp;
 }
-    ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i+1]);
-    printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs+0.1,$vdamp; # include the upper mantle layer
+    my $vs_mantle = 4.5; # Default mantle S velocity.
+    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
+        my @parts = split(" ", $par[$i+1]);
+        $vs_mantle = $parts[2] if @parts >= 3 && $parts[2] > 0;
+    }
+    # $hs is from the last iteration of the preceding loop
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vs_mantle, $hs+0.1, $vdamp;
 close(NV);
 
 ##################################################
