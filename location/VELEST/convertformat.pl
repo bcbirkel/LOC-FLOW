@@ -88,48 +88,34 @@ for($i=0;$i<@par;$i++){
 $nlayer = $i;
 
 # the second line - indicate the number of layers for Vp
-printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$nlayer+2;
-# add a layer above the sea level (assume the velocity wrt the sea level)
-($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
-$hp = -3.0;
+printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$nlayer;
 $vdamp = 1.0;
-printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
 
 # vp velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
     ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
-    printf NV "%5.2f     %7.2f  %7.3f\n",$vp,$hp,$vdamp;
-}
-    my $vp_mantle = 8.1; # Default mantle velocity.
-    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
-        my @parts = split(" ", $par[$i+1]);
-        $vp_mantle = $parts[1] if @parts >= 2 && $parts[1] > 0;
+    if ($i == 0) {
+        printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
+    } else {
+        printf NV "%5.2f     %7.2f  %7.3f\n",$vp,$hp,$vdamp;
     }
-    # $hp is from the last iteration of the preceding loop, which is correct (bottom of crust)
-    printf NV "%5.2f     %7.2f  %7.3f\n", $vp_mantle, $hp+0.1, $vdamp; # include the upper mantle layer
+}
 
 # indicate the number of layers for Vs
-printf NV "%3d\n",$nlayer+2;
-# add a layer above the sea level (assume the velocity wrt the sea level)
-($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
-$hs = -3.0;
+printf NV "%3d\n",$nlayer;
 $vdamp = 1.0;
-printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
 
 # vs velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
     ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
-    printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs,$vdamp;
-}
-    my $vs_mantle = 4.5; # Default mantle S velocity.
-    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
-        my @parts = split(" ", $par[$i+1]);
-        $vs_mantle = $parts[2] if @parts >= 3 && $parts[2] > 0;
+    if ($i == 0) {
+        printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
+    } else {
+        printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs,$vdamp;
     }
-    # $hs is from the last iteration of the preceding loop
-    printf NV "%5.2f     %7.2f  %7.3f\n", $vs_mantle, $hs+0.1, $vdamp; # include the upper mantle layer
+}
 close(NV);
 
 ##################################################
