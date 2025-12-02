@@ -100,8 +100,19 @@ for($i=0;$i<@par;$i++){
 }
 $nlayer = $i;
 
+# Determine if a mantle layer needs to be added
+my $add_mantle = 0;
+if ($nlayer > 0) {
+    my ($last_hp, $last_vp) = split(" ", $par[$nlayer-1]);
+    if ($last_vp < 8.0) { # Vp < 8.0 km/s suggests crust, not mantle
+        $add_mantle = 1;
+        print STDERR "Last layer Vp is $last_vp < 8.0, adding a mantle layer for VELEST.\n";
+    }
+}
+my $out_nlayer = $nlayer + $add_mantle;
+
 # the second line - indicate the number of layers for Vp
-printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$nlayer;
+printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$out_nlayer;
 $vdamp = 1.0;
 
 # vp velocity
@@ -115,8 +126,16 @@ for($i=0;$i<$nlayer;$i++){
     }
 }
 
+if ($add_mantle) {
+    chomp($par[$nlayer-1]);
+    my ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$nlayer-1]);
+    my $vp_mantle = 8.1;
+    # Add mantle layer 0.1km below the last crustal layer
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vp_mantle, $hp + 0.1, $vdamp;
+}
+
 # indicate the number of layers for Vs
-printf NV "%3d\n",$nlayer;
+printf NV "%3d\n",$out_nlayer;
 $vdamp = 1.0;
 
 # vs velocity
@@ -128,6 +147,14 @@ for($i=0;$i<$nlayer;$i++){
     } else {
         printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs,$vdamp;
     }
+}
+
+if ($add_mantle) {
+    chomp($par[$nlayer-1]);
+    my ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$nlayer-1]);
+    my $vs_mantle = 4.5;
+    # Add mantle layer 0.1km below the last crustal layer
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vs_mantle, $hs + 0.1, $vdamp;
 }
 close(NV);
 
