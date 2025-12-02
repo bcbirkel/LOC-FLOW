@@ -21,21 +21,21 @@ from obspy.clients.fdsn.mass_downloader import (
 )
 
 # Date and time 
-year0 = 2016 # year
-mon0 = 10 # month
-day0 = 14 #day
-nday = 1 # number of days
+year0 = 2023 # year
+mon0 = 4 # month
+day0 = 10 #day
+nday = 28 # number of days
 tb = 0 # beginning time
-te = 3000 # ending time, for quick test
-#te = 86400 # ending time, the whole day
+# te = 3000 # ending time, for quick test
+te = 86400 # ending time, the whole day
 samplingrate = 100 # resampling rate in Hz
 
 # Station region
-latref = 42.75 # reference lat.
-lonref = 13.25 # reference lon.
-maxradius = 50 # maximum radius in km.
-network= "IV,YR" # network
-channels = ["HH?","EH?"] # station channel priority, 
+latref = 28 # reference lat.
+lonref = 85.6 # reference lon.
+maxradius = 20 # maximum radius in km.
+network= "4W" # network
+channels = ["HH?","BH?"] # station channel priority, 
 # If not specified, default channel_priorities: 
 #"HH[ZNE12]", "BH[ZNE12]","MH[ZNE12]", "EH[ZNE12]", "LH[ZNE12]", "HL[ZNE12]"
 #"BL[ZNE12]", "ML[ZNE12]", "EL[ZNE12]", "LL[ZNE12]", "SH[ZNE12]"),

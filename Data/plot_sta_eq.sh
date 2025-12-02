@@ -5,10 +5,10 @@
 # Purpose: Purpose of this script
 export GMT_SESSION_NAME=$$	# Set a unique session name
 
-lon1=12.7
-lon2=13.7
-lat1=42.4
-lat2=43.2
+lon1=85
+lon2=86.2
+lat1=27.4
+lat2=28.6
 
 lon_range=8 # lon_range=8i
 lat_range=$(printf "%.3f" `echo "scale=4;($lat2-$lat1)*$lon_range/($lon2-$lon1)"|bc`)

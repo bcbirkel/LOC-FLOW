@@ -5,6 +5,25 @@ import shutil
 import os
 from datetime import datetime
 
+# import os
+# os.environ["OMP_NUM_THREADS"] = "4"
+# os.environ["MKL_NUM_THREADS"] = "4"
+# os.environ["OPENBLAS_NUM_THREADS"] = "4"
+# os.environ["NUMEXPR_NUM_THREADS"] = "4"
+# os.environ["TF_NUM_INTRAOP_THREADS"] = "4"
+# os.environ["TF_NUM_INTEROP_THREADS"] = "1"
+
+## in shell, run:
+# # Clamp OpenMP / BLAS
+# export OMP_NUM_THREADS=1
+# export MKL_NUM_THREADS=1
+# export OPENBLAS_NUM_THREADS=1
+# export NUMEXPR_NUM_THREADS=1
+
+# # Clamp TensorFlow’s internal thread pools
+# export TF_NUM_INTRAOP_THREADS=1   # threads *within* an op
+# export TF_NUM_INTEROP_THREADS=1   # threads *between* ops
+
 #os.system('conda activate phasenet') 
 #If you didn't install phasenet in your base environment,
 #please manually do this in your command line
@@ -47,10 +66,10 @@ data["phase_time"] = data["ss"] + data["phase_index"] * samplingrate
 data[data["phase_type"] == "P"].to_csv(output1, columns=["year", "mon", "day", "net", "name", "dum", "phase_time", "phase_score", "phase_amp"], index=False, header=False)
 data[data["phase_type"] == "S"].to_csv(output2, columns=["year", "mon", "day", "net", "name", "dum", "phase_time", "phase_score", "phase_amp"], index=False, header=False)
 
-for i in range(len(data["file_name"])):
-    (pickfile,junk) = data["file_name"][i].split('/')
-    if os.path.isdir(pickfile):
-        shutil.rmtree(pickfile)
+# for i in range(len(data["file_name"])):
+#     (pickfile,junk) = data["file_name"][i].split('/')
+#     if os.path.isdir(pickfile):
+#         shutil.rmtree(pickfile)
 #####################step 3####################
 print("################\ncreat pick files by date and station name\n###############")
 # separate picks based on date and station names

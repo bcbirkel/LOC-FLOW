@@ -26,13 +26,30 @@ def format_convert(inputfile,outputfile,deletefile,nEH,nEZ,ngap,nrms):
                 EH = float(line[85:89])/100
                 EZ = float(line[89:93])/100
                 mag = float(line[123:126])/100
+                print nn
+                print RMS
+                print gap
+                # print dep
+                print EH
+                print EZ 
+                # print mag
                     
                 year = int(line[0:4])
+                # print year
                 mon = int(line[4:6])
+                # print mon
                 day = int(line[6:8])
+                # print day
                 hour = int(line[8:10])
+                # print hour
                 min = int(line[10:12])
-                sec = int(line[12:16])/100
+                # print min
+                try:
+                    sec = int(line[12:16])/100
+                except:
+                    print line
+                    sec = int(0)
+                # print sec
 
                 if line[18] == ' ': #N
                     lat = (float(line[16:18]) + float(line[19:23]) / 6000)

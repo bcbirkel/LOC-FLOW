@@ -31,10 +31,10 @@ chomp($picker);
 
 
 #startting date and number of days
-$year0 = "2016";
-$month0 = "10";
-$day0 = "14";
-$nday = "1";
+$year0 = "2023";
+$month0 = "4";
+$day0 = "10";
+$nday = "28";
 
 $ID=0;
 $phaseSAall = "phaseSA_allday.txt";
@@ -52,17 +52,18 @@ for($i=0; $i<$nday; $i++){
 	$outfile ="$year$month$day";
 
     # -D(nyear/nmon/nday/lat_center)
-    $D = "$year/$month/$day/42.75";
+    $D = "$year/$month/$day/28";
     # -R(rx/rh/tdx/tdh/tint[/gap/GCarc0/latref0/lonref0]])
     #$R = "0.1/20/0.02/2/5"; # small gride size
-    $R = "0.1/20/0.04/2/5"; # large grid size
+    $R = "0.3/40/0.04/2/5/"; #360/180/28/85.6"; # large grid size
     # -G(trx/trh/tdx/tdh)
-    $G = "1.4/20/0.01/1";
+    $G = "0.8/40/0.01/1";
     # -V(vp0/vs0/[s_vp0/s_vs0/ielev])
-    $V = "6.2/3.4";
+    $V = "6.5/3.75/5.3/2.75/1";
     # -S(np0/ns0/nps0/npsboth0/std0/dtps/nrt/[drt/nxd/rsel/ires])
     #$S = "3/2/8/2/0.5/0.1/1.8/0.35"; # for small grid size
-    $S = "3/2/8/2/0.5/0.1/1.2/0.0"; # for large grid size
+    # $S = "10/8/20/10/0.5/0.1/1.2/0.1"; # for large grid size
+    $S = "10/8/20/12/0.5/0/1.5/0.1/2.0"; # for large grid size
     
     # thresholds may change with pickers, here for rough testing
     if ($picker==0){
@@ -74,7 +75,7 @@ for($i=0; $i<$nday; $i++){
     }else{
         printf STDERR "please choose 0: STALTA or 1: PhaseNet or 2: EQT/OBST";
     }
-    $station = "../Data/station.dat";
+    $station = "../Data/station_all.dat";
     $ttime = "./tt_db/ttdb.txt";
 
     system("REAL -D$D -R$R -S$S -G$G -V$V $station $dir $ttime");

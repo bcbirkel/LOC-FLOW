@@ -29,10 +29,10 @@ print "Phase selection: $phase_select\n";
 if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
 
 $reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
-$iusestacorr = 1; # station correction used or not
+$iusestacorr = 0; # station correction used or not
 $zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
 $iuseelev = 1; # station elevation used or not (recommend: 0)
-$lowvelocity = 0; # any low velocity layer in the region (recommend: 0)
+$lowvelocity = 1; # any low velocity layer in the region (recommend: 0)
 $vthet = 10; # damping of velocity
 $stathet = 1; # damping of station correction
 
@@ -40,7 +40,7 @@ if($isingle == 1){
     $ittmax = 99;
     $invertratio = 0;
 }else{
-    $ittmax = 9;
+    $ittmax = 50;
     $invertratio = 3;
 }
 

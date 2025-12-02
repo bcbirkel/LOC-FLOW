@@ -11,8 +11,8 @@ build_taup_model("mymodel.nd")
 # TauP, velest, and hypoinverse don't like low velocity layers...
 model = TauPyModel(model="mymodel")
 
-dist=1.4 #dist range in deg.
-dep=20 #depth in km
+dist=0.8 #dist range in deg.
+dep=40 #depth in km
 
 ddist=0.01 #dist interval, be exactly divided by dist
 ddep=1 #depth interval, be exactly divided by dep

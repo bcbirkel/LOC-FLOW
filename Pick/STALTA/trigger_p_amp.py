@@ -7,12 +7,12 @@ from obspy.signal.trigger import recursive_sta_lta, trigger_onset, classic_sta_l
 # https://docs.obspy.org/tutorial/code_snippets/trigger_tutorial.html
 
 ddir = '../../Data/waveform_sac/'
-stationdir = '../../Data/station.dat'
+stationdir = '../../Data/station_all.dat'
 
-year0 = 2016 # year
-mon0 = 10 # mon
-day0 = 14 # day
-nday = 1 # number of days
+year0 = 2023 # year
+mon0 = 4 # mon
+day0 = 13 # day
+nday = 25 # number of days
 
 # https://docs.obspy.org/_modules/obspy/signal/invsim.html
 paz_wa = {'poles': [-6.283 + 4.7124j, -6.283 - 4.7124j],
@@ -37,14 +37,14 @@ for d in range(nday):
 
     with open(stationdir, "r") as f:
         for station in f:
-            stlo, stla, net, sta, chan, elev = station.split()
+            stlo, stla, net, sta, chan, elev = station.split(' ')
             chanz = chan[:2]+"Z"
             chann = chan[:2]+"N"
             chane = chan[:2]+"E"
         
-            wavez = ddir+date+net+'.'+sta+'.'+chanz
-            wavee = ddir+date+net+'.'+sta+'.'+chane
-            waven = ddir+date+net+'.'+sta+'.'+chann
+            wavez = ddir+date+net+'.'+sta+'.'+chanz+'*'
+            wavee = ddir+date+net+'.'+sta+'.'+chane+'*'
+            waven = ddir+date+net+'.'+sta+'.'+chann+'*'
 
             # try three components
             try:

@@ -34,17 +34,24 @@ id=find(b(:,20) >= nddp);
 lat2 = b(id,2); lon2 = b(id,3); dep2 = b(id,4);
 
 %hypoDD dt.cc locations
-loc3 = '../hypoDD_dtcc/hypoDD.reloc'
-c = load(loc3); 
-id=find(c(:,18) >= nddp);
-lat3 = c(id,2); lon3 = c(id,3); dep3 = c(id,4);
+%loc3 = '../hypoDD_dtcc/hypoDD.reloc'
+%c = load(loc3); 
+%id=find(c(:,18) >= nddp);
+%lat3 = c(id,2); lon3 = c(id,3); dep3 = c(id,4);
 
 %GrowClust cc locations
 %loc4 = '../MatchLocate/GrowClust/OUT/out.growclust_cat'
-loc4 = '../GrowClust/OUT/out.growclust_cat'
-d = load(loc4); npar = 0;
-id=find(d(:,15) >= npar & d(:,16) >= nddp);
-lat4 = d(id,8); lon4 = d(id,9); dep4 = d(id,10);
+%loc4 = '../GrowClust/OUT/out.growclust_cat'
+%d = load(loc4); npar = 0;
+%id=find(d(:,15) >= npar & d(:,16) >= nddp);
+%lat4 = d(id,8); lon4 = d(id,9); dep4 = d(id,10);
+
+lat3=lat2;
+lat4=lat2;
+lon3=lon2;
+lon4=lon2;
+dep3=dep2;
+dep4=dep2;
 
 minlat=min([min(lat1), min(lat2), min(lat3), min(lat4)]);
 maxlat=max([max(lat1), max(lat2), max(lat3), max(lat4)]);
@@ -74,9 +81,9 @@ view2=90;
 
 %manually specify the region
 %the whole region
-xmin=12.9; xmax=13.4;
-ymin=42.45; ymax=43.0;
-zmin=0; zmax=18;
+xmin=27; xmax=29;
+ymin=85; ymax=86.2;
+zmin=-5; zmax=40;
 dx=0.2; dy=0.2; dz=5;
 
 %the zoomed region (one-day data)

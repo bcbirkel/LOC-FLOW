@@ -23,19 +23,19 @@ loc13=../location/hypoinverse/new.cat      #2
 hypoDD_CT=1
 loc2=../hypoDD_dtct/hypoDD.reloc
 # hypoDD CC locations
-hypoDD_CC=1
+hypoDD_CC=0
 loc3=../hypoDD_dtcc/hypoDD.reloc
 # Growclust locations
-Growclust=1
+Growclust=0
 loc4=../GrowClust/OUT/out.growclust_cat
 
 # study region
-lon1=12.9
-lon2=13.4
-lat1=42.4
-lat2=43
-dep1=0
-dep2=20
+lon1=85
+lon2=86.2
+lat1=27
+lat2=29
+dep1=-5
+dep2=40
 
 # you may only show those events with min number of double-difference P pairs in hypoDD and growclust catalogs
 # also consider useall=0 in hypoDD_dtcc/run_hypoDD_dtcc.sh and GrowClust/IN/gen_input.pl

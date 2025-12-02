@@ -15,17 +15,17 @@ from obspy import UTCDateTime, read, read_inventory, read_events
 from obspy.clients.fdsn import Client
 
 # Date and time 
-year0 = 2016 # year
-mon0 = 10 # month
-day0 = 14 #day
-nday = 1 # number of days
+year0 = 2023 # year
+mon0 = 4 # month
+day0 = 10 #day
+nday = 28 # number of days
 tbeg = 0 # beginning time
          # the length will be as long as the data in waveform_sac
 
 # Station region
-latref = 42.75 # reference lat.
-lonref = 13.25 # reference lon.
-maxradius = 50 # maximum radius in km.
+latref = 28 # reference lat.
+lonref = 85.6 # reference lon.
+maxradius = 30 # maximum radius in km.
 threecomp = 1 # 1: use three components E/N/Z
               # 0: use E/N/Z, E/Z, N/Z, Z
               # It is fine to use either one before the dt.cc calculation.
@@ -34,6 +34,7 @@ threecomp = 1 # 1: use three components E/N/Z
 
 data_dir = os.getcwd()
 sac_waveform_dir = os.path.join(data_dir, "waveform_sac")
+# sac_waveform_dir = "./waveform_sac"
 stationdir = os.path.join(data_dir,"station_all.dat")
 stationsel = os.path.join(data_dir,"station.dat")
 
@@ -54,17 +55,18 @@ for i in range(nday):
         
     with open(stationdir, "r") as f:
         for station in f:
-            lon, lat, net, sta, chan, elev = station.split(" ")
+            lat, lon, net, sta, chan, elev = station.split()
         
             chane = chan[:2]+"E" #E,2
             chann = chan[:2]+"N" #N,1 consider use st.rotate in waveform_download_mseed.py
             chanz = chan[:2]+"Z"
 
-            tracee = os.path.join(sacid_dir,net+'.'+sta+'.'+chane)
-            tracen = os.path.join(sacid_dir,net+'.'+sta+'.'+chann)
-            tracez = os.path.join(sacid_dir,net+'.'+sta+'.'+chanz)
-            
+            tracee = os.path.join(sacid_dir,net+'.'+sta+'.'+chane+'.'+year+'.'+mon+'.'+day+'.00.00.00.000.SAC')
+            tracen = os.path.join(sacid_dir,net+'.'+sta+'.'+chann+'.'+year+'.'+mon+'.'+day+'.00.00.00.000.SAC')
+            tracez = os.path.join(sacid_dir,net+'.'+sta+'.'+chanz+'.'+year+'.'+mon+'.'+day+'.00.00.00.000.SAC')
+
             dist = 111.19*locations2degrees(float(latref), float(lonref), float(lat), float(lon))
+            # print(dist)
             if dist > maxradius:
                 continue
          

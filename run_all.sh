@@ -7,7 +7,7 @@
 # (MacBook Pro, 2.9 Ghz, 6-Core Intel Core i9, 32 GB)
 start=`date +%s`
 ###########################in Data dir#################
-irun=0 #0: no, do nothing
+irun=1 #0: no, do nothing
        #1: yes,run this step
 
 if (($irun == 1))

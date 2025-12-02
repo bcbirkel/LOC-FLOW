@@ -25,7 +25,7 @@ PLOT_STAGES = {
 STAGE_DATA = {
     'REAL': {
         'path': '../REAL/catalogSA_allday.txt',
-        'cols': {'lon': 7, 'lat': 6, 'dep': 8},
+        'cols': {'lon': 6, 'lat': 7, 'dep': 8},
         'title': 'REAL catalog (SA)'
     },
     'VELEST': {
@@ -35,23 +35,23 @@ STAGE_DATA = {
     },
     'hypoinverse': {
         'path': '../location/hypoinverse/new.cat',
-        'cols': {'lon': 5, 'lat': 4, 'dep': 6},
+        'cols': {'lon': 4, 'lat': 5, 'dep': 6},
         'title': 'HYPOINVERSE catalog'
     },
     'hypoinverse_corr': {
         'path': '../location/hypoinverse_corr/new.cat',
-        'cols': {'lon': 5, 'lat': 4, 'dep': 6},
+        'cols': {'lon': 4, 'lat': 5, 'dep': 6},
         'title': 'HYPOINVERSE_corr catalog'
     },
     'hypoDD_dtct': {
         'path': '../hypoDD_dtct/hypoDD.reloc',
-        'cols': {'lon': 2, 'lat': 1, 'dep': 3},
+        'cols': {'lon': 1, 'lat': 2, 'dep': 3},
         'title': 'hypoDD catalog (dt.ct)',
         'filters': [{'col': 19, 'op': '>=', 'val': 0}]  # filter by nddp
     },
     'hypoDD_dtcc': {
         'path': '../hypoDD_dtcc/hypoDD.reloc',
-        'cols': {'lon': 2, 'lat': 1, 'dep': 3},
+        'cols': {'lon': 1, 'lat': 2, 'dep': 3},
         'title': 'hypoDD catalog (dt.cc)',
         'filters': [{'col': 17, 'op': '>=', 'val': 0}]  # filter by nddp
     },
@@ -82,8 +82,8 @@ if 'GrowClust' in STAGE_DATA and STAGE_DATA['GrowClust'].get('filters'):
 
 # Plotting region (manually specify)
 # The whole region
-XMIN, XMAX = 27, 29           # Longitude
-YMIN, YMAX = 85, 86.2         # Latitude
+XMIN, XMAX = 85, 86.2         # Longitude
+YMIN, YMAX = 27, 29           # Latitude
 ZMIN, ZMAX = -5, 40           # Depth
 DX, DY, DZ = 0.2, 0.2, 5      # Ticks step
 
@@ -95,9 +95,9 @@ DX, DY, DZ = 0.2, 0.2, 5      # Ticks step
 
 # View angles (azimuth, elevation)
 # 2D map view (lon vs lat)
-VIEW = (0, 90)
+# VIEW = (0, 90)
 # 3D view
-# VIEW = (23, 15)
+VIEW = (23, 15)
 # 2D depth view (lon vs dep)
 # VIEW = (0, 0)
 

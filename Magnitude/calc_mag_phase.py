@@ -10,8 +10,8 @@ from obspy.geodetics import locations2degrees
 
 ddirwaveform = '../Data/waveform_sac'
 stationdir = '../Data/station.dat'
-phasedir = '../REAL/phase_allday.txt' # or phaseSA_allday.txt, hypoDD phase format
-#phasedir = '../hypoDD_dtct/hypoDD.pha' # hypoDD phase format
+# phasedir = '../REAL/phase_allday.txt' # or phaseSA_allday.txt, hypoDD phase format
+phasedir = '../hypoDD_dtct/hypoDD.pha' # hypoDD phase format
 #phasedir = '../hypoDD_dtcc/hypoDD.pha' # hypoDD phase format
 catmag = './catalog_mag_phase.txt'
 g = open(catmag,'w')
@@ -89,8 +89,8 @@ with open(phasedir) as p:
                             te = tb + 3
                         chann = chan[:2]+"[N,2]"
                         chane = chan[:2]+"[E,1]"
-                        wavee = ddirwaveform+'/'+date+'/'+net+'.'+station+'.'+chane
-                        waven = ddirwaveform+'/'+date+'/'+net+'.'+station+'.'+chann
+                        wavee = ddirwaveform+'/'+date+'/'+net+'.'+station+'.'+chane+'*'
+                        waven = ddirwaveform+'/'+date+'/'+net+'.'+station+'.'+chann+'*'
                         tre = read(wavee,starttime=tb,endtime=te)
                         trn = read(waven,starttime=tb,endtime=te)
                         #if you didn't remove the reponse, please use below two lines.
