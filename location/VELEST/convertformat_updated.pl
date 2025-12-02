@@ -218,7 +218,14 @@ foreach $file(@par){
         }
         $processed_phases{"$sta_short.$phase"} = 1;
         
-        my $iwt = 0; # Use weight 0 for P and S phases
+        my $iwt;
+        if ($phase eq 'P') {
+            $iwt = 0;
+        } elsif ($phase eq 'S') {
+            # In single-event mode, VELEST sets w=0.0 for ipwt > 4,
+            # effectively excluding them from location.
+            $iwt = 5;
+        }
         
         $sta_short = sprintf("%-4s", $sta_short); # Pad to 4 chars
         

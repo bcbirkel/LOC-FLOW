@@ -189,7 +189,9 @@ foreach $file(@par){
         if ($phase eq 'P') {
             $iwt = 0;
         } elsif ($phase eq 'S') {
-            $iwt = 5; # VELEST uses weights >= 5 for S phases
+            # In single-event mode, VELEST sets w=0.0 for ipwt > 4,
+            # effectively excluding them from location.
+            $iwt = 5;
         }
         
         #if(length($station)>4){$station = substr($station,1,4);} # in old version
