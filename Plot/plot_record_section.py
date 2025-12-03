@@ -10,6 +10,7 @@ import argparse
 import os
 import glob
 from datetime import datetime
+import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -248,6 +249,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
 
 def main():
     """Main function to parse arguments and run plotting."""
+    script_start_time = time.time()
     parser = argparse.ArgumentParser(description="Plot record sections for a given day, comparing across pickers and stages.")
     parser.add_argument("date", help="Date in YYYY-MM-DD format")
     parser.add_argument("--picker", help="Picker name to focus on for 'picker_stages' mode.")
@@ -260,7 +262,9 @@ def main():
     if args.plot_mode == 'picker_stages' and not args.picker:
         parser.error("--picker is required for 'picker_stages' plot mode.")
 
+    t0 = time.time()
     station_locs = load_station_data()
+    print(f"Loaded station data in {time.time() - t0:.2f}s")
 
     try:
         target_date = datetime.strptime(args.date, '%Y-%m-%d')
@@ -269,14 +273,17 @@ def main():
         return
 
     # Load reference catalog (QMigrate/Initial)
+    t0 = time.time()
     ref_catalog_info = get_catalog_info('QMigrate', 'Initial')
     ref_events = load_events_for_day(ref_catalog_info['path'], ref_catalog_info['cols'], target_date)
+    print(f"Loaded reference catalog ({len(ref_events)} events) in {time.time() - t0:.2f}s")
 
     if not ref_events:
         print("No events found in the reference catalog (QMigrate/Initial).")
         return
 
     # Load all other available catalogs
+    t0 = time.time()
     all_catalogs = {}
     
     stages_to_plot = STAGES
@@ -299,13 +306,17 @@ def main():
                 info = get_catalog_info(picker, stage)
                 events = load_events_for_day(info['path'], info['cols'], target_date)
                 if events: all_catalogs[(picker, stage)] = events
+    print(f"Loaded all other catalogs in {time.time() - t0:.2f}s")
 
     # For each reference event, find matches and plot
-    for ref_event in ref_events:
-        print(f"\nProcessing reference event ID {ref_event['id']} at {ref_event['origin_time']}")
+    total_events = len(ref_events)
+    for i, ref_event in enumerate(ref_events):
+        event_start_time = time.time()
+        print(f"\nProcessing reference event ID {ref_event['id']} at {ref_event['origin_time']} ({i + 1}/{total_events})")
         
         # Load waveform data for a window around the reference event
         # This window is large enough to contain data for all matched events.
+        t0 = time.time()
         event_day_str = ref_event['origin_time'].strftime('%Y%m%d')
         daily_waveform_dir = os.path.join(WAVEFORM_DIR, event_day_str)
         event_waveforms = Stream()
@@ -322,19 +333,23 @@ def main():
                     event_waveforms += read(f, starttime=read_starttime, endtime=read_endtime)
                 except Exception:
                     continue # File may not contain data for this window
+            print(f"  Loaded {len(event_waveforms)} traces in {time.time() - t0:.2f}s")
 
         if not event_waveforms:
             print("  No waveforms found for this event's time window, skipping.")
             continue
 
+        t0 = time.time()
         matched_events = {('QMigrate', 'Initial'): ref_event}
         for (picker, stage), events in all_catalogs.items():
             if picker == 'QMigrate' and stage == 'Initial': continue
             match = find_nearest_event(ref_event, events)
             if match:
                 matched_events[(picker, stage)] = match
-                print(f"  Found match for {picker}/{stage}: event at {match['origin_time']}")
+                # print(f"  Found match for {picker}/{stage}: event at {match['origin_time']}")
+        print(f"  Found matched events in {time.time() - t0:.2f}s")
 
+        t0 = time.time()
         output_dir = os.path.join("record_sections", f"event_{ref_event['id']}_{ref_event['origin_time'].strftime('%Y%m%dT%H%M%S')}")
         os.makedirs(output_dir, exist_ok=True)
 
@@ -397,6 +412,10 @@ def main():
                 plt.savefig(filename)
                 plt.close(fig)
                 print(f"  Saved plot: {filename}")
+        print(f"  Generated and saved plots in {time.time() - t0:.2f}s")
+        print(f"  Total time for this event: {time.time() - event_start_time:.2f}s")
+
+    print(f"\nTotal script execution time: {time.time() - script_start_time:.2f}s")
 
 if __name__ == '__main__':
     main()
