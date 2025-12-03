@@ -37,16 +37,19 @@ STAGE_DATA_DEFINITIONS = {
         },
     },
     'VELEST': {
-        'path_template': '../location/VELEST/{picker}/final.CNV',
-        'cols': {},  # To be defined
+        'path_template': '../location/VELEST/{picker}/new.cat',
+        'cols': {'lon': 5, 'lat': 4, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
+        'title_template': '{picker} - VELEST'
     },
     'hypoinverse': {
-        'path_template': '../location/hypoinverse/{picker}/catOut.sum',
-        'cols': {},  # To be defined
+        'path_template': '../location/hypoinverse/{picker}/new.cat',
+        'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
+        'title_template': '{picker} - HYPOINVERSE'
     },
     'hypoinverse_corr': {
-        'path_template': '../location/hypoinverse_corr/{picker}/catOut.sum',
-        'cols': {},  # To be defined
+        'path_template': '../location/hypoinverse_corr/{picker}/new.cat',
+        'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
+        'title_template': '{picker} - HYPOINVERSE_corr'
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
@@ -90,7 +93,15 @@ def load_events_for_day(catalog_path, cols, target_date):
     for row in data:
         try:
             # Handle 2-digit years
-            year = int(row[cols['yr']])
+            if 'yr' in cols and cols['yr'] == cols['mo']:
+                year = int(row[cols['yr']][0:2])
+                month = int(row[cols['mo']][2:4])
+                day = int(row[cols['dy']][4:6])
+            else:
+                year = int(row[cols['yr']])
+                month = int(row[cols['mo']])
+                day = int(row[cols['dy']])
+
             if year < 100:
                 year += 2000
             
@@ -100,20 +111,21 @@ def load_events_for_day(catalog_path, cols, target_date):
                 seconds = (row[cols['mi']] - minutes) * 60
             else:
                 minutes = int(row[cols['mi']])
-                seconds = row[cols['sc']]
+                seconds = row[cols['sc']]   
 
             event_dt = datetime(
                 year,
-                int(row[cols['mo']]),
-                int(row[cols['dy']]),
+                month,
+                day,
                 int(row[cols['hr']]),
                 minutes,
             )
+
             if event_dt.date() == target_date.date():
                 origin_time = UTCDateTime(
                     year,
-                    int(row[cols['mo']]),
-                    int(row[cols['dy']]),
+                    month,
+                    day,
                     int(row[cols['hr']]),
                     minutes,
                     seconds
@@ -128,7 +140,7 @@ def load_events_for_day(catalog_path, cols, target_date):
                     event['id'] = int(row[cols['id']])
                 else:
                     # Create a placeholder ID if not present
-                    event['id'] = origin_time.strftime('%H%M%S')
+                    event['id'] = f"{year}{month}{day}{int(row[cols['hr']])}{minutes}{int(seconds)}"
 
                 events.append(event)
         except (ValueError, KeyError, IndexError) as e:
@@ -223,10 +235,10 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
     max_dist = traces[-1][0] if traces else 1
     for dist, tr in traces:
         time_axis = tr.times(reftime=event['origin_time'])
-        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 3
+        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 2
         scaling_factor = max_dist / (len(traces) * 1.0) # Adjust for better visual separation
         
-        ax.plot(time_axis, dist + scaling_factor * norm_data, 'k-', linewidth=0.5)
+        ax.plot(time_axis[0:int(tr.stats.sample_rate*PLOT_WINDOW_SEC)], dist + scaling_factor * norm_data[0:int(tr.stats.sample_rate*PLOT_WINDOW_SEC)], 'k-', linewidth=0.3)
         ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
 
     ax.set_ylim(bottom=0, top=max_dist * 1.1)
