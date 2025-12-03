@@ -328,6 +328,7 @@ def main():
 
     # --- Create Interactive Plotly HTML ---
     fig = go.Figure()
+    traces_metadata = []
 
     for stage in stages_to_plot:
         for picker in pickers_to_plot:
@@ -345,6 +346,35 @@ def main():
                     marker=dict(size=3),
                     name=f"{picker} - {stage}"
                 ))
+                traces_metadata.append({'picker': picker, 'stage': stage})
+
+    # Create buttons for pickers
+    picker_buttons = [
+        dict(label="All Pickers",
+             method="update",
+             args=[{"visible": [True] * len(traces_metadata)}])
+    ]
+    for picker in pickers_to_plot:
+        visibility = [meta['picker'] == picker for meta in traces_metadata]
+        picker_buttons.append(
+            dict(label=picker,
+                 method="update",
+                 args=[{"visible": visibility}])
+        )
+
+    # Create buttons for stages
+    stage_buttons = [
+        dict(label="All Stages",
+             method="update",
+             args=[{"visible": [True] * len(traces_metadata)}])
+    ]
+    for stage in stages_to_plot:
+        visibility = [meta['stage'] == stage for meta in traces_metadata]
+        stage_buttons.append(
+            dict(label=stage,
+                 method="update",
+                 args=[{"visible": visibility}])
+        )
 
     fig.update_layout(
         title="Interactive 3D Earthquake Locations",
@@ -354,9 +384,35 @@ def main():
             zaxis_title="Depth (km)",
             xaxis=dict(range=[XMIN, XMAX]),
             yaxis=dict(range=[YMIN, YMAX]),
-            zaxis=dict(range=[ZMIN, ZMAX]),
+            zaxis=dict(range=[ZMAX, ZMIN]),  # Inverted Z-axis for depth
         ),
         legend=dict(title="Catalogs"),
+        updatemenus=[
+            dict(
+                type="dropdown",
+                active=0,
+                buttons=picker_buttons,
+                direction="down",
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.01,
+                xanchor="left",
+                y=1.1,
+                yanchor="top"
+            ),
+            dict(
+                type="dropdown",
+                active=0,
+                buttons=stage_buttons,
+                direction="down",
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.25,
+                xanchor="left",
+                y=1.1,
+                yanchor="top"
+            ),
+        ]
     )
 
     interactive_output = "3Dlocation_interactive.html"
