@@ -6,6 +6,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # Required for projection='3d'
+import plotly.graph_objects as go
 
 # --- CONFIGURATION ---
 
@@ -324,6 +325,43 @@ def main():
     print("Saved combined plot to 3Dlocation_grid.jpg")
     print(f"Saved individual plots to '{output_dir}/' directory.")
     plt.show()
+
+    # --- Create Interactive Plotly HTML ---
+    fig = go.Figure()
+
+    for stage in stages_to_plot:
+        for picker in pickers_to_plot:
+            stage_info = get_catalog_info(picker, stage)
+            if not stage_info:
+                continue
+
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                fig.add_trace(go.Scatter3d(
+                    x=data['lon'],
+                    y=data['lat'],
+                    z=data['dep'],
+                    mode='markers',
+                    marker=dict(size=3),
+                    name=f"{picker} - {stage}"
+                ))
+
+    fig.update_layout(
+        title="Interactive 3D Earthquake Locations",
+        scene=dict(
+            xaxis_title="Longitude",
+            yaxis_title="Latitude",
+            zaxis_title="Depth (km)",
+            xaxis=dict(range=[XMIN, XMAX]),
+            yaxis=dict(range=[YMIN, YMAX]),
+            zaxis=dict(range=[ZMIN, ZMAX]),
+        ),
+        legend=dict(title="Catalogs"),
+    )
+
+    interactive_output = "3Dlocation_interactive.html"
+    fig.write_html(interactive_output)
+    print(f"Saved interactive plot to {interactive_output}")
 
 
 if __name__ == '__main__':
