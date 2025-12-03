@@ -421,7 +421,7 @@ def main():
              args=["visible", [True] * len(fig.data)])
     ]
     for picker in pickers_to_plot:
-        visibility = [meta['picker'] == picker for meta in traces_metadata]
+        visibility = [True if meta['picker'] == picker else 'legendonly' for meta in traces_metadata]
         if has_regional_events:
             visibility = [True] + visibility
         picker_buttons.append(
@@ -437,7 +437,7 @@ def main():
              args=["visible", [True] * len(fig.data)])
     ]
     for stage in stages_to_plot:
-        visibility = [meta['stage'] == stage for meta in traces_metadata]
+        visibility = [True if meta['stage'] == stage else 'legendonly' for meta in traces_metadata]
         if has_regional_events:
             visibility = [True] + visibility
         stage_buttons.append(
@@ -465,7 +465,7 @@ def main():
                 buttons=picker_buttons,
                 x=1.1,
                 xanchor="left",
-                y=1.0,
+                y=0.8,
                 yanchor="top"
             ),
             dict(
@@ -474,14 +474,14 @@ def main():
                 buttons=stage_buttons,
                 x=1.1,
                 xanchor="left",
-                y=0.6,
+                y=0.5,
                 yanchor="top"
             ),
         ],
         annotations=[
-            dict(text="Pickers", x=1.02, y=1.02, xref="paper", yref="paper",
+            dict(text="Pickers", x=1.02, y=0.82, xref="paper", yref="paper",
                  align="left", showarrow=False, xanchor="left", yanchor="bottom"),
-            dict(text="Stages", x=1.02, y=0.62, xref="paper", yref="paper",
+            dict(text="Stages", x=1.02, y=0.52, xref="paper", yref="paper",
                  align="left", showarrow=False, xanchor="left", yanchor="bottom")
         ]
     )
