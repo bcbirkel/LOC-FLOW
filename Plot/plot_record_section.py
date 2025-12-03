@@ -32,7 +32,7 @@ STAGE_DATA_DEFINITIONS = {
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
-        'cols': {'lat': 1, 'lon': 2, 'dep': 3, 'yr': 10, 'mo': 11, 'dy': 12, 'hr': 13, 'mi': 14, 'sc': 15, 'id': 0},
+        'cols': {'lat': 2, 'lon': 1, 'dep': 3, 'yr': 10, 'mo': 11, 'dy': 12, 'hr': 13, 'mi': 14, 'sc': 15, 'id': 0},
     },
     # Add other stages here if needed, with their column definitions
 }
@@ -139,6 +139,7 @@ def plot_record_section_for_event(event, picker, stage, stations_2d_only=False):
             continue
         try:
             st = read(os.path.join(daily_waveform_dir, f"*{net}.{sta}*??[NE].*.SAC"))
+            # print("read in " + str(st[0].stats))
             
             tr_n = st.select(component="N")[0]
             tr_e = st.select(component="E")[0]
@@ -155,6 +156,7 @@ def plot_record_section_for_event(event, picker, stage, stations_2d_only=False):
             traces_e.append((dist_km, tr_e))
 
         except Exception:
+            print("data file selection didn't work")
             continue
     
     if not traces_n:
@@ -178,16 +180,17 @@ def plot_record_section_for_event(event, picker, stage, stations_2d_only=False):
         max_dist = traces[-1][0]
         for dist, tr in traces:
             time_axis = tr.times(reftime=event['origin_time'])
+            print("beginning of time axis: " + str(time_axis[0]) + ", origin time: " + str(event['origin_time']))
             
             # Normalize and scale for plotting
             norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9)
-            scaling_factor = max_dist / len(traces) * 0.5 # Scale wiggles based on number of traces
+            scaling_factor = max_dist / len(traces) # Scale wiggles based on number of traces
             
-            ax.plot(time_axis, dist + scaling_factor * norm_data, 'k-', linewidth=0.5)
+            ax.plot(time_axis[0:int(tr.stats.sampling_rate*PLOT_WINDOW_SEC)]+time_axis[0], dist + scaling_factor * norm_data[0:int(tr.stats.sampling_rate*PLOT_WINDOW_SEC)], 'k-', linewidth=0.5)
             ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
 
-        ax.set_ylim(bottom=0)
-        ax.set_xlim(0, PLOT_WINDOW_SEC)
+        # ax.set_ylim(bottom=0)
+        # ax.set_xlim(0, PLOT_WINDOW_SEC)
         ax.set_xlabel('Time (s)')
         ax.set_ylabel('Distance (km)')
         ax.set_title(f'Record Section - Event ID: {event["id"]} ({event["origin_time"]})\nComponent: {component} - Catalog: {picker}/{stage}')
