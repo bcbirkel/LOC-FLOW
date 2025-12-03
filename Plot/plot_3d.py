@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d import Axes3D  # Required for projection='3d'
 # --- CONFIGURATION ---
 
 # Define the pickers and location stages to create a grid of plots
-PICKERS = ['PhaseNet', 'QMigrate'] #'STALTA', 
+PICKERS = ['STALTA', 'PhaseNet', 'QMigrate']
 STAGES = ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct']
 
 # Toggle which pickers and stages to plot
@@ -30,7 +30,7 @@ STAGE_DATA_DEFINITIONS = {
     'Initial': {
         # 'Initial' is a special case with different paths for each picker
         'STALTA': {
-            'path': '../REAL/runs/STALTA/catalogSA_allday.txt',
+            'path': '/project2/okaya_201/LOC-FLOW/complete_STALTA/REAL/catalogSA_allday.txt',
             'cols': {'lon': 6, 'lat': 7, 'dep': 8},
             'title': 'STALTA - REAL'
         },
@@ -40,7 +40,7 @@ STAGE_DATA_DEFINITIONS = {
             'title': 'PhaseNet - REAL'
         },
         'QMigrate': {
-            'path': '/project2/okaya_201/LOC-FLOW/Pick/QMigrate/all_events_trimmed.txt',
+            'path': './all_qm_events.csv',
             'cols': {'lon': 8, 'lat': 9, 'dep': 6}, # NOTE: Column indices are a guess
             'title': 'QMigrate - Initial'
         }
@@ -64,7 +64,7 @@ STAGE_DATA_DEFINITIONS = {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
         'cols': {'lon': 1, 'lat': 2, 'dep': 3},
         'title_template': '{picker} - hypoDD (dt.ct)',
-        'filters': [{'col': 19, 'op': '>=', 'val': 0}]  # filter by nddp
+        # 'filters': [{'col': 19, 'op': '>=', 'val': 0}]  # filter by nddp
     },
     'hypoDD_dtcc': {
         'path_template': '../hypoDD_dtcc/{picker}/hypoDD.reloc',
@@ -144,7 +144,7 @@ def load_data(stage_info):
             return None
 
     try:
-        if path == '/project2/okaya_201/LOC-FLOW/Pick/QMigrate/all_events_trimmed.txt':
+        if path == './all_qm_events.csv':
             with open(path, 'r') as f:
                 lines = [line.split() for line in f if line.strip()]
             data = np.array(lines, dtype=float)
