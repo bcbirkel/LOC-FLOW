@@ -13,7 +13,7 @@ from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
-from obspy import read, UTCDateTime
+from obspy import read, UTCDateTime, Stream
 from obspy.geodetics import gps2dist_azimuth
 
 # This dictionary is adapted from plot_3d.py to include origin time columns.
@@ -54,7 +54,7 @@ STAGE_DATA_DEFINITIONS = {
     },
 }
 
-WAVEFORM_DIR = '../Data/waveform_sac'
+WAVEFORM_DIR = '/project2/okaya_201/data/daily_decimated'
 PLOT_WINDOW_SEC = 60  # seconds to plot after origin time
 
 def get_catalog_info(picker, stage):
@@ -147,31 +147,42 @@ def find_nearest_event(ref_event, events, time_window=30):
             best_match = event
     return best_match
 
-def plot_record_section_on_ax(ax, event, component, stations_2d_only=False):
+def plot_record_section_on_ax(ax, event, component, day_waveforms, stations_2d_only=False):
     """Plots a single record section on a given matplotlib axis."""
-    event_day_str = event['origin_time'].strftime('%Y%m%d')
-    daily_waveform_dir = os.path.join(WAVEFORM_DIR, event_day_str)
-    
-    if not os.path.isdir(daily_waveform_dir):
-        daily_waveform_dir = WAVEFORM_DIR
-
-    sac_files = glob.glob(os.path.join(daily_waveform_dir, f'*.*{component}.*.SAC'))
-    if not sac_files:
-        return # No data to plot
+    if not day_waveforms:
+        return
 
     traces = []
-    stations = set('.'.join(os.path.basename(f).split('.')[0:2]) for f in sac_files)
+    # Create a set of unique stations (net.sta) to iterate over
+    station_ids = sorted(list(set(f"{tr.stats.network}.{tr.stats.station}" for tr in day_waveforms)))
 
-    for station_id in sorted(list(stations)):
+    for station_id in station_ids:
         net, sta = station_id.split('.')
         if stations_2d_only and not sta.startswith("2D"):
             continue
+
+        station_traces = day_waveforms.select(network=net, station=sta)
+        if not station_traces:
+            continue
+
+        # Find coordinates from any trace for this station
+        lat, lon = None, None
+        for tr_ in station_traces:
+            if hasattr(tr_.stats, 'latitude') and hasattr(tr_.stats, 'longitude'):
+                lat, lon = tr_.stats.latitude, tr_.stats.longitude
+                break
+        if lat is None or lon is None:
+            continue
+
+        component_traces = station_traces.select(component=component)
+        if not component_traces:
+            continue
+        tr = component_traces[0].copy()
+
         try:
-            st = read(os.path.join(daily_waveform_dir, f"*{net}.{sta}*??{component}.*.SAC"))
-            tr = st[0]
             if not (tr.stats.starttime <= event['origin_time'] <= tr.stats.endtime):
                 continue
-            dist_m, _, _ = gps2dist_azimuth(event['lat'], event['lon'], tr.stats.sac.stla, tr.stats.sac.stlo)
+            dist_m, _, _ = gps2dist_azimuth(event['lat'], event['lon'], lat, lon)
             traces.append((dist_m / 1000.0, tr))
         except Exception:
             continue
@@ -200,6 +211,7 @@ def main():
     parser = argparse.ArgumentParser(description="Plot record sections for a given day, comparing across pickers and stages.")
     parser.add_argument("date", help="Date in YYYY-MM-DD format")
     parser.add_argument("--picker", help="Picker name to focus on for 'picker_stages' mode.")
+    parser.add_argument("--stage", help="Stage to plot (e.g., Initial, hypoDD_dtct). If not given, all stages are processed.")
     parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='individual',
                         help="Plotting mode: 'individual' for separate plots (default), 'all_in_one' for a single large figure, 'picker_stages' for all stages of a specified picker.")
     parser.add_argument("--stations_2d_only", action="store_true", help="Only plot stations starting with '2D'")
@@ -214,6 +226,27 @@ def main():
         print("Error: Date must be in YYYY-MM-DD format.")
         return
 
+    # Load waveforms for the day
+    print(f"Loading waveforms for {target_date.strftime('%Y-%m-%d')}...")
+    day_waveforms = Stream()
+    daily_waveform_dir = os.path.join(WAVEFORM_DIR, target_date.strftime('%Y%m%d'))
+    mseed_files = []
+    if os.path.isdir(daily_waveform_dir):
+        mseed_files = glob.glob(os.path.join(daily_waveform_dir, '*.mseed'))
+        for f in mseed_files:
+            try:
+                day_waveforms += read(f)
+            except Exception as e:
+                print(f"Warning: Could not read {f}: {e}")
+    else:
+        print(f"Warning: Waveform directory not found: {daily_waveform_dir}")
+    
+    if not day_waveforms:
+        print("No waveforms loaded, exiting.")
+        return
+    print(f"Loaded {len(day_waveforms)} traces from {len(mseed_files)} files.")
+
+
     # Load reference catalog (QMigrate/Initial)
     ref_catalog_info = get_catalog_info('QMigrate', 'Initial')
     ref_events = load_events_for_day(ref_catalog_info['path'], ref_catalog_info['cols'], target_date)
@@ -224,7 +257,16 @@ def main():
 
     # Load all other available catalogs
     all_catalogs = {}
-    for stage in STAGES:
+    
+    stages_to_plot = STAGES
+    if args.stage:
+        if args.stage in STAGES:
+            stages_to_plot = [args.stage]
+        else:
+            print(f"Error: Stage '{args.stage}' not defined.")
+            return
+
+    for stage in stages_to_plot:
         stage_def = STAGE_DATA_DEFINITIONS[stage]
         if 'path_template' in stage_def:
             for picker in PICKERS:
@@ -256,7 +298,7 @@ def main():
             for (picker, stage), event in matched_events.items():
                 for comp in ['N', 'E']:
                     fig, ax = plt.subplots(figsize=(10, 15))
-                    plot_record_section_on_ax(ax, event, comp, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
                     ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
                     plt.tight_layout()
                     filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
@@ -279,7 +321,7 @@ def main():
                 for i, (picker, stage) in enumerate(plot_keys):
                     ax = axes[i // ncols, i % ncols]
                     event = matched_events[(picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
                     ax.set_title(f'{picker} / {stage}')
                 
                 for i in range(n_plots, nrows * ncols):
@@ -303,7 +345,7 @@ def main():
                 for i, stage in enumerate(stages_for_picker):
                     ax = axes[i, 0]
                     event = matched_events[(args.picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
                     ax.set_title(f'Stage: {stage}')
 
                 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
