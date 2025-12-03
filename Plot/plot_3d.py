@@ -27,6 +27,10 @@ PLOT_STAGES['GrowClust'] = False
 PLOT_REGIONAL_EVENTS = True
 REGIONAL_EVENTS_FILE = 'Nepal_regional_events_starting2000.csv'
 
+# Add option to plot station locations
+PLOT_STATIONS = True
+STATION_FILE = '../Data/station_all.dat'
+
 # This dictionary defines the data source for each stage.
 # For stages that follow a consistent path pattern for each picker,
 # use 'path_template' with {picker} as a placeholder.
@@ -205,6 +209,44 @@ def load_regional_data(filepath):
         return None
 
 
+def load_station_data(filepath):
+    """Load station data from station_all.dat."""
+    if not os.path.exists(filepath):
+        print(f"Warning: Station file not found: {filepath}")
+        return None
+    stations = {}  # use dict to store unique stations by name
+    try:
+        with open(filepath, 'r') as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 6:
+                    continue
+                # lat lon net sta comp elev
+                lat, lon, net, sta, elev = parts[0], parts[1], parts[2], parts[3], parts[5]
+                station_name = f"{net}.{sta}"
+                if station_name not in stations:
+                    stations[station_name] = {
+                        'lat': float(lat),
+                        'lon': float(lon),
+                        'dep': -float(elev),  # elev is negative depth
+                        'name': station_name
+                    }
+        if not stations:
+            return None
+
+        # convert dict of dicts to dict of lists for plotly
+        station_data = {
+            'lon': [s['lon'] for s in stations.values()],
+            'lat': [s['lat'] for s in stations.values()],
+            'dep': [s['dep'] for s in stations.values()],
+            'hovertext': [f"{s['name']}<br>Elev: {-s['dep']:.3f} km" for s in stations.values()]
+        }
+        return station_data
+    except Exception as e:
+        print(f"Warning: Could not load or process station data from {filepath}. Error: {e}")
+        return None
+
+
 def get_catalog_info(picker, stage):
     """Dynamically construct catalog info from definitions."""
     stage_def = STAGE_DATA_DEFINITIONS.get(stage, {})
@@ -360,15 +402,16 @@ def main():
     fig = go.Figure()
     traces_metadata = []
     has_regional_events = False
+    has_stations = False
 
     stage_color_map = {
-        'Initial': 'red',
-        'VELEST': 'orange',
-        'hypoinverse': 'green',
-        'hypoinverse_corr': 'blue',
-        'hypoDD_dtct': 'purple',
-        'hypoDD_dtcc': 'indigo',
-        'GrowClust': 'violet'
+        'Initial': ['#ff6666', '#ff0000', '#cc0000'],          # Reds
+        'VELEST': ['#ffc266', '#ffa31a', '#e68a00'],         # Oranges
+        'hypoinverse': ['#99ff99', '#4dff4d', '#00cc00'],    # Greens
+        'hypoinverse_corr': ['#80bfff', '#3399ff', '#0066cc'], # Blues
+        'hypoDD_dtct': ['#DDA0DD', '#BA55D3', '#9932CC'],    # Purples/Orchids
+        'hypoDD_dtcc': ['#b3b3ff', '#8080ff', '#4d4dff'],    # Indigos
+        'GrowClust': ['#ff99ff', '#ff4dff', '#ff00ff']       # Violets
     }
     picker_symbol_map = {
         'STALTA': 'circle',
@@ -389,6 +432,21 @@ def main():
             ))
             has_regional_events = True
 
+    if PLOT_STATIONS:
+        station_data = load_station_data(STATION_FILE)
+        if station_data:
+            fig.add_trace(go.Scatter3d(
+                x=station_data['lon'],
+                y=station_data['lat'],
+                z=station_data['dep'],
+                mode='markers',
+                marker=dict(size=4, color='black', symbol='triangle-up'),
+                name='Stations',
+                hovertext=station_data['hovertext'],
+                hoverinfo='text'
+            ))
+            has_stations = True
+
     for stage in stages_to_plot:
         for picker in pickers_to_plot:
             stage_info = get_catalog_info(picker, stage)
@@ -397,7 +455,9 @@ def main():
 
             data = load_data(stage_info)
             if data and len(data['lon']) > 0:
-                color = stage_color_map.get(stage, 'black')
+                picker_index = pickers_to_plot.index(picker)
+                colors = stage_color_map.get(stage, ['black', 'grey', 'dimgray'])
+                color = colors[picker_index % len(colors)]
                 symbol = picker_symbol_map.get(picker, 'circle')
                 fig.add_trace(go.Scatter3d(
                     x=data['lon'],
@@ -415,6 +475,12 @@ def main():
                 traces_metadata.append({'picker': picker, 'stage': stage})
 
     # Create buttons for pickers
+    num_special_traces = 0
+    if has_regional_events:
+        num_special_traces += 1
+    if has_stations:
+        num_special_traces += 1
+
     picker_buttons = [
         dict(label="All",
              method="restyle",
@@ -422,8 +488,8 @@ def main():
     ]
     for picker in pickers_to_plot:
         visibility = [True if meta['picker'] == picker else 'legendonly' for meta in traces_metadata]
-        if has_regional_events:
-            visibility = [True] + visibility
+        if num_special_traces > 0:
+            visibility = [True] * num_special_traces + visibility
         picker_buttons.append(
             dict(label=picker,
                  method="restyle",
@@ -438,8 +504,8 @@ def main():
     ]
     for stage in stages_to_plot:
         visibility = [True if meta['stage'] == stage else 'legendonly' for meta in traces_metadata]
-        if has_regional_events:
-            visibility = [True] + visibility
+        if num_special_traces > 0:
+            visibility = [True] * num_special_traces + visibility
         stage_buttons.append(
             dict(label=stage,
                  method="restyle",
