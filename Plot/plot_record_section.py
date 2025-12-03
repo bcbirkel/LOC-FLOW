@@ -32,8 +32,8 @@ STAGE_DATA_DEFINITIONS = {
             'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 1, 'mo': 2, 'dy': 3, 'hr': 4, 'mi': 5, 'sc': 5, 'id': 0},
         },
         'QMigrate': {
-            'path': '../REAL/runs/QMigrate/catalogSA_allday.txt',
-            'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 1, 'mo': 2, 'dy': 3, 'hr': 4, 'mi': 5, 'sc': 5, 'id': 0},
+            'path': '../REAL/runs/QMigrate/all_events_trimmed.txt',
+            'cols': {'lon': 8, 'lat': 9, 'dep': 10, 'yr': 2, 'mo': 3, 'dy': 4, 'hr': 5, 'mi': 6, 'sc': 7},
         },
     },
     'VELEST': {
@@ -54,7 +54,7 @@ STAGE_DATA_DEFINITIONS = {
     },
 }
 
-WAVEFORM_DIR = '/project2/okaya_201/data/daily_decimated'
+WAVEFORM_DIR = '/project2/okaya_201/data/daily_200Hz'
 PLOT_WINDOW_SEC = 60  # seconds to plot after origin time
 
 def get_catalog_info(picker, stage):
@@ -71,10 +71,10 @@ def get_catalog_info(picker, stage):
 def load_events_for_day(catalog_path, cols, target_date):
     """Load catalog, filter events for a target day."""
     if not cols:
-        # print(f"Warning: No column definitions for catalog, skipping: {catalog_path}")
+        print(f"Warning: No column definitions for catalog, skipping: {catalog_path}")
         return []
     if not os.path.exists(catalog_path):
-        # print(f"Warning: Catalog file not found: {catalog_path}")
+        print(f"Warning: Catalog file not found: {catalog_path}")
         return []
 
     try:
@@ -171,6 +171,11 @@ def plot_record_section_on_ax(ax, event, component, day_waveforms, stations_2d_o
             if hasattr(tr_.stats, 'latitude') and hasattr(tr_.stats, 'longitude'):
                 lat, lon = tr_.stats.latitude, tr_.stats.longitude
                 break
+            elif hasattr(tr_.stats, 'sac'):
+                if hasattr(tr_.stats.sac, 'stla') and hasattr(tr_.stats.sac, 'stlo'):
+                    lat, lon = tr_.stats.sac.stla, tr_.stats.sac.stlo
+            else:
+                print("no lat/lon. stats: " + str(tr_.stats))
         if lat is None or lon is None:
             continue
 
@@ -232,7 +237,10 @@ def main():
     daily_waveform_dir = os.path.join(WAVEFORM_DIR, target_date.strftime('%Y%m%d'))
     mseed_files = []
     if os.path.isdir(daily_waveform_dir):
-        mseed_files = glob.glob(os.path.join(daily_waveform_dir, '*.mseed'))
+        if args.stations_2d_only:
+            mseed_files = glob.glob(os.path.join(daily_waveform_dir, '2D*.mseed'))
+        else:
+            mseed_files = glob.glob(os.path.join(daily_waveform_dir, '*.mseed'))
         for f in mseed_files:
             try:
                 day_waveforms += read(f)
