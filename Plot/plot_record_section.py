@@ -223,8 +223,8 @@ def plot_record_section_on_ax(ax, event, component, day_waveforms, station_locs,
     max_dist = traces[-1][0] if traces else 1
     for dist, tr in traces:
         time_axis = tr.times(reftime=event['origin_time'])
-        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9)
-        scaling_factor = max_dist / (len(traces) * 1.5) # Adjust for better visual separation
+        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 3
+        scaling_factor = max_dist / (len(traces) * 1.0) # Adjust for better visual separation
         
         ax.plot(time_axis, dist + scaling_factor * norm_data, 'k-', linewidth=0.5)
         ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
