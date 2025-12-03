@@ -167,43 +167,21 @@ def load_station_data(station_file='../Data/station_all.dat'):
                 continue
     return station_locs
 
-def plot_record_section_on_ax(ax, event, component, station_locs, stations_2d_only=False):
+def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, stations_2d_only=False):
     """Plots a single record section on a given matplotlib axis."""
-    event_day_str = event['origin_time'].strftime('%Y%m%d')
-    daily_waveform_dir = os.path.join(WAVEFORM_DIR, event_day_str)
-
-    if not os.path.isdir(daily_waveform_dir):
-        return
-
-    # Define time window for reading data, with a small buffer
-    read_starttime = event['origin_time'] - 10
-    read_endtime = event['origin_time'] + PLOT_WINDOW_SEC + 10
-
-    mseed_pattern = '2D*.mseed' if stations_2d_only else '*.mseed'
-    mseed_files = glob.glob(os.path.join(daily_waveform_dir, mseed_pattern))
-
-    day_waveforms = Stream()
-    for f in mseed_files:
-        try:
-            # Read only the relevant time window to save memory
-            day_waveforms += read(f, starttime=read_starttime, endtime=read_endtime)
-        except Exception:
-            # Some files may not contain data for the time window, which is fine
-            continue
-
-    if not day_waveforms:
+    if not event_waveforms:
         return
 
     traces = []
     # Create a set of unique stations (net.sta) to iterate over
-    station_ids = sorted(list(set(f"{tr.stats.network}.{tr.stats.station}" for tr in day_waveforms)))
+    station_ids = sorted(list(set(f"{tr.stats.network}.{tr.stats.station}" for tr in event_waveforms)))
 
     for station_id in station_ids:
         net, sta = station_id.split('.')
         if stations_2d_only and not sta.startswith("2D"):
             continue
 
-        station_traces = day_waveforms.select(network=net, station=sta)
+        station_traces = event_waveforms.select(network=net, station=sta)
         if not station_traces:
             continue
 
@@ -314,6 +292,29 @@ def main():
     for ref_event in ref_events:
         print(f"\nProcessing reference event ID {ref_event['id']} at {ref_event['origin_time']}")
         
+        # Load waveform data for a window around the reference event
+        # This window is large enough to contain data for all matched events.
+        event_day_str = ref_event['origin_time'].strftime('%Y%m%d')
+        daily_waveform_dir = os.path.join(WAVEFORM_DIR, event_day_str)
+        event_waveforms = Stream()
+        if os.path.isdir(daily_waveform_dir):
+            time_window_buffer = 40  # seconds, to account for matched events (30s) + read buffer (10s)
+            read_starttime = ref_event['origin_time'] - time_window_buffer
+            read_endtime = ref_event['origin_time'] + PLOT_WINDOW_SEC + time_window_buffer
+            
+            mseed_pattern = '2D*.mseed' if args.stations_2d_only else '*.mseed'
+            mseed_files = glob.glob(os.path.join(daily_waveform_dir, mseed_pattern))
+            
+            for f in mseed_files:
+                try:
+                    event_waveforms += read(f, starttime=read_starttime, endtime=read_endtime)
+                except Exception:
+                    continue # File may not contain data for this window
+
+        if not event_waveforms:
+            print("  No waveforms found for this event's time window, skipping.")
+            continue
+
         matched_events = {('QMigrate', 'Initial'): ref_event}
         for (picker, stage), events in all_catalogs.items():
             if picker == 'QMigrate' and stage == 'Initial': continue
@@ -329,7 +330,7 @@ def main():
             for (picker, stage), event in matched_events.items():
                 for comp in ['N', 'E']:
                     fig, ax = plt.subplots(figsize=(10, 15))
-                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
                     plt.tight_layout()
                     filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
@@ -352,7 +353,7 @@ def main():
                 for i, (picker, stage) in enumerate(plot_keys):
                     ax = axes[i // ncols, i % ncols]
                     event = matched_events[(picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'{picker} / {stage}')
                 
                 for i in range(n_plots, nrows * ncols):
@@ -376,7 +377,7 @@ def main():
                 for i, stage in enumerate(stages_for_picker):
                     ax = axes[i, 0]
                     event = matched_events[(args.picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'Stage: {stage}')
 
                 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
