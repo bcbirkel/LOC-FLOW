@@ -167,8 +167,30 @@ def load_station_data(station_file='../Data/station_all.dat'):
                 continue
     return station_locs
 
-def plot_record_section_on_ax(ax, event, component, day_waveforms, station_locs, stations_2d_only=False):
+def plot_record_section_on_ax(ax, event, component, station_locs, stations_2d_only=False):
     """Plots a single record section on a given matplotlib axis."""
+    event_day_str = event['origin_time'].strftime('%Y%m%d')
+    daily_waveform_dir = os.path.join(WAVEFORM_DIR, event_day_str)
+
+    if not os.path.isdir(daily_waveform_dir):
+        return
+
+    # Define time window for reading data, with a small buffer
+    read_starttime = event['origin_time'] - 10
+    read_endtime = event['origin_time'] + PLOT_WINDOW_SEC + 10
+
+    mseed_pattern = '2D*.mseed' if stations_2d_only else '*.mseed'
+    mseed_files = glob.glob(os.path.join(daily_waveform_dir, mseed_pattern))
+
+    day_waveforms = Stream()
+    for f in mseed_files:
+        try:
+            # Read only the relevant time window to save memory
+            day_waveforms += read(f, starttime=read_starttime, endtime=read_endtime)
+        except Exception:
+            # Some files may not contain data for the time window, which is fine
+            continue
+
     if not day_waveforms:
         return
 
@@ -256,30 +278,6 @@ def main():
         print("Error: Date must be in YYYY-MM-DD format.")
         return
 
-    # Load waveforms for the day
-    print(f"Loading waveforms for {target_date.strftime('%Y-%m-%d')}...")
-    day_waveforms = Stream()
-    daily_waveform_dir = os.path.join(WAVEFORM_DIR, target_date.strftime('%Y%m%d'))
-    mseed_files = []
-    if os.path.isdir(daily_waveform_dir):
-        if args.stations_2d_only:
-            mseed_files = glob.glob(os.path.join(daily_waveform_dir, '2D*.mseed'))
-        else:
-            mseed_files = glob.glob(os.path.join(daily_waveform_dir, '*.mseed'))
-        for f in mseed_files:
-            try:
-                day_waveforms += read(f)
-            except Exception as e:
-                print(f"Warning: Could not read {f}: {e}")
-    else:
-        print(f"Warning: Waveform directory not found: {daily_waveform_dir}")
-    
-    if not day_waveforms:
-        print("No waveforms loaded, exiting.")
-        return
-    print(f"Loaded {len(day_waveforms)} traces from {len(mseed_files)} files.")
-
-
     # Load reference catalog (QMigrate/Initial)
     ref_catalog_info = get_catalog_info('QMigrate', 'Initial')
     ref_events = load_events_for_day(ref_catalog_info['path'], ref_catalog_info['cols'], target_date)
@@ -331,7 +329,7 @@ def main():
             for (picker, stage), event in matched_events.items():
                 for comp in ['N', 'E']:
                     fig, ax = plt.subplots(figsize=(10, 15))
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
                     ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
                     plt.tight_layout()
                     filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
@@ -354,7 +352,7 @@ def main():
                 for i, (picker, stage) in enumerate(plot_keys):
                     ax = axes[i // ncols, i % ncols]
                     event = matched_events[(picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
                     ax.set_title(f'{picker} / {stage}')
                 
                 for i in range(n_plots, nrows * ncols):
@@ -378,7 +376,7 @@ def main():
                 for i, stage in enumerate(stages_for_picker):
                     ax = axes[i, 0]
                     event = matched_events[(args.picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, station_locs, args.stations_2d_only)
                     ax.set_title(f'Stage: {stage}')
 
                 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
