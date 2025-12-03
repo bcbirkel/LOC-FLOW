@@ -23,6 +23,10 @@ PLOT_STAGES = {stage: True for stage in STAGES}
 PLOT_STAGES['hypoDD_dtcc'] = False
 PLOT_STAGES['GrowClust'] = False
 
+# Add option to plot regional earthquakes from a catalog file
+PLOT_REGIONAL_EVENTS = True
+REGIONAL_EVENTS_FILE = 'Nepal_regional_events_starting2000.csv'
+
 # This dictionary defines the data source for each stage.
 # For stages that follow a consistent path pattern for each picker,
 # use 'path_template' with {picker} as a placeholder.
@@ -172,6 +176,32 @@ def load_data(stage_info):
         return {'lon': lon[mask], 'lat': lat[mask], 'dep': dep[mask], 'title': stage_info['title']}
     except Exception as e:
         print(f"Warning: Could not load or process data for '{stage_info['title']}' from {path}. Error: {e}")
+        return None
+
+
+def load_regional_data(filepath):
+    """Load regional earthquake data from a CSV file."""
+    if not os.path.exists(filepath):
+        print(f"Warning: Regional events file not found: {filepath}")
+        return None
+    try:
+        # Columns: time,latitude,longitude,depth,mag,...
+        # Indices:      1        2         3
+        data = np.loadtxt(filepath, delimiter=',', skiprows=1, usecols=(1, 2, 3))
+        if data.ndim == 1:  # handle file with one line
+            data = data.reshape(1, -1)
+        lat = data[:, 0]
+        lon = data[:, 1]
+        dep = data[:, 2]
+
+        # Filter by region
+        mask = (lon >= XMIN) & (lon <= XMAX) & \
+               (lat >= YMIN) & (lat <= YMAX) & \
+               (dep >= ZMIN) & (dep <= ZMAX)
+
+        return {'lon': lon[mask], 'lat': lat[mask], 'dep': dep[mask]}
+    except Exception as e:
+        print(f"Warning: Could not load or process regional data from {filepath}. Error: {e}")
         return None
 
 
@@ -329,6 +359,35 @@ def main():
     # --- Create Interactive Plotly HTML ---
     fig = go.Figure()
     traces_metadata = []
+    has_regional_events = False
+
+    stage_color_map = {
+        'Initial': 'red',
+        'VELEST': 'orange',
+        'hypoinverse': 'green',
+        'hypoinverse_corr': 'blue',
+        'hypoDD_dtct': 'purple',
+        'hypoDD_dtcc': 'indigo',
+        'GrowClust': 'violet'
+    }
+    picker_symbol_map = {
+        'STALTA': 'circle',
+        'PhaseNet': 'cross',
+        'QMigrate': 'diamond',
+    }
+
+    if PLOT_REGIONAL_EVENTS:
+        regional_data = load_regional_data(REGIONAL_EVENTS_FILE)
+        if regional_data and len(regional_data['lon']) > 0:
+            fig.add_trace(go.Scatter3d(
+                x=regional_data['lon'],
+                y=regional_data['lat'],
+                z=regional_data['dep'],
+                mode='markers',
+                marker=dict(size=2, color='lightgrey'),
+                name='Regional Events'
+            ))
+            has_regional_events = True
 
     for stage in stages_to_plot:
         for picker in pickers_to_plot:
@@ -338,12 +397,18 @@ def main():
 
             data = load_data(stage_info)
             if data and len(data['lon']) > 0:
+                color = stage_color_map.get(stage, 'black')
+                symbol = picker_symbol_map.get(picker, 'circle')
                 fig.add_trace(go.Scatter3d(
                     x=data['lon'],
                     y=data['lat'],
                     z=data['dep'],
                     mode='markers',
-                    marker=dict(size=3),
+                    marker=dict(
+                        size=3,
+                        color=color,
+                        symbol=symbol
+                    ),
                     name=f"{picker} - {stage}"
                 ))
                 traces_metadata.append({'picker': picker, 'stage': stage})
@@ -352,10 +417,12 @@ def main():
     picker_buttons = [
         dict(label="All Pickers",
              method="update",
-             args=[{"visible": [True] * len(traces_metadata)}])
+             args=[{"visible": [True] * len(fig.data)}])
     ]
     for picker in pickers_to_plot:
         visibility = [meta['picker'] == picker for meta in traces_metadata]
+        if has_regional_events:
+            visibility = [True] + visibility
         picker_buttons.append(
             dict(label=picker,
                  method="update",
@@ -366,10 +433,12 @@ def main():
     stage_buttons = [
         dict(label="All Stages",
              method="update",
-             args=[{"visible": [True] * len(traces_metadata)}])
+             args=[{"visible": [True] * len(fig.data)}])
     ]
     for stage in stages_to_plot:
         visibility = [meta['stage'] == stage for meta in traces_metadata]
+        if has_regional_events:
+            visibility = [True] + visibility
         stage_buttons.append(
             dict(label=stage,
                  method="update",
