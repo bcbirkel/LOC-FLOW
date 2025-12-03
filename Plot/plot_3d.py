@@ -465,7 +465,7 @@ def main():
                 buttons=picker_buttons,
                 x=1.1,
                 xanchor="left",
-                y=0.8,
+                y=0.7,
                 yanchor="top"
             ),
             dict(
@@ -474,14 +474,14 @@ def main():
                 buttons=stage_buttons,
                 x=1.1,
                 xanchor="left",
-                y=0.5,
+                y=0.4,
                 yanchor="top"
             ),
         ],
         annotations=[
-            dict(text="Pickers", x=1.02, y=0.82, xref="paper", yref="paper",
+            dict(text="Pickers", x=1.02, y=0.72, xref="paper", yref="paper",
                  align="left", showarrow=False, xanchor="left", yanchor="bottom"),
-            dict(text="Stages", x=1.02, y=0.52, xref="paper", yref="paper",
+            dict(text="Stages", x=1.02, y=0.42, xref="paper", yref="paper",
                  align="left", showarrow=False, xanchor="left", yanchor="bottom")
         ]
     )
