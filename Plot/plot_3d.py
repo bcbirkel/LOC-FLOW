@@ -384,7 +384,7 @@ def main():
                 y=regional_data['lat'],
                 z=regional_data['dep'],
                 mode='markers',
-                marker=dict(size=2, color='lightgrey'),
+                marker=dict(size=2.5, color='grey'),
                 name='Regional Events'
             ))
             has_regional_events = True
@@ -409,15 +409,16 @@ def main():
                         color=color,
                         symbol=symbol
                     ),
-                    name=f"{picker} - {stage}"
+                    name=f"{picker} - {stage}",
+                    visible=True
                 ))
                 traces_metadata.append({'picker': picker, 'stage': stage})
 
     # Create buttons for pickers
     picker_buttons = [
-        dict(label="All Pickers",
-             method="update",
-             args=[{"visible": [True] * len(fig.data)}])
+        dict(label="All",
+             method="restyle",
+             args=["visible", [True] * len(fig.data)])
     ]
     for picker in pickers_to_plot:
         visibility = [meta['picker'] == picker for meta in traces_metadata]
@@ -425,15 +426,15 @@ def main():
             visibility = [True] + visibility
         picker_buttons.append(
             dict(label=picker,
-                 method="update",
-                 args=[{"visible": visibility}])
+                 method="restyle",
+                 args=["visible", visibility])
         )
 
     # Create buttons for stages
     stage_buttons = [
-        dict(label="All Stages",
-             method="update",
-             args=[{"visible": [True] * len(fig.data)}])
+        dict(label="All",
+             method="restyle",
+             args=["visible", [True] * len(fig.data)])
     ]
     for stage in stages_to_plot:
         visibility = [meta['stage'] == stage for meta in traces_metadata]
@@ -441,8 +442,8 @@ def main():
             visibility = [True] + visibility
         stage_buttons.append(
             dict(label=stage,
-                 method="update",
-                 args=[{"visible": visibility}])
+                 method="restyle",
+                 args=["visible", visibility])
         )
 
     fig.update_layout(
@@ -455,32 +456,33 @@ def main():
             yaxis=dict(range=[YMIN, YMAX]),
             zaxis=dict(range=[ZMAX, ZMIN]),  # Inverted Z-axis for depth
         ),
-        legend=dict(title="Catalogs"),
+        legend=dict(title="Catalogs", traceorder='normal'),
+        margin=dict(r=200),  # Add right margin for buttons
         updatemenus=[
             dict(
-                type="dropdown",
-                active=0,
-                buttons=picker_buttons,
+                type="buttons",
                 direction="down",
-                pad={"r": 10, "t": 10},
-                showactive=True,
-                x=0.01,
+                buttons=picker_buttons,
+                x=1.1,
                 xanchor="left",
-                y=1.1,
+                y=1.0,
                 yanchor="top"
             ),
             dict(
-                type="dropdown",
-                active=0,
-                buttons=stage_buttons,
+                type="buttons",
                 direction="down",
-                pad={"r": 10, "t": 10},
-                showactive=True,
-                x=0.25,
+                buttons=stage_buttons,
+                x=1.1,
                 xanchor="left",
-                y=1.1,
+                y=0.6,
                 yanchor="top"
             ),
+        ],
+        annotations=[
+            dict(text="Pickers", x=1.02, y=1.02, xref="paper", yref="paper",
+                 align="left", showarrow=False, xanchor="left", yanchor="bottom"),
+            dict(text="Stages", x=1.02, y=0.62, xref="paper", yref="paper",
+                 align="left", showarrow=False, xanchor="left", yanchor="bottom")
         ]
     )
 
