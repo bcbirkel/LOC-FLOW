@@ -45,8 +45,8 @@ STAGE_DATA_DEFINITIONS = {
             'title': 'PhaseNet - REAL'
         },
         'QMigrate': {
-            'path': './all_qm_events.csv',
-            'cols': {'lon': 8, 'lat': 9, 'dep': 6}, # NOTE: Column indices are a guess
+            'path': '../REAL/runs/QMigrate/catalogSA_allday.txt',
+            'cols': {'lon': 6, 'lat': 7, 'dep': 8},
             'title': 'QMigrate - Initial'
         }
     },
