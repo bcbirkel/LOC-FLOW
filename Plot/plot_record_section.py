@@ -147,7 +147,27 @@ def find_nearest_event(ref_event, events, time_window=30):
             best_match = event
     return best_match
 
-def plot_record_section_on_ax(ax, event, component, day_waveforms, stations_2d_only=False):
+def load_station_data(station_file='../Data/station_all.dat'):
+    """Load station data into a dictionary for quick lookup."""
+    station_locs = {}
+    if not os.path.exists(station_file):
+        print(f"Warning: Station file not found: {station_file}")
+        return station_locs
+    
+    with open(station_file, 'r') as f:
+        for line in f:
+            try:
+                parts = line.split()
+                if len(parts) < 4: continue
+                lat, lon, net, sta = parts[0], parts[1], parts[2], parts[3]
+                key = f"{net}.{sta}"
+                if key not in station_locs:
+                    station_locs[key] = (float(lat), float(lon))
+            except (ValueError, IndexError):
+                continue
+    return station_locs
+
+def plot_record_section_on_ax(ax, event, component, day_waveforms, station_locs, stations_2d_only=False):
     """Plots a single record section on a given matplotlib axis."""
     if not day_waveforms:
         return
@@ -174,10 +194,13 @@ def plot_record_section_on_ax(ax, event, component, day_waveforms, stations_2d_o
             elif hasattr(tr_.stats, 'sac'):
                 if hasattr(tr_.stats.sac, 'stla') and hasattr(tr_.stats.sac, 'stlo'):
                     lat, lon = tr_.stats.sac.stla, tr_.stats.sac.stlo
-            else:
-                print("no lat/lon. stats: " + str(tr_.stats))
+                    break
+        
         if lat is None or lon is None:
-            continue
+            if station_id in station_locs:
+                lat, lon = station_locs[station_id]
+            else:
+                continue
 
         component_traces = station_traces.select(component=component)
         if not component_traces:
@@ -224,6 +247,8 @@ def main():
 
     if args.plot_mode == 'picker_stages' and not args.picker:
         parser.error("--picker is required for 'picker_stages' plot mode.")
+
+    station_locs = load_station_data()
 
     try:
         target_date = datetime.strptime(args.date, '%Y-%m-%d')
@@ -306,7 +331,7 @@ def main():
             for (picker, stage), event in matched_events.items():
                 for comp in ['N', 'E']:
                     fig, ax = plt.subplots(figsize=(10, 15))
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
                     plt.tight_layout()
                     filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
@@ -329,7 +354,7 @@ def main():
                 for i, (picker, stage) in enumerate(plot_keys):
                     ax = axes[i // ncols, i % ncols]
                     event = matched_events[(picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'{picker} / {stage}')
                 
                 for i in range(n_plots, nrows * ncols):
@@ -353,7 +378,7 @@ def main():
                 for i, stage in enumerate(stages_for_picker):
                     ax = axes[i, 0]
                     event = matched_events[(args.picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, day_waveforms, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, day_waveforms, station_locs, args.stations_2d_only)
                     ax.set_title(f'Stage: {stage}')
 
                 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
