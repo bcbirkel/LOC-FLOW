@@ -32,7 +32,7 @@ STAGE_DATA_DEFINITIONS = {
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
-        'cols': {'lat': 1, 'lon': 2, 'dep': 3, 'yr': 9, 'mo': 10, 'dy': 11, 'hr': 12, 'mi': 13, 'sc': 14, 'id': 0},
+        'cols': {'lat': 1, 'lon': 2, 'dep': 3, 'yr': 10, 'mo': 11, 'dy': 12, 'hr': 13, 'mi': 14, 'sc': 15, 'id': 0},
     },
     # Add other stages here if needed, with their column definitions
 }
@@ -123,7 +123,7 @@ def plot_record_section_for_event(event, picker, stage):
         print(f"  Waveform directory for day {event_day_str} not found, trying main waveform directory.")
         daily_waveform_dir = WAVEFORM_DIR # Fallback to main directory
 
-    sac_files = glob.glob(os.path.join(daily_waveform_dir, '*.*[EN].SAC'))
+    sac_files = glob.glob(os.path.join(daily_waveform_dir, '*.*[EN].*.SAC'))
     if not sac_files:
         print(f"  No SAC files with E/N components found for event date in {daily_waveform_dir}")
         return
@@ -136,7 +136,7 @@ def plot_record_section_for_event(event, picker, stage):
     for station_id in sorted(list(stations)):
         net, sta = station_id.split('.')
         try:
-            st = read(os.path.join(daily_waveform_dir, f"*{net}.{sta}*??[NE].SAC"))
+            st = read(os.path.join(daily_waveform_dir, f"*{net}.{sta}*??[NE].*.SAC"))
             
             tr_n = st.select(component="N")[0]
             tr_e = st.select(component="E")[0]
