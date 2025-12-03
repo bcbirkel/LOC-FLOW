@@ -111,7 +111,7 @@ def load_events_for_day(catalog_path, cols, target_date):
     return events
 
 
-def plot_record_section_for_event(event, picker, stage):
+def plot_record_section_for_event(event, picker, stage, stations_2d_only=False):
     """Plots N and E component record sections for a single event."""
     print(f"Processing event ID {event['id']} at {event['origin_time']}")
     
@@ -135,6 +135,8 @@ def plot_record_section_for_event(event, picker, stage):
 
     for station_id in sorted(list(stations)):
         net, sta = station_id.split('.')
+        if stations_2d_only and not sta.startswith("2D"):
+            continue
         try:
             st = read(os.path.join(daily_waveform_dir, f"*{net}.{sta}*??[NE].*.SAC"))
             
@@ -149,12 +151,6 @@ def plot_record_section_for_event(event, picker, stage):
                                           tr_n.stats.sac.stla, tr_n.stats.sac.stlo)
             dist_km = dist_m / 1000.0
 
-            tr_n.trim(starttime=event['origin_time'], endtime=event['origin_time'] + PLOT_WINDOW_SEC)
-            tr_e.trim(starttime=event['origin_time'], endtime=event['origin_time'] + PLOT_WINDOW_SEC)
-            
-            if len(tr_n.data) == 0 or len(tr_e.data) == 0:
-                continue
-                
             traces_n.append((dist_km, tr_n))
             traces_e.append((dist_km, tr_e))
 
@@ -181,7 +177,7 @@ def plot_record_section_for_event(event, picker, stage):
         
         max_dist = traces[-1][0]
         for dist, tr in traces:
-            time_axis = tr.times()
+            time_axis = tr.times(reftime=event['origin_time'])
             
             # Normalize and scale for plotting
             norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9)
@@ -209,6 +205,7 @@ def main():
     parser.add_argument("date", help="Date in YYYY-MM-DD format")
     parser.add_argument("picker", help="Picker name (e.g., STALTA, PhaseNet, QMigrate)")
     parser.add_argument("stage", help="Location stage (e.g., Initial, hypoDD_dtct)")
+    parser.add_argument("--stations_2d_only", action="store_true", help="Only plot stations starting with '2D'")
     args = parser.parse_args()
 
     try:
@@ -236,7 +233,7 @@ def main():
     print(f"Found {len(events)} events for {args.date}.")
 
     for event in events:
-        plot_record_section_for_event(event, args.picker, args.stage)
+        plot_record_section_for_event(event, args.picker, args.stage, args.stations_2d_only)
 
 if __name__ == '__main__':
     main()
