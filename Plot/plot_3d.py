@@ -49,8 +49,8 @@ STAGE_DATA_DEFINITIONS = {
             'title': 'PhaseNet - REAL'
         },
         'QMigrate': {
-            'path': '../REAL/runs/QMigrate/catalogSA_allday.txt',
-            'cols': {'lon': 6, 'lat': 7, 'dep': 8},
+            'path': '../REAL/runs/QMigrate/all_events_trimmed.txt',
+            'cols': {'lon': 8, 'lat': 9, 'dep': 10},
             'title': 'QMigrate - Initial'
         }
     },
@@ -61,17 +61,17 @@ STAGE_DATA_DEFINITIONS = {
     },
     'hypoinverse': {
         'path_template': '../location/hypoinverse/{picker}/new.cat',
-        'cols': {'lon': 4, 'lat': 5, 'dep': 6},
+        'cols': {'lon': 5, 'lat': 4, 'dep': 6},
         'title_template': '{picker} - HYPOINVERSE'
     },
     'hypoinverse_corr': {
         'path_template': '../location/hypoinverse_corr/{picker}/new.cat',
-        'cols': {'lon': 4, 'lat': 5, 'dep': 6},
+        'cols': {'lon': 5, 'lat': 4, 'dep': 6},
         'title_template': '{picker} - HYPOINVERSE_corr'
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
-        'cols': {'lon': 1, 'lat': 2, 'dep': 3},
+        'cols': {'lon': 2, 'lat': 1, 'dep': 3},
         'title_template': '{picker} - hypoDD (dt.ct)',
         # 'filters': [{'col': 19, 'op': '>=', 'val': 0}]  # filter by nddp
     },
@@ -95,9 +95,9 @@ STAGE_DATA_DEFINITIONS = {
 
 # Plotting region (manually specify)
 # The whole region
-XMIN, XMAX = 85, 86.2         # Longitude
-YMIN, YMAX = 26, 29           # Latitude
-ZMIN, ZMAX = -5, 40           # Depth
+XMIN, XMAX = 85, 86.5         # Longitude
+YMIN, YMAX = 27, 28.5           # Latitude
+ZMIN, ZMAX = -5, 25           # Depth
 DX, DY, DZ = 0.2, 0.2, 5      # Ticks step
 
 # The zoomed region (one-day data from matlab script)
@@ -440,7 +440,7 @@ def main():
                 y=station_data['lat'],
                 z=station_data['dep'],
                 mode='markers',
-                marker=dict(size=4, color='black', symbol='triangle-up'),
+                marker=dict(size=4, color='black', symbol='diamond'),
                 name='Stations',
                 hovertext=station_data['hovertext'],
                 hoverinfo='text'
