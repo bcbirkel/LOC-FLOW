@@ -351,9 +351,15 @@ def main():
     output_dir = "individual_plots"
     os.makedirs(output_dir, exist_ok=True)
 
+    regional_data = load_regional_data(REGIONAL_EVENTS_FILE) if PLOT_REGIONAL_EVENTS else None
+
     for i, stage in enumerate(stages_to_plot):
         for j, picker in enumerate(pickers_to_plot):
             ax = axes[i, j]
+
+            if stage == 'Initial' and regional_data:
+                ax.scatter(regional_data['lon'], regional_data['lat'], regional_data['dep'],
+                           s=5, c='lightgrey', marker='o', depthshade=True)
 
             stage_info = get_catalog_info(picker, stage)
             if not stage_info:
@@ -396,6 +402,93 @@ def main():
     # plt.savefig('3Dlocation_grid.pdf')
     print("Saved combined plot to 3Dlocation_grid.jpg")
     print(f"Saved individual plots to '{output_dir}/' directory.")
+
+    # --- One picker, all stages plots ---
+    output_dir_onepicker = "onepicker_allstages"
+    os.makedirs(output_dir_onepicker, exist_ok=True)
+
+    for picker in pickers_to_plot:
+        fig, axes_onepicker = plt.subplots(n_rows, 1, figsize=(6, 5 * n_rows),
+                                           subplot_kw={'projection': '3d'}, squeeze=False)
+        fig.suptitle(f"Picker: {picker}", fontsize=16)
+
+        for i, stage in enumerate(stages_to_plot):
+            ax = axes_onepicker[i, 0]
+            stage_info = get_catalog_info(picker, stage)
+            if not stage_info:
+                plot_title = f"{stage}\n(No definition)"
+                ax.set_title(plot_title)
+                ax.axis('off')
+                continue
+
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                plot_title = f"{stage_info['title']} ({len(data['lon'])} events)"
+                ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+                ax.set_xlim(XMIN, XMAX)
+                ax.set_ylim(YMIN, YMAX)
+                ax.set_zlim(ZMIN, ZMAX)
+                ax.invert_zaxis()
+                ax.view_init(elev=VIEW[1], azim=VIEW[0])
+            else:
+                plot_title = f"{stage_info.get('title', f'{picker} - {stage}')}\n(No data)"
+                ax.axis('off')
+
+            ax.set_title(plot_title)
+            if ax.axison:
+                ax.set_ylabel('Latitude')
+                if i == n_rows - 1:
+                    ax.set_xlabel('Longitude')
+                ax.set_zlabel('Depth (km)')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
+        plt.savefig(f"{output_dir_onepicker}/{picker}_all_stages.png")
+        plt.close(fig)
+    print(f"Saved one-picker-all-stages plots to '{output_dir_onepicker}/' directory.")
+
+    # --- All pickers, one stage plots ---
+    output_dir_onestage = "allpickers_onestage"
+    os.makedirs(output_dir_onestage, exist_ok=True)
+
+    for stage in stages_to_plot:
+        fig, axes_onestage = plt.subplots(1, n_cols, figsize=(6 * n_cols, 5),
+                                          subplot_kw={'projection': '3d'}, squeeze=False)
+        fig.suptitle(f"Stage: {stage}", fontsize=16)
+
+        for j, picker in enumerate(pickers_to_plot):
+            ax = axes_onestage[0, j]
+            stage_info = get_catalog_info(picker, stage)
+            if not stage_info:
+                plot_title = f"{picker}\n(No definition)"
+                ax.set_title(plot_title)
+                ax.axis('off')
+                continue
+
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                plot_title = f"{stage_info['title']} ({len(data['lon'])} events)"
+                ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+                ax.set_xlim(XMIN, XMAX)
+                ax.set_ylim(YMIN, YMAX)
+                ax.set_zlim(ZMIN, ZMAX)
+                ax.invert_zaxis()
+                ax.view_init(elev=VIEW[1], azim=VIEW[0])
+            else:
+                plot_title = f"{stage_info.get('title', f'{picker} - {stage}')}\n(No data)"
+                ax.axis('off')
+
+            ax.set_title(plot_title)
+            if ax.axison:
+                ax.set_xlabel('Longitude')
+                if j == 0:
+                    ax.set_ylabel('Latitude')
+                    ax.set_zlabel('Depth (km)')
+
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
+        plt.savefig(f"{output_dir_onestage}/{stage}_all_pickers.png")
+        plt.close(fig)
+    print(f"Saved all-pickers-one-stage plots to '{output_dir_onestage}/' directory.")
+
     plt.show()
 
     # --- Create Interactive Plotly HTML ---
