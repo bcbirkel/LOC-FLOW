@@ -118,6 +118,42 @@ VIEW = (23, 15)
 # --- END CONFIGURATION ---
 
 
+def set_axes_equal_3d(ax, lon, lat, dep, padding_factor=1.1):
+    """Set 3D plot axes to equal scale."""
+    if len(lon) == 0 or len(lat) == 0 or len(dep) == 0:
+        return
+
+    # Rough conversion: 1 degree lat ~= 111 km.
+    # More accurate for lon: 111 * cos(lat).
+    mean_lat_rad = np.deg2rad(np.mean(lat))
+    km_per_deg_lon = 111.32 * np.cos(mean_lat_rad)
+    km_per_deg_lat = 111.32
+
+    # Find the range of the data in km
+    min_lon, max_lon = np.min(lon), np.max(lon)
+    min_lat, max_lat = np.min(lat), np.max(lat)
+    min_dep, max_dep = np.min(dep), np.max(dep)
+
+    range_lon_km = (max_lon - min_lon) * km_per_deg_lon
+    range_lat_km = (max_lat - min_lat) * km_per_deg_lat
+    range_dep_km = max_dep - min_dep
+
+    # Find the maximum range
+    max_range = max(range_lon_km, range_lat_km, range_dep_km) * padding_factor
+    if max_range == 0: # handle single point case
+        max_range = 1 # give it a 1km box
+
+    # Calculate the center of the data
+    mid_lon = (max_lon + min_lon) / 2
+    mid_lat = (max_lat + min_lat) / 2
+    mid_dep = (max_dep + min_dep) / 2
+
+    # Set the limits
+    ax.set_xlim(mid_lon - (max_range / 2 / km_per_deg_lon), mid_lon + (max_range / 2 / km_per_deg_lon))
+    ax.set_ylim(mid_lat - (max_range / 2 / km_per_deg_lat), mid_lat + (max_range / 2 / km_per_deg_lat))
+    ax.set_zlim(mid_dep - max_range / 2, mid_dep + max_range / 2)
+
+
 def apply_filters(data, filters):
     """Apply filters to the data."""
     if not filters:
@@ -332,6 +368,77 @@ def save_individual_plot(data, picker, stage, output_dir):
     plt.close(fig)
 
 
+def save_individual_zoomed_plot(data, picker, stage, output_dir):
+    """Create a new figure with multiple 2D and 3D views (zoomed) and save it."""
+    fig = plt.figure(figsize=(12, 10))
+    fig.suptitle(f"{data['title']} ({len(data['lon'])} events) - Zoomed", fontsize=16)
+
+    padding_factor = 1.1
+    min_lon, max_lon = np.min(data['lon']), np.max(data['lon'])
+    min_lat, max_lat = np.min(data['lat']), np.max(data['lat'])
+    min_dep, max_dep = np.min(data['dep']), np.max(data['dep'])
+
+    range_lon = (max_lon - min_lon) * padding_factor
+    range_lat = (max_lat - min_lat) * padding_factor
+    range_dep = (max_dep - min_dep) * padding_factor
+    if range_lon == 0: range_lon = 0.01
+    if range_lat == 0: range_lat = 0.01
+    if range_dep == 0: range_dep = 1.0
+
+    mid_lon = (max_lon + min_lon) / 2
+    mid_lat = (max_lat + min_lat) / 2
+    mid_dep = (max_dep + min_dep) / 2
+
+    # 1. Lat vs Lon (map view)
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax1.scatter(data['lon'], data['lat'], s=10, marker='o')
+    ax1.set_title('Map View (Lon vs Lat)')
+    ax1.set_xlabel('Longitude')
+    ax1.set_ylabel('Latitude')
+    ax1.set_xlim(mid_lon - range_lon/2, mid_lon + range_lon/2)
+    ax1.set_ylim(mid_lat - range_lat/2, mid_lat + range_lat/2)
+    ax1.set_aspect('equal', adjustable='box')
+    ax1.grid(True)
+
+    # 2. Lat vs Depth
+    ax2 = fig.add_subplot(2, 2, 2)
+    ax2.scatter(data['lat'], data['dep'], s=10, marker='o')
+    ax2.set_title('Depth Profile (vs Latitude)')
+    ax2.set_xlabel('Latitude')
+    ax2.set_ylabel('Depth (km)')
+    ax2.set_xlim(mid_lat - range_lat/2, mid_lat + range_lat/2)
+    ax2.set_ylim(mid_dep - range_dep/2, mid_dep + range_dep/2)
+    ax2.invert_yaxis()
+    ax2.grid(True)
+
+    # 3. Lon vs Depth
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax3.scatter(data['lon'], data['dep'], s=10, marker='o')
+    ax3.set_title('Depth Profile (vs Longitude)')
+    ax3.set_xlabel('Longitude')
+    ax3.set_ylabel('Depth (km)')
+    ax3.set_xlim(mid_lon - range_lon/2, mid_lon + range_lon/2)
+    ax3.set_ylim(mid_dep - range_dep/2, mid_dep + range_dep/2)
+    ax3.invert_yaxis()
+    ax3.grid(True)
+
+    # 4. 3D view
+    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+    ax4.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+    ax4.set_title('3D View (Zoomed, 1:1:1)')
+    ax4.set_xlabel('Longitude')
+    ax4.set_ylabel('Latitude')
+    ax4.set_zlabel('Depth (km)')
+    set_axes_equal_3d(ax4, data['lon'], data['lat'], data['dep'])
+    ax4.invert_zaxis()
+    ax4.view_init(elev=VIEW[1], azim=VIEW[0])
+
+    plt.tight_layout(rect=[0, 0, 1, 0.96])  # Adjust for suptitle
+    filename = f"{output_dir}/{picker}_{stage}_zoomed.png"
+    plt.savefig(filename)
+    plt.close(fig)
+
+
 def main():
     """Main function to load data and generate plots."""
     pickers_to_plot = [p for p, plot in PLOT_PICKERS.items() if plot]
@@ -350,6 +457,8 @@ def main():
     # Create output directory for individual plots
     output_dir = "individual_plots"
     os.makedirs(output_dir, exist_ok=True)
+    output_dir_zoomed = "individual_plots_zoomed"
+    os.makedirs(output_dir_zoomed, exist_ok=True)
 
     regional_data = load_regional_data(REGIONAL_EVENTS_FILE) if PLOT_REGIONAL_EVENTS else None
 
@@ -375,6 +484,7 @@ def main():
                 plot_title = f"{stage_info['title']} ({len(data['lon'])} events)"
                 ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
                 save_individual_plot(data, picker, stage, output_dir)
+                save_individual_zoomed_plot(data, picker, stage, output_dir_zoomed)
 
                 ax.set_xlim(XMIN, XMAX)
                 ax.set_ylim(YMIN, YMAX)
@@ -406,88 +516,154 @@ def main():
     # --- One picker, all stages plots ---
     output_dir_onepicker = "onepicker_allstages"
     os.makedirs(output_dir_onepicker, exist_ok=True)
+    output_dir_onepicker_zoomed = "onepicker_allstages_zoomed"
+    os.makedirs(output_dir_onepicker_zoomed, exist_ok=True)
 
     for picker in pickers_to_plot:
         fig, axes_onepicker = plt.subplots(n_rows, 1, figsize=(6, 5 * n_rows),
                                            subplot_kw={'projection': '3d'}, squeeze=False)
         fig.suptitle(f"Picker: {picker}", fontsize=16)
 
+        fig_zoomed, axes_onepicker_zoomed = plt.subplots(n_rows, 1, figsize=(6, 5 * n_rows),
+                                                       subplot_kw={'projection': '3d'}, squeeze=False)
+        fig_zoomed.suptitle(f"Picker: {picker} (Zoomed, 1:1:1)", fontsize=16)
+
+        # Gather all data for this picker to determine global zoom bounds
+        all_lon, all_lat, all_dep = [], [], []
+        for stage in stages_to_plot:
+            stage_info = get_catalog_info(picker, stage)
+            if not stage_info: continue
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                all_lon.extend(data['lon'])
+                all_lat.extend(data['lat'])
+                all_dep.extend(data['dep'])
+
         for i, stage in enumerate(stages_to_plot):
             ax = axes_onepicker[i, 0]
+            ax_zoomed = axes_onepicker_zoomed[i, 0]
+
             stage_info = get_catalog_info(picker, stage)
             if not stage_info:
-                plot_title = f"{stage}\n(No definition)"
-                ax.set_title(plot_title)
-                ax.axis('off')
+                for a, title in [(ax, f"{stage}\n(No definition)"), (ax_zoomed, f"{stage}\n(No definition)")]:
+                    a.set_title(title)
+                    a.axis('off')
                 continue
 
             data = load_data(stage_info)
             if data and len(data['lon']) > 0:
                 plot_title = f"{stage_info['title']} ({len(data['lon'])} events)"
+                # Full region plot
                 ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
                 ax.set_xlim(XMIN, XMAX)
                 ax.set_ylim(YMIN, YMAX)
                 ax.set_zlim(ZMIN, ZMAX)
                 ax.invert_zaxis()
                 ax.view_init(elev=VIEW[1], azim=VIEW[0])
+                # Zoomed plot
+                ax_zoomed.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+                set_axes_equal_3d(ax_zoomed, np.array(all_lon), np.array(all_lat), np.array(all_dep))
+                ax_zoomed.invert_zaxis()
+                ax_zoomed.view_init(elev=VIEW[1], azim=VIEW[0])
             else:
                 plot_title = f"{stage_info.get('title', f'{picker} - {stage}')}\n(No data)"
                 ax.axis('off')
+                ax_zoomed.axis('off')
 
             ax.set_title(plot_title)
-            if ax.axison:
-                ax.set_ylabel('Latitude')
-                if i == n_rows - 1:
-                    ax.set_xlabel('Longitude')
-                ax.set_zlabel('Depth (km)')
+            ax_zoomed.set_title(plot_title)
+            for a in [ax, ax_zoomed]:
+                if a.axison:
+                    a.set_ylabel('Latitude')
+                    if i == n_rows - 1:
+                        a.set_xlabel('Longitude')
+                    a.set_zlabel('Depth (km)')
 
-        plt.tight_layout(rect=[0, 0, 1, 0.96])
-        plt.savefig(f"{output_dir_onepicker}/{picker}_all_stages.png")
+        fig.tight_layout(rect=[0, 0, 1, 0.96])
+        fig.savefig(f"{output_dir_onepicker}/{picker}_all_stages.png")
         plt.close(fig)
+        
+        fig_zoomed.tight_layout(rect=[0, 0, 1, 0.96])
+        fig_zoomed.savefig(f"{output_dir_onepicker_zoomed}/{picker}_all_stages_zoomed.png")
+        plt.close(fig_zoomed)
     print(f"Saved one-picker-all-stages plots to '{output_dir_onepicker}/' directory.")
+    print(f"Saved one-picker-all-stages (zoomed) plots to '{output_dir_onepicker_zoomed}/' directory.")
 
     # --- All pickers, one stage plots ---
     output_dir_onestage = "allpickers_onestage"
     os.makedirs(output_dir_onestage, exist_ok=True)
+    output_dir_onestage_zoomed = "allpickers_onestage_zoomed"
+    os.makedirs(output_dir_onestage_zoomed, exist_ok=True)
 
     for stage in stages_to_plot:
         fig, axes_onestage = plt.subplots(1, n_cols, figsize=(6 * n_cols, 5),
                                           subplot_kw={'projection': '3d'}, squeeze=False)
         fig.suptitle(f"Stage: {stage}", fontsize=16)
 
+        fig_zoomed, axes_onestage_zoomed = plt.subplots(1, n_cols, figsize=(6 * n_cols, 5),
+                                                        subplot_kw={'projection': '3d'}, squeeze=False)
+        fig_zoomed.suptitle(f"Stage: {stage} (Zoomed, 1:1:1)", fontsize=16)
+
+        # Gather all data for this stage to determine global zoom bounds
+        all_lon, all_lat, all_dep = [], [], []
+        for picker in pickers_to_plot:
+            stage_info = get_catalog_info(picker, stage)
+            if not stage_info: continue
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                all_lon.extend(data['lon'])
+                all_lat.extend(data['lat'])
+                all_dep.extend(data['dep'])
+
         for j, picker in enumerate(pickers_to_plot):
             ax = axes_onestage[0, j]
+            ax_zoomed = axes_onestage_zoomed[0, j]
+
             stage_info = get_catalog_info(picker, stage)
             if not stage_info:
-                plot_title = f"{picker}\n(No definition)"
-                ax.set_title(plot_title)
-                ax.axis('off')
+                for a, title in [(ax, f"{picker}\n(No definition)"), (ax_zoomed, f"{picker}\n(No definition)")]:
+                    a.set_title(title)
+                    a.axis('off')
                 continue
 
             data = load_data(stage_info)
             if data and len(data['lon']) > 0:
                 plot_title = f"{stage_info['title']} ({len(data['lon'])} events)"
+                # Full region plot
                 ax.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
                 ax.set_xlim(XMIN, XMAX)
                 ax.set_ylim(YMIN, YMAX)
                 ax.set_zlim(ZMIN, ZMAX)
                 ax.invert_zaxis()
                 ax.view_init(elev=VIEW[1], azim=VIEW[0])
+                # Zoomed plot
+                ax_zoomed.scatter(data['lon'], data['lat'], data['dep'], s=10, marker='o', depthshade=True)
+                set_axes_equal_3d(ax_zoomed, np.array(all_lon), np.array(all_lat), np.array(all_dep))
+                ax_zoomed.invert_zaxis()
+                ax_zoomed.view_init(elev=VIEW[1], azim=VIEW[0])
             else:
                 plot_title = f"{stage_info.get('title', f'{picker} - {stage}')}\n(No data)"
                 ax.axis('off')
+                ax_zoomed.axis('off')
 
             ax.set_title(plot_title)
-            if ax.axison:
-                ax.set_xlabel('Longitude')
-                if j == 0:
-                    ax.set_ylabel('Latitude')
-                    ax.set_zlabel('Depth (km)')
+            ax_zoomed.set_title(plot_title)
+            for a in [ax, ax_zoomed]:
+                if a.axison:
+                    a.set_xlabel('Longitude')
+                    if j == 0:
+                        a.set_ylabel('Latitude')
+                        a.set_zlabel('Depth (km)')
 
-        plt.tight_layout(rect=[0, 0, 1, 0.96])
-        plt.savefig(f"{output_dir_onestage}/{stage}_all_pickers.png")
+        fig.tight_layout(rect=[0, 0, 1, 0.96])
+        fig.savefig(f"{output_dir_onestage}/{stage}_all_pickers.png")
         plt.close(fig)
+
+        fig_zoomed.tight_layout(rect=[0, 0, 1, 0.96])
+        fig_zoomed.savefig(f"{output_dir_onestage_zoomed}/{stage}_all_pickers_zoomed.png")
+        plt.close(fig_zoomed)
     print(f"Saved all-pickers-one-stage plots to '{output_dir_onestage}/' directory.")
+    print(f"Saved all-pickers-one-stage (zoomed) plots to '{output_dir_onestage_zoomed}/' directory.")
 
     plt.show()
 
