@@ -4,8 +4,8 @@
 #
 # Example usage:
 # 
-# python plot_record_section.py 2023-04-13 --picker QMigrate --stage Initial --stations_2d_only
-# python plot_record_section.py 2023-04-13 --picker QMigrate --stations_2d_only --plot_mode picker_stages
+# python plot_record_section.py 2023-04-13 --picker QMigrate --stage Initial --only_stations 2D
+# python plot_record_section.py 2023-04-13 --picker QMigrate --only_stations 2D --plot_mode picker_stages
 
 import argparse
 import os
@@ -185,7 +185,7 @@ def load_station_data(station_file='../Data/station_filt.dat'):
                 continue
     return station_locs
 
-def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, stations_2d_only=False, time_window_buffer=40):
+def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, only_stations=None, time_window_buffer=40):
     """Plots a single record section on a given matplotlib axis."""
     if not event_waveforms:
         return 0
@@ -196,7 +196,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
 
     for station_id in station_ids:
         net, sta = station_id.split('.')
-        if stations_2d_only and not sta.startswith("2D"):
+        if only_stations and not sta.startswith(only_stations):
             continue
         
         station_traces = event_waveforms.select(network=net, station=sta)
@@ -263,7 +263,7 @@ def main():
     parser.add_argument("--stage", help="Stage to plot (e.g., Initial, hypoDD_dtct). If not given, all stages are processed.")
     parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='individual',
                         help="Plotting mode: 'individual' for separate plots, 'all_in_one' for a single large figure (default), 'picker_stages' for all stages of a specified picker.")
-    parser.add_argument("--stations_2d_only", action="store_true", help="Only plot stations starting with '2D'")
+    parser.add_argument("--only_stations", type=str, help="Only plot stations starting with this string (e.g., '2D', 'A').")
     args = parser.parse_args()
 
     if args.plot_mode == 'picker_stages' and not args.picker:
@@ -335,7 +335,7 @@ def main():
             read_starttime = ref_event['origin_time'] - time_window_buffer
             read_endtime = ref_event['origin_time'] + PLOT_WINDOW_SEC + time_window_buffer
             
-            mseed_pattern = '2D*.mseed' if args.stations_2d_only else '*.mseed'
+            mseed_pattern = f'{args.only_stations}*.mseed' if args.only_stations else '*.mseed'
             mseed_files = glob.glob(os.path.join(daily_waveform_dir, mseed_pattern))
             
             for f in mseed_files:
@@ -376,7 +376,7 @@ def main():
                 total_traces_plotted = 0
                 for i, comp in enumerate(components):
                     ax = axes[i]
-                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.only_stations, time_window_buffer)
                     total_traces_plotted += num_traces
                     ax.set_title(f'Component: {comp}')
                     if i > 0:
@@ -412,7 +412,7 @@ def main():
                     col_idx = i % ncols
                     ax = axes[row_idx, col_idx]
 
-                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.only_stations, time_window_buffer)
                     total_traces_plotted += num_traces
 
                     if comp_idx == 0:
@@ -451,7 +451,7 @@ def main():
                 event = matched_events[(args.picker, stage)]
                 for j, comp in enumerate(components):
                     ax = axes[i, j]
-                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.only_stations, time_window_buffer)
                     total_traces_plotted += num_traces
 
                     if i == 0:  # Top row
