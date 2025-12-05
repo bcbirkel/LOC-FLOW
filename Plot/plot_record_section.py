@@ -392,53 +392,54 @@ def main():
                 plt.close(fig)
         
         elif args.plot_mode == 'all_in_one':
-             # Determine grid size
-            plot_keys = sorted(matched_events.keys())
-            n_plots = len(plot_keys)
-            if n_plots == 0: continue
-            ncols = min(n_plots, 3) # Max 3 columns for picker/stage combinations
-            nrows = (n_plots + ncols - 1) // ncols
+            stages_in_order = [s for s in ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct'] if s in STAGES]
+            pickers_in_order = PICKERS
+            
+            n_rows = len(stages_in_order)
+            n_cols = len(pickers_in_order)
+            if n_rows == 0 or n_cols == 0: continue
+
             components = ['N', 'E', 'Z']
-            
-            # We will have a grid of picker/stages, with 3 component plots vertically for each.
-            fig, axes = plt.subplots(nrows * len(components), ncols, figsize=(ncols * 8, nrows * 15), squeeze=False, sharex='col', sharey='all')
-            fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} ({ref_event["origin_time"]})', fontsize=16)
+            for comp in components:
+                fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 8, n_rows * 7), squeeze=False, sharex='all', sharey='all')
+                fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} ({ref_event["origin_time"]}) - Component {comp}', fontsize=16)
 
-            total_traces_plotted = 0
-            for i, (picker, stage) in enumerate(plot_keys):
-                event = matched_events[(picker, stage)]
-                for comp_idx, comp in enumerate(components):
-                    row_idx = (i // ncols) * len(components) + comp_idx
-                    col_idx = i % ncols
-                    ax = axes[row_idx, col_idx]
+                total_traces_plotted = 0
+                for i, stage in enumerate(stages_in_order):
+                    for j, picker in enumerate(pickers_in_order):
+                        ax = axes[i, j]
+                        
+                        if (picker, stage) in matched_events:
+                            event = matched_events[(picker, stage)]
+                            num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.only_stations, time_window_buffer)
+                            total_traces_plotted += num_traces
+                        else:
+                            ax.text(0.5, 0.5, 'Not available', ha='center', va='center', transform=ax.transAxes)
+                            ax.set_xticks([])
+                            ax.set_yticks([])
 
-                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.only_stations, time_window_buffer)
-                    total_traces_plotted += num_traces
-
-                    if comp_idx == 0:
-                        ax.set_title(f'{picker} / {stage}')
-                    
-                    ax.set_ylabel(f'Dist (km)\n{comp}')
-
-            # Hide unused axes
-            for i in range(n_plots, nrows * ncols):
-                for comp_idx in range(len(components)):
-                    row_idx = (i // ncols) * len(components) + comp_idx
-                    col_idx = i % ncols
-                    fig.delaxes(axes[row_idx, col_idx])
-            
-            if total_traces_plotted > 0:
-                plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                filename = os.path.join(output_dir, "all_in_one.png")
-                plt.savefig(filename)
-                print(f"  Saved plot: {filename}")
-            else:
-                print(f"  --> Could not plot any record sections for event {ref_event['id']}: No suitable waveform data found.")
-            plt.close(fig)
+                        if i == 0:
+                            ax.set_title(picker)
+                        
+                        if j == 0:
+                            stage_label = 'VELEST + hypoinverse' if stage == 'hypoinverse_corr' else stage
+                            ax.set_ylabel(f'Dist (km)\n{stage_label}')
+                        else:
+                            ax.set_ylabel('')
+                
+                if total_traces_plotted > 0:
+                    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                    filename = os.path.join(output_dir, f"all_in_one_{comp}.png")
+                    plt.savefig(filename)
+                    print(f"  Saved plot: {filename}")
+                else:
+                     print(f"  --> Could not plot any record sections for event {ref_event['id']} component {comp}: No suitable waveform data found.")
+                plt.close(fig)
         
         elif args.plot_mode == 'picker_stages':
-            # stages_for_picker = sorted([s for p, s in matched_events.keys() if p == args.picker])
-            stages_for_picker = [s for p, s in matched_events.keys() if p == args.picker]
+            stage_plot_order = ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct']
+            available_stages = [s for p, s in matched_events.keys() if p == args.picker]
+            stages_for_picker = [s for s in stage_plot_order if s in available_stages]
             n_plots = len(stages_for_picker)
             if n_plots == 0: continue
             
@@ -457,7 +458,8 @@ def main():
                     if i == 0:  # Top row
                         ax.set_title(f'Component: {comp}')
                     if j == 0:  # First column
-                        ax.set_ylabel(f'Dist (km)\nStage: {stage}')
+                        stage_label = 'VELEST + hypoinverse' if stage == 'hypoinverse_corr' else stage
+                        ax.set_ylabel(f'Dist (km)\nStage: {stage_label}')
                     else:
                         ax.set_ylabel('')  # Y-labels only on first column
             
