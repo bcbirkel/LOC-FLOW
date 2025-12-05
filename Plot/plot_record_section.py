@@ -181,7 +181,7 @@ def load_station_data(station_file='../Data/station_all.dat'):
 def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, stations_2d_only=False, time_window_buffer=40):
     """Plots a single record section on a given matplotlib axis."""
     if not event_waveforms:
-        return
+        return 0
 
     traces = []
     # Create a set of unique stations (net.sta) to iterate over
@@ -227,7 +227,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
             continue
     
     if not traces:
-        return
+        return 0
 
     traces.sort(key=lambda x: x[0])
     
@@ -244,6 +244,8 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
     ax.set_xlim(0, PLOT_WINDOW_SEC)
     ax.set_xlabel('Time (s)')
     ax.set_ylabel('Distance (km)')
+
+    return len(traces)
 
 def main():
     """Main function to parse arguments and run plotting."""
@@ -270,14 +272,14 @@ def main():
         print("Error: Date must be in YYYY-MM-DD format.")
         return
 
-    # Load reference catalog (QMigrate/Initial)
+    # Load reference catalog (QMigrate/hypoDD_dtct)
     t0 = time.time()
-    ref_catalog_info = get_catalog_info('QMigrate', 'Initial')
+    ref_catalog_info = get_catalog_info('QMigrate', 'hypoDD_dtct')
     ref_events = load_events_for_day(ref_catalog_info['path'], ref_catalog_info['cols'], target_date)
     print(f"Loaded reference catalog ({len(ref_events)} events) in {time.time() - t0:.2f}s")
 
     if not ref_events:
-        print("No events found in the reference catalog (QMigrate/Initial).")
+        print("No events found in the reference catalog (QMigrate/hypoDD_dtct).")
         return
 
     # Load all other available catalogs
@@ -339,9 +341,9 @@ def main():
             continue
 
         t0 = time.time()
-        matched_events = {('QMigrate', 'Initial'): ref_event}
+        matched_events = {('QMigrate', 'hypoDD_dtct'): ref_event}
         for (picker, stage), events in all_catalogs.items():
-            if picker == 'QMigrate' and stage == 'Initial': continue
+            if picker == 'QMigrate' and stage == 'hypoDD_dtct': continue
             match = find_nearest_event(ref_event, events)
             if match:
                 matched_events[(picker, stage)] = match
@@ -358,18 +360,23 @@ def main():
                 fig, axes = plt.subplots(1, len(components), figsize=(24, 10), sharey=True)
                 fig.suptitle(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}', fontsize=16)
 
+                total_traces_plotted = 0
                 for i, comp in enumerate(components):
                     ax = axes[i]
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    total_traces_plotted += num_traces
                     ax.set_title(f'Component: {comp}')
                     if i > 0:
                         ax.set_ylabel('')  # Distance label only on first plot
-
-                plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                filename = os.path.join(output_dir, f"{picker}_{stage}.png")
-                plt.savefig(filename)
+                
+                if total_traces_plotted > 0:
+                    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                    filename = os.path.join(output_dir, f"{picker}_{stage}.png")
+                    plt.savefig(filename)
+                    print(f"  Saved plot: {filename}")
+                else:
+                    print(f"  --> Could not plot record section for {picker}/{stage}: No suitable waveform data found.")
                 plt.close(fig)
-                print(f"  Saved plot: {filename}")
         
         elif args.plot_mode == 'all_in_one':
              # Determine grid size
@@ -384,6 +391,7 @@ def main():
             fig, axes = plt.subplots(nrows * len(components), ncols, figsize=(ncols * 8, nrows * 15), squeeze=False, sharex='col', sharey='all')
             fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} ({ref_event["origin_time"]})', fontsize=16)
 
+            total_traces_plotted = 0
             for i, (picker, stage) in enumerate(plot_keys):
                 event = matched_events[(picker, stage)]
                 for comp_idx, comp in enumerate(components):
@@ -391,7 +399,8 @@ def main():
                     col_idx = i % ncols
                     ax = axes[row_idx, col_idx]
 
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    total_traces_plotted += num_traces
 
                     if comp_idx == 0:
                         ax.set_title(f'{picker} / {stage}')
@@ -404,12 +413,15 @@ def main():
                     row_idx = (i // ncols) * len(components) + comp_idx
                     col_idx = i % ncols
                     fig.delaxes(axes[row_idx, col_idx])
-
-            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-            filename = os.path.join(output_dir, "all_in_one.png")
-            plt.savefig(filename)
+            
+            if total_traces_plotted > 0:
+                plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                filename = os.path.join(output_dir, "all_in_one.png")
+                plt.savefig(filename)
+                print(f"  Saved plot: {filename}")
+            else:
+                print(f"  --> Could not plot any record sections for event {ref_event['id']}: No suitable waveform data found.")
             plt.close(fig)
-            print(f"  Saved plot: {filename}")
         
         elif args.plot_mode == 'picker_stages':
             stages_for_picker = sorted([s for p, s in matched_events.keys() if p == args.picker])
@@ -420,11 +432,13 @@ def main():
             fig, axes = plt.subplots(n_plots, len(components), figsize=(24, n_plots * 7), squeeze=False, sharey='row')
             fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} - Picker: {args.picker}', fontsize=16)
 
+            total_traces_plotted = 0
             for i, stage in enumerate(stages_for_picker):
                 event = matched_events[(args.picker, stage)]
                 for j, comp in enumerate(components):
                     ax = axes[i, j]
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    num_traces = plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
+                    total_traces_plotted += num_traces
 
                     if i == 0:  # Top row
                         ax.set_title(f'Component: {comp}')
@@ -432,12 +446,15 @@ def main():
                         ax.set_ylabel(f'Dist (km)\nStage: {stage}')
                     else:
                         ax.set_ylabel('')  # Y-labels only on first column
-
-            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-            filename = os.path.join(output_dir, f"{args.picker}_stages.png")
-            plt.savefig(filename)
+            
+            if total_traces_plotted > 0:
+                plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                filename = os.path.join(output_dir, f"{args.picker}_stages.png")
+                plt.savefig(filename)
+                print(f"  Saved plot: {filename}")
+            else:
+                print(f"  --> Could not plot any record sections for picker {args.picker} for event {ref_event['id']}: No suitable waveform data found.")
             plt.close(fig)
-            print(f"  Saved plot: {filename}")
         print(f"  Generated and saved plots in {time.time() - t0:.2f}s")
         print(f"  Total time for this event: {time.time() - event_start_time:.2f}s")
 
