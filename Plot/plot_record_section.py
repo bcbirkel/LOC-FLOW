@@ -154,16 +154,35 @@ def load_events_for_day(catalog_path, cols, target_date):
     return events
 
 
-def find_nearest_event(ref_event, events, time_window=60):
-    """Finds the nearest event in a list within a time window."""
-    best_match = None
-    min_dt = float('inf')
+def find_nearest_event(ref_event, events, time_window=120, max_dist_km=5):
+    """
+    Finds the best matching event in a list.
+    A match must be within a time window and a maximum distance.
+    The best match is the one closest in time that meets the distance criteria.
+    """
+    # Find all candidate events within the time window (time_window is half the total duration)
+    candidates = []
     for event in events:
         dt = abs(ref_event['origin_time'] - event['origin_time'])
-        if dt < time_window and dt < min_dt:
-            min_dt = dt
-            best_match = event
-    return best_match
+        if dt <= time_window:
+            candidates.append({'dt': dt, 'event': event})
+    
+    # Sort candidates by time difference (closest first)
+    candidates.sort(key=lambda x: x['dt'])
+    
+    # Iterate through sorted candidates and check distance
+    for cand in candidates:
+        candidate_event = cand['event']
+        dist_m, _, _ = gps2dist_azimuth(
+            ref_event['lat'], ref_event['lon'],
+            candidate_event['lat'], candidate_event['lon']
+        )
+        dist_km = dist_m / 1000.0
+        
+        if dist_km <= max_dist_km:
+            return candidate_event  # Found the best match
+            
+    return None # No match found
 
 def load_station_data(station_file='../Data/station_filt.dat'):
     """Load station data into a dictionary for quick lookup."""
