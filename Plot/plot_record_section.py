@@ -239,6 +239,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
     traces.sort(key=lambda x: x[0])
     
     max_dist = traces[-1][0] if traces else 1
+    # min_dist = traces[0][0] if traces else 1
     for dist, tr in traces:
         time_axis = tr.times(reftime=event['origin_time'])
         norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9)
@@ -247,7 +248,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
         ax.plot(time_axis[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], dist + scaling_factor * norm_data[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], 'k-', linewidth=0.3)
         ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
 
-    ax.set_ylim(bottom=0, top=max_dist * 1.1)
+    # ax.set_ylim(bottom=max_dist * 0.9, top=max_dist * 1.1)
     ax.set_xlim(0, PLOT_WINDOW_SEC)
     ax.set_xlabel('Time (s)')
     ax.set_ylabel('Distance (km)')
@@ -349,7 +350,7 @@ def main():
             print("  No waveforms found for this event's time window, skipping.")
             continue
         else:
-            event_waveforms.filter("bandpass",freqmin=1,freqmax=40)
+            event_waveforms.filter("bandpass",freqmin=10,freqmax=30)
 
         t0 = time.time()
         matched_events = {('QMigrate', 'hypoDD_dtct'): ref_event}
