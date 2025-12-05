@@ -349,7 +349,7 @@ def main():
             print("  No waveforms found for this event's time window, skipping.")
             continue
         else:
-            event_waveforms.filter("bandpass",freqlow=1,freqhigh=40)
+            event_waveforms.filter("bandpass",freqmin=1,freqmax=40)
 
         t0 = time.time()
         matched_events = {('QMigrate', 'hypoDD_dtct'): ref_event}
