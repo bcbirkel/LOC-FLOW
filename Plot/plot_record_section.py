@@ -57,7 +57,7 @@ STAGE_DATA_DEFINITIONS = {
 }
 
 WAVEFORM_DIR = '/project2/okaya_201/data/daily_200Hz'
-PLOT_WINDOW_SEC = 30  # seconds to plot after origin time
+PLOT_WINDOW_SEC = 15  # seconds to plot after origin time
 
 def get_catalog_info(picker, stage):
     """Dynamically construct catalog info from definitions."""
