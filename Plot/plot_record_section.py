@@ -299,14 +299,22 @@ def main():
         print("Error: Date must be in YYYY-MM-DD format.")
         return
 
-    # Load reference catalog (QMigrate/hypoDD_dtct)
+    # Determine and load reference catalog
+    if args.plot_mode == 'picker_stages' and args.picker:
+        ref_picker = args.picker
+        ref_stage = 'hypoDD_dtct'
+        print(f"Using {ref_picker}/{ref_stage} as reference catalog for picker_stages mode.")
+    else:
+        ref_picker = 'QMigrate'
+        ref_stage = 'hypoDD_dtct'
+        
     t0 = time.time()
-    ref_catalog_info = get_catalog_info('QMigrate', 'hypoDD_dtct')
+    ref_catalog_info = get_catalog_info(ref_picker, ref_stage)
     ref_events = load_events_for_day(ref_catalog_info['path'], ref_catalog_info['cols'], target_date)
-    print(f"Loaded reference catalog ({len(ref_events)} events) in {time.time() - t0:.2f}s")
+    print(f"Loaded reference catalog ({len(ref_events)} events from {ref_picker}/{ref_stage}) in {time.time() - t0:.2f}s")
 
     if not ref_events:
-        print("No events found in the reference catalog (QMigrate/hypoDD_dtct).")
+        print(f"No events found in the reference catalog ({ref_picker}/{ref_stage}).")
         return
 
     # Load all other available catalogs
@@ -372,9 +380,9 @@ def main():
             event_waveforms.filter("bandpass",freqmin=10,freqmax=30)
 
         t0 = time.time()
-        matched_events = {('QMigrate', 'hypoDD_dtct'): ref_event}
+        matched_events = {(ref_picker, ref_stage): ref_event}
         for (picker, stage), events in all_catalogs.items():
-            if picker == 'QMigrate' and stage == 'hypoDD_dtct': continue
+            if picker == ref_picker and stage == ref_stage: continue
             match = find_nearest_event(ref_event, events, 120)
             if match:
                 matched_events[(picker, stage)] = match
