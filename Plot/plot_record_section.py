@@ -384,7 +384,10 @@ def main():
         print(f"  Found matched events in {time.time() - t0:.2f}s")
 
         t0 = time.time()
-        output_dir = os.path.join("record_sections", f"event_{ref_event['id']}_{ref_event['origin_time'].strftime('%Y%m%dT%H%M%S')}")
+        base_output_dir = os.path.join("record_sections", args.plot_mode)
+        if args.plot_mode == 'picker_stages' and args.picker:
+            base_output_dir = os.path.join(base_output_dir, args.picker)
+        output_dir = os.path.join(base_output_dir, f"event_{ref_event['id']}_{ref_event['origin_time'].strftime('%Y%m%dT%H%M%S')}")
         os.makedirs(output_dir, exist_ok=True)
 
         if args.plot_mode == 'individual':
@@ -405,7 +408,7 @@ def main():
                 if total_traces_plotted > 0:
                     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
                     filename = os.path.join(output_dir, f"{picker}_{stage}.png")
-                    plt.savefig(filename)
+                    plt.savefig(filename, dpi=300)
                     print(f"  Saved plot: {filename}")
                 else:
                     print(f"  --> Could not plot record section for {picker}/{stage}: No suitable waveform data found.")
@@ -450,7 +453,7 @@ def main():
                 if total_traces_plotted > 0:
                     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
                     filename = os.path.join(output_dir, f"all_in_one_{comp}.png")
-                    plt.savefig(filename)
+                    plt.savefig(filename, dpi=300)
                     print(f"  Saved plot: {filename}")
                 else:
                      print(f"  --> Could not plot any record sections for event {ref_event['id']} component {comp}: No suitable waveform data found.")
@@ -486,7 +489,7 @@ def main():
             if total_traces_plotted > 0:
                 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
                 filename = os.path.join(output_dir, f"{args.picker}_stages.png")
-                plt.savefig(filename)
+                plt.savefig(filename, dpi=300)
                 print(f"  Saved plot: {filename}")
             else:
                 print(f"  --> Could not plot any record sections for picker {args.picker} for event {ref_event['id']}: No suitable waveform data found.")
