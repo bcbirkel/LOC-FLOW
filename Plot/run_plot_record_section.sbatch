@@ -19,7 +19,7 @@ start_date="2023-04-10"
 end_date="2023-05-07"
 
 # Ensure the python script is executable
-chmod +x plot_record_section.py
+chmod +x Plot/plot_record_section.py
 
 # Convert dates to seconds since epoch for looping
 s_date=$(date -d "$start_date" +%s)
@@ -34,20 +34,20 @@ do
 
     # Run for 'all_in_one' mode
     echo "  Running plot_mode: all_in_one"
-    python3 plot_record_section.py "$date_str" --plot_mode all_in_one
+    python3 Plot/plot_record_section.py "$date_str" --plot_mode all_in_one
 
     # Run for 'individual' mode
     echo "  Running plot_mode: individual"
-    python3 plot_record_section.py "$date_str" --plot_mode individual
+    python3 Plot/plot_record_section.py "$date_str" --plot_mode individual
 
     # Run for 'picker_stages' for each picker
     for picker in STALTA PhaseNet QMigrate; do
         echo "  Running plot_mode: picker_stages for picker: $picker"
-        python3 plot_record_section.py "$date_str" --plot_mode picker_stages --picker "$picker"
+        python3 Plot/plot_record_section.py "$date_str" --plot_mode picker_stages --picker "$picker"
     done
 
     # Move to the next day
-    current_date=$(date -d "@$current_date + 1 day" +%s)
+    current_date=$((current_date + 86400))
 done
 
 echo "All plotting tasks completed."
