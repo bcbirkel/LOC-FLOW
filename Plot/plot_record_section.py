@@ -252,8 +252,8 @@ def main():
     parser.add_argument("date", help="Date in YYYY-MM-DD format")
     parser.add_argument("--picker", help="Picker name to focus on for 'picker_stages' mode.")
     parser.add_argument("--stage", help="Stage to plot (e.g., Initial, hypoDD_dtct). If not given, all stages are processed.")
-    parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='individual',
-                        help="Plotting mode: 'individual' for separate plots (default), 'all_in_one' for a single large figure, 'picker_stages' for all stages of a specified picker.")
+    parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='all_in_one',
+                        help="Plotting mode: 'individual' for separate plots, 'all_in_one' for a single large figure (default), 'picker_stages' for all stages of a specified picker.")
     parser.add_argument("--stations_2d_only", action="store_true", help="Only plot stations starting with '2D'")
     args = parser.parse_args()
 
@@ -354,63 +354,90 @@ def main():
 
         if args.plot_mode == 'individual':
             for (picker, stage), event in matched_events.items():
-                for comp in ['N', 'E']:
-                    fig, ax = plt.subplots(figsize=(10, 15))
+                components = ['N', 'E', 'Z']
+                fig, axes = plt.subplots(1, len(components), figsize=(24, 10), sharey=True)
+                fig.suptitle(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}', fontsize=16)
+
+                for i, comp in enumerate(components):
+                    ax = axes[i]
                     plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
-                    ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
-                    plt.tight_layout()
-                    filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
-                    plt.savefig(filename)
-                    plt.close(fig)
-                    print(f"  Saved plot: {filename}")
+                    ax.set_title(f'Component: {comp}')
+                    if i > 0:
+                        ax.set_ylabel('')  # Distance label only on first plot
+
+                plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+                filename = os.path.join(output_dir, f"{picker}_{stage}.png")
+                plt.savefig(filename)
+                plt.close(fig)
+                print(f"  Saved plot: {filename}")
         
         elif args.plot_mode == 'all_in_one':
              # Determine grid size
             plot_keys = sorted(matched_events.keys())
             n_plots = len(plot_keys)
             if n_plots == 0: continue
-            ncols = min(n_plots, 3) # Max 3 columns
+            ncols = min(n_plots, 3) # Max 3 columns for picker/stage combinations
             nrows = (n_plots + ncols - 1) // ncols
+            components = ['N', 'E', 'Z']
+            
+            # We will have a grid of picker/stages, with 3 component plots vertically for each.
+            fig, axes = plt.subplots(nrows * len(components), ncols, figsize=(ncols * 8, nrows * 15), squeeze=False, sharex='col', sharey='all')
+            fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} ({ref_event["origin_time"]})', fontsize=16)
 
-            for comp in ['N', 'E']:
-                fig, axes = plt.subplots(nrows, ncols, figsize=(ncols*7, nrows*10), squeeze=False)
-                fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} ({ref_event["origin_time"]}) - Component {comp}', fontsize=16)
-                
-                for i, (picker, stage) in enumerate(plot_keys):
-                    ax = axes[i // ncols, i % ncols]
-                    event = matched_events[(picker, stage)]
+            for i, (picker, stage) in enumerate(plot_keys):
+                event = matched_events[(picker, stage)]
+                for comp_idx, comp in enumerate(components):
+                    row_idx = (i // ncols) * len(components) + comp_idx
+                    col_idx = i % ncols
+                    ax = axes[row_idx, col_idx]
+
                     plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
-                    ax.set_title(f'{picker} / {stage}')
-                
-                for i in range(n_plots, nrows * ncols):
-                    fig.delaxes(axes[i // ncols, i % ncols])
 
-                plt.tight_layout(rect=[0, 0.03, 1, 0.97])
-                filename = os.path.join(output_dir, f"all_in_one_{comp}.png")
-                plt.savefig(filename)
-                plt.close(fig)
-                print(f"  Saved plot: {filename}")
+                    if comp_idx == 0:
+                        ax.set_title(f'{picker} / {stage}')
+                    
+                    ax.set_ylabel(f'Dist (km)\n{comp}')
+
+            # Hide unused axes
+            for i in range(n_plots, nrows * ncols):
+                for comp_idx in range(len(components)):
+                    row_idx = (i // ncols) * len(components) + comp_idx
+                    col_idx = i % ncols
+                    fig.delaxes(axes[row_idx, col_idx])
+
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+            filename = os.path.join(output_dir, "all_in_one.png")
+            plt.savefig(filename)
+            plt.close(fig)
+            print(f"  Saved plot: {filename}")
         
         elif args.plot_mode == 'picker_stages':
             stages_for_picker = sorted([s for p, s in matched_events.keys() if p == args.picker])
             n_plots = len(stages_for_picker)
             if n_plots == 0: continue
             
-            for comp in ['N', 'E']:
-                fig, axes = plt.subplots(n_plots, 1, figsize=(10, n_plots * 7), squeeze=False)
-                fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} - Picker: {args.picker} - Component {comp}', fontsize=16)
+            components = ['N', 'E', 'Z']
+            fig, axes = plt.subplots(n_plots, len(components), figsize=(24, n_plots * 7), squeeze=False, sharey='row')
+            fig.suptitle(f'Record Sections for Event ID: {ref_event["id"]} - Picker: {args.picker}', fontsize=16)
 
-                for i, stage in enumerate(stages_for_picker):
-                    ax = axes[i, 0]
-                    event = matched_events[(args.picker, stage)]
+            for i, stage in enumerate(stages_for_picker):
+                event = matched_events[(args.picker, stage)]
+                for j, comp in enumerate(components):
+                    ax = axes[i, j]
                     plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
-                    ax.set_title(f'Stage: {stage}')
 
-                plt.tight_layout(rect=[0, 0.03, 1, 0.97])
-                filename = os.path.join(output_dir, f"{args.picker}_stages_{comp}.png")
-                plt.savefig(filename)
-                plt.close(fig)
-                print(f"  Saved plot: {filename}")
+                    if i == 0:  # Top row
+                        ax.set_title(f'Component: {comp}')
+                    if j == 0:  # First column
+                        ax.set_ylabel(f'Dist (km)\nStage: {stage}')
+                    else:
+                        ax.set_ylabel('')  # Y-labels only on first column
+
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+            filename = os.path.join(output_dir, f"{args.picker}_stages.png")
+            plt.savefig(filename)
+            plt.close(fig)
+            print(f"  Saved plot: {filename}")
         print(f"  Generated and saved plots in {time.time() - t0:.2f}s")
         print(f"  Total time for this event: {time.time() - event_start_time:.2f}s")
 
