@@ -27,11 +27,11 @@ STAGE_DATA_DEFINITIONS = {
     'Initial': {
         'STALTA': {
             'path': '../REAL/catalogSA_allday.txt',
-            'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 1, 'mo': 2, 'dy': 3, 'hr': 4, 'mi': 5, 'sc': 5, 'id': 0},
+            'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 0, 'mo': 1, 'dy': 2, 'hr': 3, 'mi': 4, 'sc': 5, 'id': 0},
         },
         'PhaseNet': {
             'path': '../REAL/runs/PhaseNet/catalogSA_allday.txt',
-            'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 1, 'mo': 2, 'dy': 3, 'hr': 4, 'mi': 5, 'sc': 5, 'id': 0},
+            'cols': {'lon': 6, 'lat': 7, 'dep': 8, 'yr': 0, 'mo': 1, 'dy': 2, 'hr': 3, 'mi': 4, 'sc': 5, 'id': 0},
         },
         'QMigrate': {
             'path': '../REAL/runs/QMigrate/all_events_trimmed.txt',
@@ -44,11 +44,11 @@ STAGE_DATA_DEFINITIONS = {
     },
     'hypoinverse': {
         'path_template': '../location/hypoinverse/{picker}/new.cat',
-        'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
+        'cols': {'lon': 5, 'lat': 4, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
     },
     'hypoinverse_corr': {
         'path_template': '../location/hypoinverse_corr/{picker}/new.cat',
-        'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
+        'cols': {'lon': 5, 'lat': 4, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
@@ -57,7 +57,7 @@ STAGE_DATA_DEFINITIONS = {
 }
 
 WAVEFORM_DIR = '/project2/okaya_201/data/daily_200Hz'
-PLOT_WINDOW_SEC = 60  # seconds to plot after origin time
+PLOT_WINDOW_SEC = 30  # seconds to plot after origin time
 
 def get_catalog_info(picker, stage):
     """Dynamically construct catalog info from definitions."""
@@ -93,9 +93,16 @@ def load_events_for_day(catalog_path, cols, target_date):
         try:
             # Handle 2-digit years
             if 'yr' in cols and cols['yr'] == cols['mo']:
-                year = int(row[cols['yr']][0:2])
-                month = int(row[cols['mo']][2:4])
-                day = int(row[cols['dy']][4:6])
+                if str(row[cols['yr']])[0:2] == '23':
+                    twoyear = int(str(row[cols['yr']])[0:2])
+                    year = twoyear + 2000
+                    month = int(str(row[cols['mo']])[2:4])
+                    day = int(str(row[cols['dy']])[4:6])
+                elif str(row[cols['yr']])[0:2] == '20':
+                    year = int(str(row[cols['yr']])[0:4])
+                    month = int(str(row[cols['mo']])[4:6])
+                    day = int(str(row[cols['dy']])[6:8])
+                # print(f'{year},{month},{day}')
             else:
                 year = int(row[cols['yr']])
                 month = int(row[cols['mo']])
@@ -147,7 +154,7 @@ def load_events_for_day(catalog_path, cols, target_date):
     return events
 
 
-def find_nearest_event(ref_event, events, time_window=30):
+def find_nearest_event(ref_event, events, time_window=60):
     """Finds the nearest event in a list within a time window."""
     best_match = None
     min_dt = float('inf')
@@ -158,7 +165,7 @@ def find_nearest_event(ref_event, events, time_window=30):
             best_match = event
     return best_match
 
-def load_station_data(station_file='../Data/station_all.dat'):
+def load_station_data(station_file='../Data/station_filt.dat'):
     """Load station data into a dictionary for quick lookup."""
     station_locs = {}
     if not os.path.exists(station_file):
@@ -191,7 +198,7 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
         net, sta = station_id.split('.')
         if stations_2d_only and not sta.startswith("2D"):
             continue
-
+        
         station_traces = event_waveforms.select(network=net, station=sta)
         if not station_traces:
             continue
@@ -234,10 +241,10 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
     max_dist = traces[-1][0] if traces else 1
     for dist, tr in traces:
         time_axis = tr.times(reftime=event['origin_time'])
-        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 0.5
+        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9)
         scaling_factor = max_dist / (len(traces) * 1.0) # Adjust for better visual separation
         
-        ax.plot(time_axis[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], dist + scaling_factor * norm_data[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], 'k-', linewidth=0.1)
+        ax.plot(time_axis[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], dist + scaling_factor * norm_data[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], 'k-', linewidth=0.3)
         ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
 
     ax.set_ylim(bottom=0, top=max_dist * 1.1)
@@ -298,14 +305,16 @@ def main():
         stage_def = STAGE_DATA_DEFINITIONS[stage]
         if 'path_template' in stage_def:
             for picker in PICKERS:
-                print(stage)
+                # print(stage)
                 info = get_catalog_info(picker, stage)
                 events = load_events_for_day(info['path'], info['cols'], target_date)
+                print(f"{stage}/{picker}: has {len(events)}")
                 if events: all_catalogs[(picker, stage)] = events
         elif stage == 'Initial':
             for picker in PICKERS:
                 info = get_catalog_info(picker, stage)
                 events = load_events_for_day(info['path'], info['cols'], target_date)
+                print(f"{stage}/{picker}: has {len(events)}")
                 if events: all_catalogs[(picker, stage)] = events
     print(f"Loaded all other catalogs in {time.time() - t0:.2f}s")
 
@@ -339,15 +348,19 @@ def main():
         if not event_waveforms:
             print("  No waveforms found for this event's time window, skipping.")
             continue
+        else:
+            event_waveforms.filter("bandpass",freqlow=1,freqhigh=40)
 
         t0 = time.time()
         matched_events = {('QMigrate', 'hypoDD_dtct'): ref_event}
         for (picker, stage), events in all_catalogs.items():
             if picker == 'QMigrate' and stage == 'hypoDD_dtct': continue
-            match = find_nearest_event(ref_event, events)
+            match = find_nearest_event(ref_event, events, 120)
             if match:
                 matched_events[(picker, stage)] = match
-                # print(f"  Found match for {picker}/{stage}: event at {match['origin_time']}")
+                print(f"  Found match for {picker}/{stage}: event at {match['origin_time']}")
+            else:
+                print(f"  Couldn't find match for {picker}/{stage}")
         print(f"  Found matched events in {time.time() - t0:.2f}s")
 
         t0 = time.time()
@@ -424,7 +437,8 @@ def main():
             plt.close(fig)
         
         elif args.plot_mode == 'picker_stages':
-            stages_for_picker = sorted([s for p, s in matched_events.keys() if p == args.picker])
+            # stages_for_picker = sorted([s for p, s in matched_events.keys() if p == args.picker])
+            stages_for_picker = [s for p, s in matched_events.keys() if p == args.picker]
             n_plots = len(stages_for_picker)
             if n_plots == 0: continue
             
