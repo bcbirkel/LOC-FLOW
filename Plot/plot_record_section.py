@@ -252,7 +252,7 @@ def main():
     parser.add_argument("date", help="Date in YYYY-MM-DD format")
     parser.add_argument("--picker", help="Picker name to focus on for 'picker_stages' mode.")
     parser.add_argument("--stage", help="Stage to plot (e.g., Initial, hypoDD_dtct). If not given, all stages are processed.")
-    parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='all_in_one',
+    parser.add_argument("--plot_mode", choices=['individual', 'all_in_one', 'picker_stages'], default='individual',
                         help="Plotting mode: 'individual' for separate plots, 'all_in_one' for a single large figure (default), 'picker_stages' for all stages of a specified picker.")
     parser.add_argument("--stations_2d_only", action="store_true", help="Only plot stations starting with '2D'")
     args = parser.parse_args()
