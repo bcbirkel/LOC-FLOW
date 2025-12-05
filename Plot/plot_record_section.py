@@ -392,14 +392,11 @@ def main():
         print(f"  Found matched events in {time.time() - t0:.2f}s")
 
         t0 = time.time()
-        base_output_dir = os.path.join("record_sections", args.plot_mode)
-        if args.plot_mode == 'picker_stages' and args.picker:
-            base_output_dir = os.path.join(base_output_dir, args.picker)
-        output_dir = os.path.join(base_output_dir, f"event_{ref_event['id']}_{ref_event['origin_time'].strftime('%Y%m%dT%H%M%S')}")
-        os.makedirs(output_dir, exist_ok=True)
-
         if args.plot_mode == 'individual':
             for (picker, stage), event in matched_events.items():
+                output_dir = os.path.join("record_sections", "individual", picker, stage)
+                os.makedirs(output_dir, exist_ok=True)
+
                 components = ['N', 'E', 'Z']
                 fig, axes = plt.subplots(1, len(components), figsize=(24, 10), sharey=True)
                 fig.suptitle(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}', fontsize=16)
@@ -415,7 +412,8 @@ def main():
                 
                 if total_traces_plotted > 0:
                     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                    filename = os.path.join(output_dir, f"{picker}_{stage}.png")
+                    time_str = ref_event['origin_time'].strftime('%Y%m%d_%H%M%S')
+                    filename = os.path.join(output_dir, f"{ref_event['id']}_{stage}_{picker}_{time_str}.png")
                     plt.savefig(filename, dpi=300)
                     print(f"  Saved plot: {filename}")
                 else:
@@ -423,6 +421,9 @@ def main():
                 plt.close(fig)
         
         elif args.plot_mode == 'all_in_one':
+            output_dir = os.path.join("record_sections", "all_in_one")
+            os.makedirs(output_dir, exist_ok=True)
+
             stages_in_order = [s for s in ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct'] if s in STAGES]
             pickers_in_order = PICKERS
             
@@ -460,7 +461,8 @@ def main():
                 
                 if total_traces_plotted > 0:
                     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                    filename = os.path.join(output_dir, f"all_in_one_{comp}.png")
+                    time_str = ref_event['origin_time'].strftime('%Y%m%d_%H%M%S')
+                    filename = os.path.join(output_dir, f"{ref_event['id']}_{time_str}_{comp}.png")
                     plt.savefig(filename, dpi=300)
                     print(f"  Saved plot: {filename}")
                 else:
@@ -468,6 +470,9 @@ def main():
                 plt.close(fig)
         
         elif args.plot_mode == 'picker_stages':
+            output_dir = os.path.join("record_sections", "picker_stages", args.picker)
+            os.makedirs(output_dir, exist_ok=True)
+
             stage_plot_order = ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct']
             available_stages = [s for p, s in matched_events.keys() if p == args.picker]
             stages_for_picker = [s for s in stage_plot_order if s in available_stages]
@@ -496,7 +501,8 @@ def main():
             
             if total_traces_plotted > 0:
                 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-                filename = os.path.join(output_dir, f"{args.picker}_stages.png")
+                time_str = ref_event['origin_time'].strftime('%Y%m%d_%H%M%S')
+                filename = os.path.join(output_dir, f"{ref_event['id']}_{args.picker}_{time_str}.png")
                 plt.savefig(filename, dpi=300)
                 print(f"  Saved plot: {filename}")
             else:
