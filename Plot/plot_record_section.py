@@ -3,8 +3,9 @@
 # Plot record sections for events on a specific day from a given catalog.
 #
 # Example usage:
-# python plot_record_section.py 2016-10-14 QMigrate hypoDD_dtct
-#
+# 
+# python plot_record_section.py 2023-04-13 --picker QMigrate --stage Initial --stations_2d_only
+# python plot_record_section.py 2023-04-13 --picker QMigrate --stations_2d_only --plot_mode picker_stages
 
 import argparse
 import os
@@ -40,21 +41,18 @@ STAGE_DATA_DEFINITIONS = {
     'VELEST': {
         'path_template': '../location/VELEST/{picker}/new.cat',
         'cols': {'lon': 5, 'lat': 4, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
-        'title_template': '{picker} - VELEST'
     },
     'hypoinverse': {
         'path_template': '../location/hypoinverse/{picker}/new.cat',
         'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
-        'title_template': '{picker} - HYPOINVERSE'
     },
     'hypoinverse_corr': {
         'path_template': '../location/hypoinverse_corr/{picker}/new.cat',
         'cols': {'lon': 4, 'lat': 5, 'dep': 6, 'yr': 0, 'mo': 0, 'dy': 0, 'hr': 1, 'mi': 2, 'sc': 3},
-        'title_template': '{picker} - HYPOINVERSE_corr'
     },
     'hypoDD_dtct': {
         'path_template': '../hypoDD_dtct/{picker}/hypoDD.reloc',
-        'cols': {'lat': 2, 'lon': 1, 'dep': 3, 'yr': 10, 'mo': 11, 'dy': 12, 'hr': 13, 'mi': 14, 'sc': 15, 'id': 0},
+        'cols': {'lat': 1, 'lon': 2, 'dep': 3, 'yr': 10, 'mo': 11, 'dy': 12, 'hr': 13, 'mi': 14, 'sc': 15, 'id': 0},
     },
 }
 
@@ -180,7 +178,7 @@ def load_station_data(station_file='../Data/station_all.dat'):
                 continue
     return station_locs
 
-def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, stations_2d_only=False):
+def plot_record_section_on_ax(ax, event, component, event_waveforms, station_locs, stations_2d_only=False, time_window_buffer=40):
     """Plots a single record section on a given matplotlib axis."""
     if not event_waveforms:
         return
@@ -236,10 +234,10 @@ def plot_record_section_on_ax(ax, event, component, event_waveforms, station_loc
     max_dist = traces[-1][0] if traces else 1
     for dist, tr in traces:
         time_axis = tr.times(reftime=event['origin_time'])
-        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 2
+        norm_data = tr.data / (np.max(np.abs(tr.data)) + 1e-9) * 0.5
         scaling_factor = max_dist / (len(traces) * 1.0) # Adjust for better visual separation
         
-        ax.plot(time_axis[0:int(tr.stats.sample_rate*PLOT_WINDOW_SEC)], dist + scaling_factor * norm_data[0:int(tr.stats.sample_rate*PLOT_WINDOW_SEC)], 'k-', linewidth=0.3)
+        ax.plot(time_axis[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], dist + scaling_factor * norm_data[0:int(tr.stats.sampling_rate*(PLOT_WINDOW_SEC+time_window_buffer))], 'k-', linewidth=0.1)
         ax.text(PLOT_WINDOW_SEC * 1.01, dist, f" {tr.stats.station}", va='center', ha='left')
 
     ax.set_ylim(bottom=0, top=max_dist * 1.1)
@@ -298,6 +296,7 @@ def main():
         stage_def = STAGE_DATA_DEFINITIONS[stage]
         if 'path_template' in stage_def:
             for picker in PICKERS:
+                print(stage)
                 info = get_catalog_info(picker, stage)
                 events = load_events_for_day(info['path'], info['cols'], target_date)
                 if events: all_catalogs[(picker, stage)] = events
@@ -357,7 +356,7 @@ def main():
             for (picker, stage), event in matched_events.items():
                 for comp in ['N', 'E']:
                     fig, ax = plt.subplots(figsize=(10, 15))
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
                     ax.set_title(f'Event ID: {ref_event["id"]} - {picker}/{stage}\nOrigin: {event["origin_time"]}\nComponent: {comp}')
                     plt.tight_layout()
                     filename = os.path.join(output_dir, f"{picker}_{stage}_{comp}.png")
@@ -380,7 +379,7 @@ def main():
                 for i, (picker, stage) in enumerate(plot_keys):
                     ax = axes[i // ncols, i % ncols]
                     event = matched_events[(picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
                     ax.set_title(f'{picker} / {stage}')
                 
                 for i in range(n_plots, nrows * ncols):
@@ -404,7 +403,7 @@ def main():
                 for i, stage in enumerate(stages_for_picker):
                     ax = axes[i, 0]
                     event = matched_events[(args.picker, stage)]
-                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only)
+                    plot_record_section_on_ax(ax, event, comp, event_waveforms, station_locs, args.stations_2d_only, time_window_buffer)
                     ax.set_title(f'Stage: {stage}')
 
                 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
