@@ -10,3 +10,14 @@ Pick/*/2023*
 *.PNG
 Pick/PhaseNet-backup
 Pick/PhaseNet/results/picks.csv
+
+# --- Generic build artifacts ---
+*.o
+*.a
+*.mod
+*.exe
+
+# Compiled binaries in these tool directories
+src/FDTCC/bin/
+src/GrowClust/SRC/growclust
+src/REAL/bin/
