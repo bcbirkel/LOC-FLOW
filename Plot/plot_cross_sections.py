@@ -187,7 +187,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     cross_strike_dist = rotated_coords[1, :]
 
     # --- 4. Define Cross Sections ---
-    num_sections = 7
+    num_sections = 8
     min_along = np.min(along_strike_dist)
     max_along = np.max(along_strike_dist)
 
@@ -219,7 +219,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         cross_lim = (-20, 20)
 
     # --- 5. Create Combined Plot ---
-    fig, axes = plt.subplots(2, 4, figsize=(20, 10), constrained_layout=True)
+    fig, axes = plt.subplots(3, 3, figsize=(18, 15), constrained_layout=True)
     fig.suptitle(f"{data['title']} ({len(x)} events)", fontsize=16)
 
     # --- Plot Map View (top-left) ---
@@ -236,13 +236,24 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     inv_rot_matrix = rot_matrix.T
     for i, center_dist in enumerate(section_centers):
         label = chr(ord('A') + i)
-        # Endpoints in rotated coords
+        # Endpoints for labels
         p1_rot = np.array([center_dist, cross_lim[0]])
         p2_rot = np.array([center_dist, cross_lim[1]])
-        # Rotate back to map XY coords
         p1_xy = inv_rot_matrix @ p1_rot
         p2_xy = inv_rot_matrix @ p2_rot
-        ax_map.plot([p1_xy[0], p2_xy[0]], [p1_xy[1], p2_xy[1]], 'k-', lw=1.5, zorder=15)
+
+        # Define corners of shaded box
+        half_width = section_width / 2
+        c1_rot = np.array([center_dist - half_width, cross_lim[0]])
+        c2_rot = np.array([center_dist + half_width, cross_lim[0]])
+        c3_rot = np.array([center_dist + half_width, cross_lim[1]])
+        c4_rot = np.array([center_dist - half_width, cross_lim[1]])
+
+        # Rotate corners back to map XY coords and plot
+        corners_rot = np.array([c1_rot, c2_rot, c3_rot, c4_rot]).T
+        corners_xy = inv_rot_matrix @ corners_rot
+        ax_map.fill(corners_xy[0, :], corners_xy[1, :],
+                    facecolor='gray', alpha=0.3, edgecolor='k', lw=1, zorder=5)
 
         # Add labels at ends with a small offset along the cross-section line direction
         offset_dist = 2.0  # km
