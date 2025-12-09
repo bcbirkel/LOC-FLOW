@@ -145,6 +145,15 @@ def get_catalog_info(picker, stage):
         return None
 
 
+def angle_to_compass(deg):
+    """Converts an angle in degrees (0 = East) to a compass direction string."""
+    deg = (deg + 360) % 360
+    dirs = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE']
+    # Each slice is 45 degrees. E is -22.5 to 22.5.
+    index = int(round(deg / 45.0)) % 8
+    return dirs[index]
+
+
 def process_and_plot_catalog(data, picker, stage, output_dir):
     """
     Processes a catalog's events to plot a map view with a trend line
@@ -177,28 +186,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     along_strike_dist = rotated_coords[0, :]
     cross_strike_dist = rotated_coords[1, :]
 
-    # --- 4. Plot Map View ---
-    fig_map, ax_map = plt.subplots(figsize=(10, 10))
-    sc = ax_map.scatter(x, y, s=15, c=dep, cmap='viridis_r', alpha=0.7, zorder=10)
-    cbar = plt.colorbar(sc, ax=ax_map, label='Depth (km)')
-
-    # Plot trend line
-    x_fit = np.array([x.min() - 2, x.max() + 2])
-    y_fit = m * x_fit + b
-    ax_map.plot(x_fit, y_fit, 'r-', lw=2, label='Trend Line', zorder=20)
-
-    ax_map.set_xlabel('East-West distance from center (km)')
-    ax_map.set_ylabel('North-South distance from center (km)')
-    ax_map.set_title(f"Map View: {data['title']} ({len(x)} events)")
-    ax_map.set_aspect('equal', adjustable='box')
-    ax_map.grid(True)
-    ax_map.legend()
-
-    map_filename = f"{output_dir}/{picker}_{stage}_map.png"
-    plt.savefig(map_filename)
-    plt.close(fig_map)
-
-    # --- 5. Plot Cross Sections ---
+    # --- 4. Define Cross Sections ---
     min_along = np.min(along_strike_dist)
     max_along = np.max(along_strike_dist)
 
@@ -211,6 +199,55 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         # Handle case where data spans less than 10km
         section_centers = [np.mean(along_strike_dist)]
 
+    # Determine common x-axis limits for cross sections for better comparison
+    max_cross_abs = np.max(np.abs(cross_strike_dist)) if len(cross_strike_dist) > 0 else 20
+    cross_lim = (-max_cross_abs - 5, max_cross_abs + 5)
+
+
+    # --- 5. Plot Map View ---
+    fig_map, ax_map = plt.subplots(figsize=(10, 10))
+    sc = ax_map.scatter(x, y, s=15, c=dep, cmap='viridis_r', alpha=0.7, zorder=10)
+    cbar = plt.colorbar(sc, ax=ax_map, label='Depth (km)')
+
+    # Plot trend line
+    x_fit = np.array([x.min() - 2, x.max() + 2])
+    y_fit = m * x_fit + b
+    ax_map.plot(x_fit, y_fit, 'r-', lw=2, label='Trend Line', zorder=20)
+
+    # Plot cross-section lines and labels on map
+    inv_rot_matrix = rot_matrix.T
+    for i, center_dist in enumerate(section_centers):
+        label = chr(ord('A') + i)
+        # Endpoints in rotated coords
+        p1_rot = np.array([center_dist, cross_lim[0]])
+        p2_rot = np.array([center_dist, cross_lim[1]])
+        # Rotate back to map XY coords
+        p1_xy = inv_rot_matrix @ p1_rot
+        p2_xy = inv_rot_matrix @ p2_rot
+        ax_map.plot([p1_xy[0], p2_xy[0]], [p1_xy[1], p2_xy[1]], 'k-', lw=1.5, zorder=15)
+
+        # Add labels at ends with a small offset along the trend line direction
+        offset_dist = 2.0  # km
+        offset_vec = np.array([np.cos(angle), np.sin(angle)]) * offset_dist
+        ax_map.text(p1_xy[0] + offset_vec[0], p1_xy[1] + offset_vec[1], f"{label}",
+                    va='center', ha='center', fontsize=10, color='k', fontweight='bold',
+                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.1'))
+        ax_map.text(p2_xy[0] + offset_vec[0], p2_xy[1] + offset_vec[1], f"{label}'",
+                    va='center', ha='center', fontsize=10, color='k', fontweight='bold',
+                    bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.1'))
+
+    ax_map.set_xlabel('East-West distance from center (km)')
+    ax_map.set_ylabel('North-South distance from center (km)')
+    ax_map.set_title(f"Map View: {data['title']} ({len(x)} events)")
+    ax_map.set_aspect('equal', adjustable='box')
+    ax_map.grid(True)
+    ax_map.legend()
+
+    map_filename = f"{output_dir}/{picker}_{stage}_map.png"
+    plt.savefig(map_filename)
+    plt.close(fig_map)
+
+    # --- 6. Plot Cross Sections ---
     num_sections = len(section_centers)
     if num_sections == 0:
         return
@@ -221,10 +258,6 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     fig_cs.suptitle(f"Cross Sections Perpendicular to Trend (10km wide): {data['title']}", fontsize=16)
     axes_cs = axes_cs.flatten()
 
-    # Determine common x-axis limits for cross sections for better comparison
-    max_cross_abs = np.max(np.abs(cross_strike_dist)) if len(cross_strike_dist) > 0 else 20
-    cross_lim = (-max_cross_abs - 5, max_cross_abs + 5)
-
     for i, center_dist in enumerate(section_centers):
         ax = axes_cs[i]
         mask = (along_strike_dist >= center_dist - 5) & (along_strike_dist < center_dist + 5)
@@ -233,8 +266,15 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         if n_events_in_section > 0:
             ax.scatter(cross_strike_dist[mask], dep[mask], s=15, alpha=0.7)
 
-        ax.set_title(f'Section @ {center_dist:.0f} km ({n_events_in_section} events)')
-        ax.set_xlabel('Cross-strike distance (km)')
+        label = chr(ord('A') + i)
+        ax.set_title(f"Section {label}-{label}' @ {center_dist:.0f} km ({n_events_in_section} events)")
+
+        # Add compass direction to x-axis
+        cs_angle_deg = np.rad2deg(angle + np.pi/2)
+        dir_pos = angle_to_compass(cs_angle_deg)       # right side of plot (A')
+        dir_neg = angle_to_compass(cs_angle_deg + 180) # left side of plot (A)
+
+        ax.set_xlabel(f'Cross-strike distance (km)\n({dir_neg} <-> {dir_pos})')
         ax.set_ylabel('Depth (km)')
         ax.set_ylim(ZMAX, ZMIN)  # Inverted depth axis
         ax.set_xlim(cross_lim)
