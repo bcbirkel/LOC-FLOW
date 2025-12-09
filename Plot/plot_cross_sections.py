@@ -187,27 +187,45 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     cross_strike_dist = rotated_coords[1, :]
 
     # --- 4. Define Cross Sections ---
+    num_sections = 7
     min_along = np.min(along_strike_dist)
     max_along = np.max(along_strike_dist)
 
-    # Create section centers every 10 km
-    start_center = np.floor(min_along / 10) * 10 + 5
-    end_center_exclusive = np.ceil(max_along / 10) * 10
-    section_centers = np.arange(start_center, end_center_exclusive, 10.0)
+    # Create 7 equally spaced sections
+    total_range = max_along - min_along
+    if total_range == 0:
+        total_range = 1.0  # km, arbitrary width when no along-strike extent
+        min_along -= 0.5   # center events in this arbitrary range
+    section_width = total_range / num_sections
+    section_centers = min_along + section_width / 2 + np.arange(num_sections) * section_width
 
-    if len(section_centers) == 0:
-        # Handle case where data spans less than 10km
-        section_centers = [np.mean(along_strike_dist)]
+    # Determine cross-section length dynamically
+    overall_min_cross, overall_max_cross = np.inf, -np.inf
+    has_events_in_any_section = False
+    for center_dist in section_centers:
+        mask = np.abs(along_strike_dist - center_dist) < section_width / 2
+        if np.any(mask):
+            has_events_in_any_section = True
+            section_cross_dist = cross_strike_dist[mask]
+            overall_min_cross = min(overall_min_cross, np.min(section_cross_dist))
+            overall_max_cross = max(overall_max_cross, np.max(section_cross_dist))
 
-    # Determine common x-axis limits for cross sections for better comparison
-    max_cross_abs = np.max(np.abs(cross_strike_dist)) if len(cross_strike_dist) > 0 else 20
-    cross_lim = (-max_cross_abs - 5, max_cross_abs + 5)
+    if has_events_in_any_section:
+        padding = (overall_max_cross - overall_min_cross) * 0.1
+        if padding == 0: padding = 5 # Add padding if all points are at the same spot
+        cross_lim = (overall_min_cross - padding, overall_max_cross + padding)
+    else:
+        # Fallback if no events are in any section
+        cross_lim = (-20, 20)
 
+    # --- 5. Create Combined Plot ---
+    fig, axes = plt.subplots(2, 4, figsize=(20, 10), constrained_layout=True)
+    fig.suptitle(f"{data['title']} ({len(x)} events)", fontsize=16)
 
-    # --- 5. Plot Map View ---
-    fig_map, ax_map = plt.subplots(figsize=(10, 10))
+    # --- Plot Map View (top-left) ---
+    ax_map = axes[0, 0]
     sc = ax_map.scatter(x, y, s=15, c=dep, cmap='viridis_r', alpha=0.7, zorder=10)
-    cbar = plt.colorbar(sc, ax=ax_map, label='Depth (km)')
+    plt.colorbar(sc, ax=ax_map, label='Depth (km)', shrink=0.8)
 
     # Plot trend line
     x_fit = np.array([x.min() - 2, x.max() + 2])
@@ -226,48 +244,36 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         p2_xy = inv_rot_matrix @ p2_rot
         ax_map.plot([p1_xy[0], p2_xy[0]], [p1_xy[1], p2_xy[1]], 'k-', lw=1.5, zorder=15)
 
-        # Add labels at ends with a small offset along the trend line direction
+        # Add labels at ends with a small offset along the cross-section line direction
         offset_dist = 2.0  # km
-        offset_vec = np.array([np.cos(angle), np.sin(angle)]) * offset_dist
-        ax_map.text(p1_xy[0] + offset_vec[0], p1_xy[1] + offset_vec[1], f"{label}",
+        cs_vec = np.array([-np.sin(angle), np.cos(angle)]) # vector along cross-section
+        offset = cs_vec * offset_dist
+        ax_map.text(p1_xy[0] - offset[0], p1_xy[1] - offset[1], f"{label}",
                     va='center', ha='center', fontsize=10, color='k', fontweight='bold',
                     bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.1'))
-        ax_map.text(p2_xy[0] + offset_vec[0], p2_xy[1] + offset_vec[1], f"{label}'",
+        ax_map.text(p2_xy[0] + offset[0], p2_xy[1] + offset[1], f"{label}'",
                     va='center', ha='center', fontsize=10, color='k', fontweight='bold',
                     bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle='round,pad=0.1'))
 
     ax_map.set_xlabel('East-West distance from center (km)')
     ax_map.set_ylabel('North-South distance from center (km)')
-    ax_map.set_title(f"Map View: {data['title']} ({len(x)} events)")
+    ax_map.set_title('Map View')
     ax_map.set_aspect('equal', adjustable='box')
     ax_map.grid(True)
     ax_map.legend()
 
-    map_filename = f"{output_dir}/{picker}_{stage}_map.png"
-    plt.savefig(map_filename)
-    plt.close(fig_map)
-
-    # --- 6. Plot Cross Sections ---
-    num_sections = len(section_centers)
-    if num_sections == 0:
-        return
-
-    ncols = min(4, num_sections)
-    nrows = int(np.ceil(num_sections / ncols))
-    fig_cs, axes_cs = plt.subplots(nrows, ncols, figsize=(5 * ncols, 5 * nrows), squeeze=False)
-    fig_cs.suptitle(f"Cross Sections Perpendicular to Trend (10km wide): {data['title']}", fontsize=16)
-    axes_cs = axes_cs.flatten()
-
+    # --- Plot Cross Sections ---
+    axes_cs = axes.flatten()[1:]
     for i, center_dist in enumerate(section_centers):
         ax = axes_cs[i]
-        mask = (along_strike_dist >= center_dist - 5) & (along_strike_dist < center_dist + 5)
+        mask = np.abs(along_strike_dist - center_dist) < section_width / 2
         n_events_in_section = np.sum(mask)
 
         if n_events_in_section > 0:
             ax.scatter(cross_strike_dist[mask], dep[mask], s=15, alpha=0.7)
 
         label = chr(ord('A') + i)
-        ax.set_title(f"Section {label}-{label}' @ {center_dist:.0f} km ({n_events_in_section} events)")
+        ax.set_title(f"Section {label}-{label}' @ {center_dist:.1f} km ({n_events_in_section} events)")
 
         # Add compass direction to x-axis
         cs_angle_deg = np.rad2deg(angle + np.pi/2)
@@ -281,14 +287,9 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         ax.set_aspect('equal', adjustable='box')
         ax.grid(True)
 
-    # Hide unused subplots
-    for i in range(num_sections, len(axes_cs)):
-        axes_cs[i].axis('off')
-
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
-    cs_filename = f"{output_dir}/{picker}_{stage}_cross_sections.png"
-    plt.savefig(cs_filename)
-    plt.close(fig_cs)
+    filename = f"{output_dir}/{picker}_{stage}_cross_section_map.png"
+    plt.savefig(filename)
+    plt.close(fig)
 
 
 def main():
