@@ -8,8 +8,9 @@ Pick/*/2023*
 *.MSEED
 *.png
 *.PNG
-Pick/PhaseNet-backup
+Pick/PhaseNet-backup/
 Pick/PhaseNet/results/picks.csv
+Plot/record_sections/picker_stages/
 
 # --- Generic build artifacts ---
 *.o
