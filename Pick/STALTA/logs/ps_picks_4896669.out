@@ -1,0 +1,14 @@
+==========================================
+SLURM_JOB_ID = 4896669
+SLURM_JOB_NODELIST = b04-19
+TMPDIR = /tmp/SLURM_4896669
+==========================================
+Running on host: b04-19.hpc.usc.edu
+SLURM_CPUS_PER_TASK = 40
+Temp dir: /tmp/SLURM_4896669
+Starting P picker at Wed Nov 19 12:35:05 PST 2025
+Loaded 243 stations from ../../Data/station_all.dat
+Picking P phases: date 1 / 25
+2023 04 13
+Using 36 workers for ~243 stations
+Done at Wed Nov 19 12:37:20 PST 2025

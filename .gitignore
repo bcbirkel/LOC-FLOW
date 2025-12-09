@@ -1,0 +1,12 @@
+.aider*
+Data/waveform*
+Pick/*/2023*
+*.nfs*
+*.SAC
+*.sac
+*.mseed
+*.MSEED
+*.png
+*.PNG
+Pick/PhaseNet-backup
+Pick/PhaseNet/results/picks.csv

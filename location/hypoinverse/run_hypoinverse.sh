@@ -2,6 +2,8 @@
 phasein="phase_sel_all.txt"
 stationin="../../Data/station.dat"
 velocityin="../../REAL/tt_db/mymodel.nd"
+# velocityin="/project2/okaya_201/LOC-FLOW/location/VELEST/model1.nd"
+picker="PhaseNet"
 
 ####step 1 (cookbook 3.2 step 3a)##### create the velocity model, pay more attentation
 python mk_velmodel.py $velocityin
@@ -15,7 +17,7 @@ python mk_velmodel.py $velocityin
 
 ####step 2 (cookbook 3.2 step 3b)##### create the phase file
 #merge REAL's phase file into one file
-cat ../../REAL/*.phase_sel.txt > $phasein
+cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
 
 python mk_inputfile.py $phasein $stationin > hypoinput.arc
 rm $phasein
@@ -27,10 +29,10 @@ hyp1.40 <hyp.command
 
 ####step 4 (cookbook 3.2 step 3d)####### run hypoinverse
 ###convert to readable format
-nEH=5       #  horizontal uncertainty no larger than this
-nEZ=5      #  vertical uncertainty no larger than this
-ngap=300    #  station gap no larger than this
-nrms=0.5    #  travetime residual no larger than this
+nEH=10       #  horizontal uncertainty no larger than this
+nEZ=10      #  vertical uncertainty no larger than this
+ngap=360    #  station gap no larger than this
+nrms=1.0    #  travetime residual no larger than this
 
 python convertformat_outputfile.py hypoOut.arc new.cat dele.cat $nEH $nEZ $ngap $nrms
 #Format: date, hh, mm, ss, lat, lon, dep, mag, rms, err_horizonal, err_dep, num

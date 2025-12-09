@@ -1,14 +1,17 @@
 #!/bin/bash -w
+
+picker='QMigrate'
+
 #please finish hypoDD_dtct first before you start hypoDD_dtcc
 #to have accuarte initial locations for dtcc
 #we use dtct locations to update the phase file
-phasein=../hypoDD_dtct/hypoDD.pha #phase file used in hypoDD_dtct
-relocation=../hypoDD_dtct/hypoDD.reloc #locations in hypoDD_dtct
+phasein=../hypoDD_dtct/$picker/hypoDD.pha #phase file used in hypoDD_dtct
+relocation=../hypoDD_dtct/$picker/hypoDD.reloc #locations in hypoDD_dtct
 phaseout=./hypoDD.pha; #phase format for hypoDD
-stationin=../Data/station.dat; #station list
+stationin=../Data/station_filt.dat; #station list
 stationout=station.dat; #station format by hypoDD
 
-awk '{print($4,$2,$1)}' $stationin > $stationout
+awk '{print($4,$1,$2)}' $stationin > $stationout
 
 ##############################step 1 (cookbook 5a)#####################
 #generate a new hypoDD.pha for hypoDD (dt.cc)
@@ -37,17 +40,17 @@ ph2dt ph2dt.inp
 #waveform window length before and after picks and their maximum shift length
 W=1.0/1.0/0.3/1.0/1.5/0.5
 #sampling interval, CC threshold, SNR threshold, maximum abs(t1-t2) of the two picks
-D=0.01/0.6/1/2
+D=0.005/0.5/1/2 # was 0.01/0.6/1/2
 #ranges and grids in horizontal direction and depth (in traveltime table)
-G=1.4/20/0.01/1
+G=0.8/40/0.01/1 ## from REAL -- default was 1.4/20/0.01/1
 #specify the path of event.sel, dt.ct and phase.dat (1: yes, 0: default names)
 C=1/1/1
 #input data format (0: continuous data, 1: event segments)
 F=0
 #BP filter, low and high B=-1/-1 will not fiter the data 
-B=2/8
+B=1/40 #BB - was 2/8
 
-staDir=../Data/station.dat
+staDir=../Data/station_filt.dat
 tttDir=../REAL/tt_db/ttdb.txt
 wavDir=../Data/waveform_sac
 eveDir=./event.sel

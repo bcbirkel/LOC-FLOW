@@ -5,13 +5,13 @@
 
 200 t 2000 0			/enable y2000 formats
 H71 3 1 3			    /use new hypoinverse station format
-DIS 4 50 1 3            /Main Distance weighting
-RMS 4 0.16 1.5 3        /Residual weighting
-ERR .10
+DIS 4 20 1 3            /Main Distance weighting
+RMS 4 0.16 1.5 3        /Residual weighting - BB change, originally RMS 4 0.16 1.5 3  
+ERR .10                 /BB changed from 0.1
 *POS 1.8
-MIN 5                  /min number of stations
+MIN 5                  /min number of stations - BB changed from 5
 ZTR 8                  /trial depth
-*WET 1. .5 .2 .1       /weighting by pick quanlity
+*WET 1. .5 .2 .1       /weighting by pick quality
 *PRE 3, 3 0 0 9        /magnitude
 * OUTPUT
 ERF T
@@ -20,8 +20,8 @@ TOP F
 STA 'station.dat'
 LET 5 2 0                               /Net Sta Chn
 TYP Read in crustal model(s):
-CRH 1 'vel_model_P.crh'		/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
-CRH 2 'vel_model_S.crh' 	/read crust model for Vs
+CRE 1 'vel_model_P.crh'	0 T	    /read crust model for Vp
+CRE 2 'vel_model_S.crh' 0 T	    /read crust model for Vs
 SAL 1 2
 PHS 'hypoinput.arc'		        /input phase file
 

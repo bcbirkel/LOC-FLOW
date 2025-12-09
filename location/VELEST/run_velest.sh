@@ -13,9 +13,11 @@ mode=$1 # 1: update locations alone (fast, usually good enough for your study)
 
 station=../../Data/station_all.dat # station direcotry
 vel=../../REAL/tt_db/mymodel.nd # velocity model directory
-phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
+# vel=low_near_surface.nd # velocity model directory
+# phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
+phasein=../../Pick/QMigrate/phase_best_allday.txt
 # phasein=../../REAL/phase_allday.txt # use the relocated SA locations
-phasein=../../REAL/phase_allday.txt
+phasein=../../Pick/QMigrate/phase_qmigrate.dat
 
 ####################### step 2 (cookbook 3.2, 3b)#####################
 # run velest with different options

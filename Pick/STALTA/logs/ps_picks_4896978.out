@@ -1,0 +1,335 @@
+==========================================
+SLURM_JOB_ID = 4896978
+SLURM_JOB_NODELIST = b10-15
+TMPDIR = /tmp/SLURM_4896978
+==========================================
+Running on host: b10-15.hpc.usc.edu
+SLURM_CPUS_PER_TASK = 40
+Temp dir: /tmp/SLURM_4896978
+Starting P picker at Wed Nov 19 12:45:20 PST 2025
+Loaded 243 stations from ../../Data/station_all.dat
+Picking P phases: date 1 / 25
+2023 04 13
+Using 16 workers for ~243 stations
+[25/243] done 4W A029
+[50/243] done 4W A149
+[75/243] done 4W C15
+[100/243] done 4W 2D20
+[125/243] done 4W A094
+[150/243] done 4W B35
+[175/243] done 4W 2D14
+[200/243] done 4W A094
+[225/243] done 4W B13
+Finished day 20230413
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 2 / 25
+2023 04 14
+Using 16 workers for ~243 stations
+[25/243] done 4W A004
+[50/243] done 4W A144
+[75/243] done 4W C21
+[100/243] done 4W 2D19
+[125/243] done 4W A132
+[150/243] done 4W B28
+[175/243] done 4W 2D14
+[200/243] done 4W A074
+[225/243] done 4W B23
+Finished day 20230414
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 3 / 25
+2023 04 15
+Using 16 workers for ~243 stations
+[25/243] done 4W A004
+[50/243] done 4W A134
+[75/243] done 4W C56
+[100/243] done 4W 2D20
+[125/243] done 4W A113
+[150/243] done 4W B39
+[175/243] done 4W 2D12
+[200/243] done 4W A074
+[225/243] done 4W B23
+Finished day 20230415
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 4 / 25
+2023 04 16
+Using 16 workers for ~243 stations
+[25/243] done 4W A019
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D20
+[125/243] done 4W A113
+[150/243] done 4W B39
+[175/243] done 4W 2D12
+[200/243] done 4W A074
+[225/243] done 4W B03
+Finished day 20230416
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 5 / 25
+2023 04 17
+Using 16 workers for ~243 stations
+[25/243] done 4W A009
+[50/243] done 4W A144
+[75/243] done 4W C90
+[100/243] done 4W 2D20
+[125/243] done 4W A114
+[150/243] done 4W B39
+[175/243] done 4W 2D14
+[200/243] done 4W A069
+[225/243] done 4W B13
+Finished day 20230417
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 6 / 25
+2023 04 18
+Using 16 workers for ~243 stations
+[25/243] done 4W A009
+[50/243] done 4W A144
+[75/243] done 4W C90
+[100/243] done 4W 2D19
+[125/243] done 4W A109
+[150/243] done 4W C05
+[175/243] done 4W 2D14
+[200/243] done 4W A089
+[225/243] done 4W B03
+Finished day 20230418
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 7 / 25
+2023 04 19
+Using 16 workers for ~243 stations
+[25/243] done 4W A034
+[50/243] done 4W A139
+[75/243] done 4W C21
+[100/243] done 4W 2D20
+[125/243] done 4W A104
+[150/243] done 4W B39
+[175/243] done 4W 2D14
+[200/243] done 4W A064
+[225/243] done 4W B03
+Finished day 20230419
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 8 / 25
+2023 04 20
+Using 16 workers for ~243 stations
+[25/243] done 4W A039
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D18
+[125/243] done 4W A100
+[150/243] done 4W B48
+[175/243] done 4W 2D12
+[200/243] done 4W A079
+[225/243] done 4W B23
+Finished day 20230420
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 9 / 25
+2023 04 21
+Using 16 workers for ~243 stations
+[25/243] done 4W A004
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D20
+[125/243] done 4W A104
+[150/243] done 4W B39
+[175/243] done 4W 2D13
+[200/243] done 4W A064
+[225/243] done 4W AX6
+Finished day 20230421
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 10 / 25
+2023 04 22
+Using 16 workers for ~243 stations
+[25/243] done 4W A009
+[50/243] done 4W A149
+[75/243] done 4W C21
+[100/243] done 4W 2D21
+[125/243] done 4W A104
+[150/243] done 4W B50
+[175/243] done 4W 2D14
+[200/243] done 4W A079
+[225/243] done 4W B19
+Finished day 20230422
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 11 / 25
+2023 04 23
+Using 16 workers for ~243 stations
+[25/243] done 4W A009
+[50/243] done 4W A144
+[75/243] done 4W C90
+[100/243] done 4W 2D20
+[125/243] done 4W A104
+[150/243] done 4W B48
+[175/243] done 4W 2D14
+[200/243] done 4W A074
+[225/243] done 4W B19
+Finished day 20230423
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 12 / 25
+2023 04 24
+Using 16 workers for ~243 stations
+[25/243] done 4W A004
+[50/243] done 4W A139
+[75/243] done 4W C90
+[100/243] done 4W 2D21
+[125/243] done 4W A109
+[150/243] done 4W B48
+[175/243] done 4W 2D17
+[200/243] done 4W A084
+[225/243] done 4W B13
+Finished day 20230424
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 13 / 25
+2023 04 25
+Using 16 workers for ~243 stations
+[25/243] done 4W A019
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D20
+[125/243] done 4W A154
+[150/243] done 4W C10
+[175/243] done 4W 2D14
+[200/243] done 4W A079
+[225/243] done 4W A181
+Finished day 20230425
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 14 / 25
+2023 04 26
+Using 16 workers for ~243 stations
+[25/243] done 4W A014
+[50/243] done 4W A144
+[75/243] done 4W C10
+[100/243] done 4W 2D20
+[125/243] done 4W A109
+[150/243] done 4W C05
+[175/243] done 4W 2D14
+[200/243] done 4W A084
+[225/243] done 4W B13
+Finished day 20230426
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 15 / 25
+2023 04 27
+Using 16 workers for ~243 stations
+[25/243] done 4W A019
+[50/243] done 4W A139
+[75/243] done 4W C90
+[100/243] done 4W 2D15
+[125/243] done 4W A113
+[150/243] done 4W B39
+[175/243] done 4W 2D10
+[200/243] done 4W A084
+[225/243] done 4W B39
+Finished day 20230427
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 16 / 25
+2023 04 28
+Using 16 workers for ~243 stations
+[25/243] done 4W A029
+[50/243] done 4W A149
+[75/243] done 4W C77
+[100/243] done 4W 2D21
+[125/243] done 4W A100
+[150/243] done 4W C10
+[175/243] done 4W 2D12
+[200/243] done 4W A074
+[225/243] done 4W B13
+Finished day 20230428
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 17 / 25
+2023 04 29
+Using 16 workers for ~243 stations
+[25/243] done 4W A000
+[50/243] done 4W A149
+[75/243] done 4W C56
+[100/243] done 4W A000
+[125/243] done 4W A104
+[150/243] done 4W B39
+[175/243] done 4W 2D14
+[200/243] done 4W A084
+[225/243] done 4W B09
+Finished day 20230429
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 18 / 25
+2023 04 30
+Using 16 workers for ~243 stations
+[25/243] done 4W A014
+[50/243] done 4W A154
+[75/243] done 4W C25
+[100/243] done 4W 2D17
+[125/243] done 4W A114
+[150/243] done 4W B35
+[175/243] done 4W 2D14
+[200/243] done 4W A079
+[225/243] done 4W B03
+Finished day 20230430
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 19 / 25
+2023 05 01
+Using 16 workers for ~243 stations
+[25/243] done 4W A014
+[50/243] done 4W A139
+[75/243] done 4W C69
+[100/243] done 4W 2D21
+[125/243] done 4W A100
+[150/243] done 4W C10
+[175/243] done 4W 2D14
+[200/243] done 4W A054
+[225/243] done 4W B23
+Finished day 20230501
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 20 / 25
+2023 05 02
+Using 16 workers for ~243 stations
+[25/243] done 4W A014
+[50/243] done 4W A134
+[75/243] done 4W C15
+[100/243] done 4W 2D20
+[125/243] done 4W A113
+[150/243] done 4W B50
+[175/243] done 4W 2D12
+[200/243] done 4W A089
+[225/243] done 4W B23
+Finished day 20230502
+  Stations done: 240, no triggers: 0, skipped: 3
+Picking P phases: date 21 / 25
+2023 05 03
+Using 16 workers for ~243 stations
+[25/243] done 4W A000
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D16
+[125/243] done 4W A109
+[150/243] done 4W B48
+[175/243] done 4W 2D09
+[200/243] done 4W A079
+[225/243] done 4W B09
+Finished day 20230503
+  Stations done: 240, no triggers: 0, skipped: 3
+Picking P phases: date 22 / 25
+2023 05 04
+Using 16 workers for ~243 stations
+[25/243] done 4W A039
+[50/243] done 4W A139
+[75/243] done 4W C25
+[100/243] done 4W 2D19
+[125/243] done 4W A109
+[150/243] done 4W C25
+[175/243] done 4W 2D16
+[200/243] done 4W A069
+[225/243] done 4W B19
+Finished day 20230504
+  Stations done: 240, no triggers: 0, skipped: 3
+Picking P phases: date 23 / 25
+2023 05 05
+Using 16 workers for ~243 stations
+[25/243] done 4W A024
+[50/243] done 4W A144
+[75/243] done 4W C15
+[100/243] done 4W A044
+[125/243] done 4W A113
+[150/243] no station, skip the station 4W 2D04
+[175/243] done 4W 2D11
+[200/243] done 4W A094
+[225/243] done 4W B35
+Finished day 20230505
+  Stations done: 234, no triggers: 0, skipped: 9
+Picking P phases: date 24 / 25
+2023 05 06
+Using 16 workers for ~243 stations

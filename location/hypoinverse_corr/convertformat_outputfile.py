@@ -26,13 +26,13 @@ def format_convert(inputfile,outputfile,deletefile,nEH,nEZ,ngap,nrms):
                 EH = float(line[85:89])/100
                 EZ = float(line[89:93])/100
                 mag = float(line[123:126])/100
-                print nn
-                print RMS
-                print gap
-                # print dep
-                print EH
-                print EZ 
-                # print mag
+                # print nn
+                # print RMS
+                # print gap
+                # # print dep
+                # print EH
+                # print EZ 
+                # # print mag
                     
                 year = int(line[0:4])
                 # print year
@@ -47,7 +47,7 @@ def format_convert(inputfile,outputfile,deletefile,nEH,nEZ,ngap,nrms):
                 try:
                     sec = int(line[12:16])/100
                 except:
-                    print line
+                    # print line
                     sec = int(0)
                 # print sec
 

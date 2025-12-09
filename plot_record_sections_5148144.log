@@ -1,0 +1,42 @@
+==========================================
+SLURM_JOB_ID = 5148144
+SLURM_JOB_NODELIST = b15-10
+TMPDIR = /tmp/SLURM_5148144
+==========================================
+Processing date: 2023-04-10
+  Running plot_mode: all_in_one
+Warning: Station file not found: ../Data/station_filt.dat
+Loaded station data in 0.00s
+Warning: Catalog file not found: ../hypoDD_dtct/QMigrate/hypoDD.reloc
+Loaded reference catalog (0 events from QMigrate/hypoDD_dtct) in 0.00s
+No events found in the reference catalog (QMigrate/hypoDD_dtct).
+  Running plot_mode: individual
+Warning: Station file not found: ../Data/station_filt.dat
+Loaded station data in 0.00s
+Warning: Catalog file not found: ../hypoDD_dtct/QMigrate/hypoDD.reloc
+Loaded reference catalog (0 events from QMigrate/hypoDD_dtct) in 0.00s
+No events found in the reference catalog (QMigrate/hypoDD_dtct).
+  Running plot_mode: picker_stages for picker: STALTA
+Warning: Station file not found: ../Data/station_filt.dat
+Loaded station data in 0.00s
+Using STALTA/hypoDD_dtct as reference catalog for picker_stages mode.
+Warning: Catalog file not found: ../hypoDD_dtct/STALTA/hypoDD.reloc
+Loaded reference catalog (0 events from STALTA/hypoDD_dtct) in 0.00s
+No events found in the reference catalog (STALTA/hypoDD_dtct).
+  Running plot_mode: picker_stages for picker: PhaseNet
+Warning: Station file not found: ../Data/station_filt.dat
+Loaded station data in 0.00s
+Using PhaseNet/hypoDD_dtct as reference catalog for picker_stages mode.
+Warning: Catalog file not found: ../hypoDD_dtct/PhaseNet/hypoDD.reloc
+Loaded reference catalog (0 events from PhaseNet/hypoDD_dtct) in 0.00s
+No events found in the reference catalog (PhaseNet/hypoDD_dtct).
+  Running plot_mode: picker_stages for picker: QMigrate
+Warning: Station file not found: ../Data/station_filt.dat
+Loaded station data in 0.00s
+Using QMigrate/hypoDD_dtct as reference catalog for picker_stages mode.
+Warning: Catalog file not found: ../hypoDD_dtct/QMigrate/hypoDD.reloc
+Loaded reference catalog (0 events from QMigrate/hypoDD_dtct) in 0.00s
+No events found in the reference catalog (QMigrate/hypoDD_dtct).
+date: invalid date ‘@1681110000 + 1 day’
+/var/spool/slurm/d/job5148144/slurm_script: line 30: [: : integer expression expected
+All plotting tasks completed.

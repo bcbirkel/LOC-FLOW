@@ -1,35 +1,39 @@
 #!/bin/bash -w
 ((!$#)) && echo bash $0 0,1,2,3 && exit 1
+# picker="QMigrate"
+# picker="PhaseNet"
+picker="STALTA"
 phaseout=hypoDD.pha; #phase format for hypoDD
 stationin=../Data/station_filt.dat; #station list
 stationout=station.dat; #station format by hypoDD
 
-awk '{print($4,$2,$1)}' $stationin > $stationout
+# BB change: flip lat/lon!!
+awk '{print($4,$1,$2)}' $stationin > $stationout
 
 hypo=$1 #from your input
 
 #########################step 1 (4a in cookbook)########################
 #hypo=0 # use REAL's simulated annealing location
-#hypo=1 # use velest location
+# hypo=1 # use velest location
 # hypo=2 # use hypoinverse location
-hypo=3 # use hypoinverse_corr location
+# hypo=3 # use hypoinverse_corr location
 
 rm $phaseout #delete previous phase file
 
 if (($hypo == 0))
 then    
-        cp ../REAL/phaseSA_allday.txt $phaseout
+        cp ../REAL/runs/$picker/phaseSA_allday.txt $phaseout
 elif (($hypo == 1))
 then
         rms_threshold=0.5 # in sec, events with rms larger than this will not be used
         gap_threshold=300 # in deg., events with station gap larger than this will not be used
         maxdep=40 # in km, events with larger depth will not be used (< dep in the timetable)
-        phasein=../location/VELEST/final.CNV
+        phasein=../location/VELEST/$picker/final.CNV
         python velest2hypoDD.py $phasein $phaseout $rms_threshold $gap_threshold $maxdep
         echo python velest2hypoDD.py $phasein $phaseout $rms_threshold $gap_threshold $maxdep
 elif (($hypo == 2))
 then
-        phasein="../location/hypoinverse/hypoOut.arc"
+        phasein="../location/hypoinverse/$picker/hypoOut.arc"
         rms_threshold=0.5 # in sec, events with rms larger than this will not be used
         gap_threshold=300 # in deg., events with station gap larger than this will not be used
         pick_nres=3       # if pick's residual larger than nres times event's rms
@@ -41,7 +45,7 @@ then
         echo python hypoinverse2hypoDD.py $phasein $phaseout $rms_threshold $gap_threshold $pick_nres $maxdep $maxdep_err $maxdis_err
 elif (($hypo == 3))
 then
-        phasein="../location/hypoinverse_corr/hypoOut.arc"
+        phasein="../location/hypoinverse_corr/$picker/hypoOut.arc"
         rms_threshold=0.5 # in sec, events with rms larger than this will not be used
         gap_threshold=300 # in deg., events with station gap larger than this will not be used
         pick_nres=3       # if pick's residual larger than nres times event's rms

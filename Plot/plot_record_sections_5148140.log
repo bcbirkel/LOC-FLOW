@@ -1,0 +1,20 @@
+==========================================
+SLURM_JOB_ID = 5148140
+SLURM_JOB_NODELIST = b15-10
+TMPDIR = /tmp/SLURM_5148140
+==========================================
+chmod: cannot access 'Plot/plot_record_section.py': No such file or directory
+Processing date: 2023-04-10
+  Running plot_mode: all_in_one
+python3: can't open file '/project2/okaya_201/LOC-FLOW/Plot/Plot/plot_record_section.py': [Errno 2] No such file or directory
+  Running plot_mode: individual
+python3: can't open file '/project2/okaya_201/LOC-FLOW/Plot/Plot/plot_record_section.py': [Errno 2] No such file or directory
+  Running plot_mode: picker_stages for picker: STALTA
+python3: can't open file '/project2/okaya_201/LOC-FLOW/Plot/Plot/plot_record_section.py': [Errno 2] No such file or directory
+  Running plot_mode: picker_stages for picker: PhaseNet
+python3: can't open file '/project2/okaya_201/LOC-FLOW/Plot/Plot/plot_record_section.py': [Errno 2] No such file or directory
+  Running plot_mode: picker_stages for picker: QMigrate
+python3: can't open file '/project2/okaya_201/LOC-FLOW/Plot/Plot/plot_record_section.py': [Errno 2] No such file or directory
+date: invalid date ‘@1681110000 + 1 day’
+/var/spool/slurm/d/job5148140/slurm_script: line 30: [: : integer expression expected
+All plotting tasks completed.

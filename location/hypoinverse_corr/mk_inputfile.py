@@ -25,8 +25,8 @@ def gen_sta_hypo(stationin):
     with open(stationin, 'r') as fr:
         for line in fr.readlines():
             line = line.strip().split()
-            lat_0 = float(line[1])
-            lon_0 = float(line[0])
+            lat_0 = float(line[0]) ## BB change -- SWITCHED LAT/LON!
+            lon_0 = float(line[1])
             latD, latM = decdeg2dms(abs(lat_0))
             lonD, lonM = decdeg2dms(abs(lon_0))
             if lat_0 > 0 and lon_0 >= 0:
@@ -70,8 +70,8 @@ class Event(object):
         self.stime = eventParts[4]  # time string
         self.dtime = eventParts[5]  # time delta to 00:00
         self.std = eventParts[6]
-        self.lat = eventParts[7]
-        self.lon = eventParts[8]
+        self.lat = eventParts[8] ## BB change -- SWITCHED LAT/LON!
+        self.lon = eventParts[7]
         self.depth = eventParts[9]
         self.mag = eventParts[10]
         self.stations = set([])

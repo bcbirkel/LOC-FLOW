@@ -39,7 +39,7 @@ foreach $_(@par){
 	#if(looks_like_number(substr($_,0,2))){
 	if(substr($_,25,1) eq 'N' || substr($_,25,1) eq 'S'){
         # DEBUG: Processing a line
-        print STDERR "DEBUG convertoutput.pl: Processing line: $_\n";
+        # print STDERR "DEBUG convertoutput.pl: Processing line: $_\n";
 	$year = substr($_,0,2); $year=~s/^\s+//;
     $mon = substr($_,2,2); $mon=~s/^\s+//;
     $day = substr($_,4,2); $day=~s/^\s+//;

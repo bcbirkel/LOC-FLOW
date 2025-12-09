@@ -1,8 +1,10 @@
 #!/bin/bash -w
 phasein="phase_sel_all.txt"
 stationin="../../Data/station_all.dat"
-velest_sta_corr="../VELEST/velest.sta" #velest's output (mode=0 only), renamed.
-velest_vel="../VELEST/velest.mod" #velest's output (mode=0), renamed.
+velest_sta_corr="../VELEST/PhaseNet/10layermod/velest.sta" #velest's output (mode=0 only), renamed.
+velest_vel="../VELEST/PhaseNet/10layermod/velest.mod" #velest's output (mode=0), renamed.
+
+picker=PhaseNetl
 
 ###only eligible to have enough reliable events to update vel. and sta. corr.in the VELEST step###
 ###you will get worse locations if your vel. and sta. corr. are not updated properly.
@@ -19,7 +21,7 @@ python mk_vel_velest2hypoinverse.py $velest_vel
 
 ####step 2 (cookbook 3.3 step 3b)##### create the phase file
 #merge REAL's phase file into one file
-cat ../../REAL/*.phase_sel.txt > $phasein
+cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
 python mk_inputfile.py $phasein $stationin > hypoinput.arc
 # python mk_inputfile.py $phasein $velest_sta_corr > hypoinput.arc
 rm $phasein

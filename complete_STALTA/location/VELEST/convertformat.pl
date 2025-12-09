@@ -1,0 +1,282 @@
+#!/usr/bin/perl
+# isingle == 0: location+model updation; isingle == 1: location alone
+
+@ARGV == 7 || die "perl $0 latref lonref distmax isingle station velmodel phasein\n";
+$reflat = $ARGV[0];
+$reflon = $ARGV[1];
+$distmax = $ARGV[2];
+$isingle = $ARGV[3];
+$station = $ARGV[4];
+$vel = $ARGV[5];
+$phasein = $ARGV[6];
+chomp($phasein);
+
+print"isingle = $isingle\n";
+
+if (-e "final.CNV"){`rm velest.* initial.cat final.CNV`;}
+
+$reflon = $reflon*-1; # NOTE: western lon is positive in velest!!! e.g., 117.5W => 117.5
+$iusestacorr = 1; # station correction used or not
+$zmin = -5.0; # was -0.2 # the smallest depth allowed (e.g., -0.2 -> above the sea level)
+$iuseelev = 0; # station elevation used or not (recommend: 0)
+$lowvelocity = 0; # any low velocity layer in the region (recommend: 0)
+$vthet = 10; # damping of velocity
+$stathet = 1; # damping of station correction
+
+if($isingle == 1){
+    $ittmax = 99;
+    $invertratio = 0;
+}else{
+    $ittmax = 9;
+    $invertratio = 3;
+}
+
+
+##############################################
+# station format conversion
+##############################################
+$stause = "velest.sta"; #station format for VELEST
+open(JK,"<$station") or die "Could not open station file '$station': $!\n";
+@par = <JK>;
+close(JK);
+
+if (scalar(@par) == 0) {
+    die "Station file '$station' is empty.\n";
+}
+
+$p1=0;
+$p2=1;
+$p3=1;
+$v1=0.00;
+$v2=0.00;
+open(OT,">$stause");
+print OT "(a4,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n";
+#print OT "(a6,f7.4,a1,1x,f8.4,a1,1x,i4,1x,i1,1x,i3,1x,f5.2,2x,f5.2)\n"; #in modified code
+foreach $_(@par){
+	chomp($_);
+	($lat,$lon,$net,$sta,$comp,$elev) = split(/\s+/, $_);
+    #if(length($sta)>4){$sta = substr($sta,1,4);}  #in old code
+	$vsn = "N";$vew = "E";
+	if($lat < 0.0){$vsn = "S";$vsn = -1*$vsn;}
+	if($lon < 0.0){$vew = "W";$lon = -1*$lon;}
+    $p1 = $elev*1000;
+	printf OT "%-4s%7.4f%1s %8.4f%s %4d %1d %3d %5.2f  %5.2f\n", substr($sta, 0, 4), $lat, $vsn, $lon, $vew, $p1, $p2, $p3, $v1, $v2;
+	$p3++;
+}
+print OT "\n";
+close(OT);
+
+################################################
+# velocity model format conversion
+###############################################
+$newvel = "velest.mod";
+open(JK,"<$vel");
+@par = <JK>;
+close(JK);
+
+open(NV,">$newvel") or die "cannot write to file '$file' [$!]]\n";
+# the fist title line
+print NV "CALAVERAS1D-modell (mod1.1 EK280993)     Ref. station HGS\n";
+
+for($i=0;$i<@par;$i++){
+    chomp($par[$i]);
+    $comp = substr($par[$i],0,6) eq "mantle";
+    if($comp == 1){
+        last;
+    }
+}
+$nlayer = $i;
+
+# the second line - indicate the number of layers for Vp
+printf NV "%3d        vel,depth,vdamp,phase (f5.2,5x,f7.2,2x,f7.3,3x,a1)\n",$nlayer+2;
+# add a layer above the sea level (assume the velocity wrt the sea level)
+($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
+$hp = -3.0;
+$vdamp = 1.0;
+printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
+
+# vp velocity
+for($i=0;$i<$nlayer;$i++){
+    chomp($par[$i]);
+    ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
+    printf NV "%5.2f     %7.2f  %7.3f\n",$vp,$hp,$vdamp;
+}
+    my $vp_mantle = 8.1; # Default mantle velocity.
+    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
+        my @parts = split(" ", $par[$i+1]);
+        $vp_mantle = $parts[1] if @parts >= 2 && $parts[1] > 0;
+    }
+    # $hp is from the last iteration of the preceding loop, which is correct (bottom of crust)
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vp_mantle, $hp+0.1, $vdamp; # include the upper mantle layer
+
+# indicate the number of layers for Vs
+printf NV "%3d\n",$nlayer+2;
+# add a layer above the sea level (assume the velocity wrt the sea level)
+($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[0]);
+$hs = -3.0;
+$vdamp = 1.0;
+printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
+
+# vs velocity
+for($i=0;$i<$nlayer;$i++){
+    chomp($par[$i]);
+    ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
+    printf NV "%5.2f     %7.2f  %7.3f\n",$vs,$hs,$vdamp;
+}
+    my $vs_mantle = 4.5; # Default mantle S velocity.
+    if (defined $par[$i+1] && $par[$i+1] =~ /\S/) {
+        my @parts = split(" ", $par[$i+1]);
+        $vs_mantle = $parts[2] if @parts >= 3 && $parts[2] > 0;
+    }
+    # $hs is from the last iteration of the preceding loop
+    printf NV "%5.2f     %7.2f  %7.3f\n", $vs_mantle, $hs+0.1, $vdamp; # include the upper mantle layer
+close(NV);
+
+##################################################
+#Note: VELEST doesn't have event index
+#Here I use magnitude to represent its index
+#The index would be used in hypoDD procedure as well
+#Hope I didn't confuse you
+#################################################
+$phaseout = "velest.pha"; # phase format for VELEST ISED=1
+$phasecat = "initial.cat"; # catalog format for VELEST
+
+open(JK,"<$phasein");
+@par = <JK>;
+close(JK);
+
+# DEBUG: Print number of lines read from phasein file
+print STDERR "DEBUG convertformat.pl: Read " . scalar(@par) . " lines from $phasein\n";
+
+$neqs = 0;
+open(EV,">$phaseout");
+open(CT,">$phasecat");
+
+my $header_line = "";
+my $cat_line = "";
+my @phase_lines = ();
+my %processed_phases;
+
+sub flush_event {
+    if ($header_line ne "" && scalar(@phase_lines) > 0) {
+        if ($neqs > 0) {
+            print EV "\n";
+        }
+        print EV $header_line;
+        print CT $cat_line;
+        foreach my $phase_line (@phase_lines) {
+            print EV $phase_line;
+        }
+        $neqs++;
+    }
+    $header_line = "";
+    $cat_line = "";
+    @phase_lines = ();
+    %processed_phases = ();
+}
+
+foreach $file(@par){
+    chomp($file);
+    @fields = split(/\s+/, $file);
+    if (!@fields) { next; } # Skip empty lines
+    $test = $fields[0];
+
+    if($test eq "#"){
+        flush_event(); # Write previous event if it had phases
+
+		($jk,$year,$month,$day,$hour,$min,$sec,$lon,$lat,$dep,$mag,$jk,$jk,$jk,$num) = @fields;
+		$year_short = substr($year,2,2); # VELEST format
+		$vsn = "N";$vew = "E";
+		if($lat < 0.0){$vsn = "S"; $lat = -1*$lat;} # VELEST format
+		if($lon < 0.0){$vew = "W"; $lon = -1*$lon;}
+		
+		$header_line = sprintf("%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag);
+		$cat_line = sprintf("%s%02d%02d %02d%02d %5.2f %7.4f%s %8.4f%s %7.2f  %5.2f\n",$year_short,$month,$day,$hour,$min,$sec,$lat,$vsn,$lon,$vew,$dep,$mag);
+	}else{
+        ($station,$tpick,$jk,$phase) = @fields;
+
+        if (not defined $phase or (uc($phase) ne 'P' and uc($phase) ne 'S')) {
+            next;
+        }
+        
+        $phase = uc($phase); # Ensure phase is uppercase
+        my $sta_short = substr($station, 0, 4);
+
+        if (exists $processed_phases{"$sta_short.$phase"}) {
+            next; # Skip duplicate phase
+        }
+        $processed_phases{"$sta_short.$phase"} = 1;
+
+        my $iwt;
+        if ($phase eq 'P') {
+            $iwt = 0;
+        } elsif ($phase eq 'S') {
+            $iwt = 5;
+        }
+        
+        my $phase_line = sprintf("  %-4s  %-1s   %1d   %6.2f\n", $sta_short, $phase, $iwt, $tpick);
+        push @phase_lines, $phase_line;
+    }
+}
+flush_event(); # Flush the last event
+print EV "\n";
+close(EV);
+close(CT);
+
+# DEBUG: Print total number of events processed
+print STDERR "DEBUG convertformat.pl: Total events processed: $neqs\n";
+
+
+################################################
+# velest input file preparation
+################################################
+$velestinput = "velest.cmn";
+open(JK,">$velestinput");
+print JK "velest parameters are below\n";
+#***  olat       olon   icoordsystem      zshift   itrial ztrial    ised
+print JK "$reflat   $reflon      0            0.0      0     0.00       1\n";
+#*** neqs   nshot   rotate
+print JK "$neqs      0      0.0\n";
+#*** isingle   iresolcalc
+print JK "$isingle      0\n";
+#*** dmax    itopo    zmin     veladj    zadj   lowveloclay
+print JK "$distmax   0      $zmin    0.20    5.00    $lowvelocity\n";
+#*** nsp    swtfac   vpvs       nmod
+print JK "2      0.75      1.730        1\n";
+#***   othet   xythet    zthet    vthet   stathet
+print JK "0.01    0.01      0.01    $vthet     $stathet\n";
+#*** nsinv   nshcor   nshfix     iuseelev    iusestacorr
+print JK  "1       0       0        $iuseelev        $iusestacorr\n";
+#*** iturbo    icnvout   istaout   ismpout
+print JK  "1         1         2        0\n";
+#*** irayout   idrvout   ialeout   idspout   irflout   irfrout   iresout
+print JK  "0         0         0         0         0         0         0\n";
+#*** delmin   ittmax   invertratio
+print JK  "0.001   $ittmax   $invertratio\n";
+#*** Modelfile:
+print JK  "$newvel\n";
+#*** Stationfile:
+print JK  "$stause\n";
+#*** Seismofile:
+print JK  " \n";                                                                               
+#*** File with region names:
+print JK  "regionsnamen.dat\n";
+#*** File with region coordinates:
+print JK  "regionskoord.dat\n";
+#*** File #1 with topo data:
+print JK  " \n";                                                                                
+#*** File #2 with topo data:
+print JK  " \n";                                                                                
+#*** File with Earthquake data (phase):
+print JK  "$phaseout\n";
+#*** File with Shot data:
+print JK  " \n";                                                                               
+#*** Main print output file:
+print JK "main.OUT\n";
+#*** File with single event locations:
+print JK "out.CHECK\n";
+#*** File with final hypocenters in *.cnv format:
+print JK "final.CNV\n";
+#*** File with new station corrections:
+print JK "sta.COR\n";
+close(JK);

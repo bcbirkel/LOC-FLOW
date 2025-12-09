@@ -41,7 +41,7 @@ with open(phasefile, "r") as f:
             if (iok == 1 and len(line) < 100):
                 #print(line)
                 net, sta, phase, tabs, trelative, amp, tres, tweig, tbaz = line.split()
-                station1 = sacdir+'/'+year+mon+day+'/'+net+'.'+sta+'.'+'???'
+                station1 = sacdir+'/'+year+mon+day+'/'+net+'.'+sta+'.'+'???'+'*'
                 station2 = event+'/'+net+'.'+sta+'.'+'???'
                 st = read(station1)
                 sacfile = event+'/'+st[0].stats.network+'.'+st[0].stats.station+'.'+st[0].stats.channel

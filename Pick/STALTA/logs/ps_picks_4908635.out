@@ -1,0 +1,39 @@
+==========================================
+SLURM_JOB_ID = 4908635
+SLURM_JOB_NODELIST = b10-15
+TMPDIR = /tmp/SLURM_4908635
+==========================================
+Running on host: b10-15.hpc.usc.edu
+SLURM_CPUS_PER_TASK = 40
+Temp dir: /tmp/SLURM_4908635
+Starting P picker at Thu Nov 20 10:38:52 PST 2025
+Loaded 243 stations from ../../Data/station_all.dat
+Picking P phases: date 1 / 2
+2023 05 06
+Using 16 workers for ~243 stations
+[25/243] done 4W 2D17
+[50/243] done 4W A132
+[75/243] done 4W C62
+[100/243] done 4W A059
+[125/243] done 4W A094
+[150/243] no station, skip the station 4W 2D04
+[175/243] no station, skip the station 4W A029
+[200/243] done 4W A074
+[225/243] done 4W B03
+Finished day 20230506
+  Stations done: 201, no triggers: 0, skipped: 42
+Picking P phases: date 2 / 2
+2023 05 07
+Using 16 workers for ~243 stations
+[25/243] done 4W 2D03
+[50/243] done 4W A089
+[75/243] no station, skip the station 4W 2D10
+[100/243] no station, skip the station 4W A059
+[125/243] done 4W 2D19
+[150/243] no station, skip the station 4W 2D04
+[175/243] no station, skip the station 4W A029
+[200/243] done 4W A049
+[225/243] no station, skip the station 4W C62
+Finished day 20230507
+  Stations done: 138, no triggers: 0, skipped: 105
+Done at Thu Nov 20 11:04:36 PST 2025

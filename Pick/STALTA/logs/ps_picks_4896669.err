@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/project2/okaya_201/LOC-FLOW/Pick/STALTA/trigger_p_amp_parallel.py", line 260, in <module>
+    main()
+  File "/project2/okaya_201/LOC-FLOW/Pick/STALTA/trigger_p_amp_parallel.py", line 245, in main
+    msg = fut.result()
+  File "/project2/jvidale_1700/miniforge3/envs/phasenet/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/project2/jvidale_1700/miniforge3/envs/phasenet/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+[2025-11-19T12:37:20.439] error: Detected 1 oom_kill event in StepId=4896669.batch. Some of the step tasks have been OOM Killed.

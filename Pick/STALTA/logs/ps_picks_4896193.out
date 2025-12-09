@@ -1,0 +1,79 @@
+==========================================
+SLURM_JOB_ID = 4896193
+SLURM_JOB_NODELIST = b04-19
+TMPDIR = /tmp/SLURM_4896193
+==========================================
+Running on host: b04-19.hpc.usc.edu
+SLURM_CPUS_PER_TASK = 40
+Temp dir: /tmp/SLURM_4896193
+Starting P picker at Wed Nov 19 11:48:41 PST 2025
+Loaded 243 stations from ../../Data/station_all.dat
+Picking P phases: date 1 / 7
+2023 04 11
+Using 36 workers for ~243 stations
+[25/243] done 4W A113
+[50/243] done 4W 2D22
+[75/243] done 4W A144
+[100/243] done 4W A114
+[125/243] done 4W A029
+[150/243] done 4W C05
+[175/243] done 4W 2D05
+[200/243] done 4W A039
+[225/243] done 4W A154
+Finished day 20230411
+  Stations done: 201, no triggers: 0, skipped: 42
+Picking P phases: date 2 / 7
+2023 04 12
+Using 36 workers for ~243 stations
+[25/243] done 4W A004
+[50/243] done 4W A114
+[75/243] done 4W C56
+[100/243] done 4W A009
+[125/243] done 4W A100
+[150/243] done 4W AX6
+[175/243] done 4W 2D07
+[200/243] done 4W A100
+[225/243] done 4W B19
+Finished day 20230412
+  Stations done: 243, no triggers: 0, skipped: 0
+Picking P phases: date 3 / 7
+2023 04 13
+Using 36 workers for ~243 stations
+Starting S picker at Wed Nov 19 12:23:22 PST 2025
+Loaded 0 stations from ../../Data/station_all.dat
+Picking S phases: date 1 / 7
+2023 04 11
+Using 8 workers for ~0 stations
+Finished day 20230411
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 2 / 7
+2023 04 12
+Using 8 workers for ~0 stations
+Finished day 20230412
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 3 / 7
+2023 04 13
+Using 8 workers for ~0 stations
+Finished day 20230413
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 4 / 7
+2023 04 14
+Using 8 workers for ~0 stations
+Finished day 20230414
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 5 / 7
+2023 04 15
+Using 8 workers for ~0 stations
+Finished day 20230415
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 6 / 7
+2023 04 16
+Using 8 workers for ~0 stations
+Finished day 20230416
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 7 / 7
+2023 04 17
+Using 8 workers for ~0 stations
+Finished day 20230417
+  Stations done: 0, no triggers: 0, skipped: 0, errors: 0
+Done at Wed Nov 19 12:23:25 PST 2025

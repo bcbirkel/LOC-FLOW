@@ -27,11 +27,13 @@ def model_format(modelin):
                 gg.write('{:4.2f}  {:5.2f}\n'.format(vp, dep))
                 i=i+1
     line_more = get_line_context(modelin, i+2)
-    dep = line_more.split()[0]
-    dep_1 = float(dep) + 0.1 # HYPOINVERSE doesn't like the same depth
-    vp_1 = float(line_more.split()[1])
-    vs_1 = float(line_more.split()[2])
-    gg.write('{:4.2f}  {:5.2f}\n'.format(vp_1, dep_1)) # include the upper mantle layer
+    ## BB added if statement:
+    if len(line_more) != 0:
+        dep = line_more.split()[0]
+        dep_1 = float(dep) + 0.1 # HYPOINVERSE doesn't like the same depth
+        vp_1 = float(line_more.split()[1])
+        vs_1 = float(line_more.split()[2])
+        gg.write('{:4.2f}  {:5.2f}\n'.format(vp_1, dep_1)) # include the upper mantle layer
 
     output = 'vel_model_S.crh'  # velocity model
     gg = open(output, 'w')
@@ -47,7 +49,8 @@ def model_format(modelin):
                 dep = float(dep)
                 vs = float(line.split()[2])
                 gg.write('{:4.2f}  {:5.2f}\n'.format(vs, dep))
-    gg.write('{:4.2f}  {:5.2f}\n'.format(vs_1, dep_1)) # include the upper mantle layer 
+    if len(line_more) != 0:
+        gg.write('{:4.2f}  {:5.2f}\n'.format(vs_1, dep_1)) # include the upper mantle layer 
         
 if __name__ == '__main__':
     if len(sys.argv) != 2:

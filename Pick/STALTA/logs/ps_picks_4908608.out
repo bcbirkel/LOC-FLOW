@@ -1,0 +1,266 @@
+==========================================
+SLURM_JOB_ID = 4908608
+SLURM_JOB_NODELIST = b10-07
+TMPDIR = /tmp/SLURM_4908608
+==========================================
+Running on host: b10-07.hpc.usc.edu
+SLURM_CPUS_PER_TASK = 40
+Temp dir: /tmp/SLURM_4908608
+Starting S picker at Thu Nov 20 10:37:54 PST 2025
+Loaded 243 stations from ../../Data/station_all.dat
+Picking S phases: date 1 / 7
+2023 05 01
+Using 16 workers for ~243 stations
+[25/243] done 4W A014
+[50/243] done 4W A164
+[75/243] done 4W C21
+[100/243] done 4W 2D22
+[125/243] done 4W A104
+[150/243] done 4W B28
+[175/243] done 4W 2D16
+[200/243] done 4W A094
+[225/243] done 4W B19
+Finished day 20230501
+  Stations done: 243, no triggers: 0, skipped: 0, errors: 0
+Picking S phases: date 2 / 7
+2023 05 02
+Using 16 workers for ~243 stations
+[25/243] done 4W A004
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230502/4W.A174.DPE*')
+[50/243] done 4W A144
+[75/243] done 4W C25
+[100/243] done 4W 2D19
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230502/4W.A174.DPE*')
+[125/243] done 4W A100
+[150/243] done 4W C05
+[175/243] done 4W 2D15
+[200/243] done 4W A084
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230502/4W.A174.DPE*')
+[225/243] done 4W C05
+Finished day 20230502
+  Stations done: 240, no triggers: 0, skipped: 0, errors: 3
+Picking S phases: date 3 / 7
+2023 05 03
+Using 16 workers for ~243 stations
+[25/243] done 4W A029
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230503/4W.A174.DPE*')
+[50/243] done 4W A132
+[75/243] done 4W C90
+[100/243] done 4W A000
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230503/4W.A174.DPE*')
+[125/243] done 4W A104
+[150/243] done 4W B50
+[175/243] done 4W 2D15
+[200/243] done 4W A074
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230503/4W.A174.DPE*')
+[225/243] done 4W B19
+Finished day 20230503
+  Stations done: 240, no triggers: 0, skipped: 0, errors: 3
+Picking S phases: date 4 / 7
+2023 05 04
+Using 16 workers for ~243 stations
+[25/243] done 4W A054
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230504/4W.A174.DPE*')
+[50/243] done 4W A159
+[75/243] done 4W C25
+[100/243] done 4W 2D21
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230504/4W.A174.DPE*')
+[125/243] done 4W A069
+[150/243] done 4W B23
+[175/243] done 4W 2D14
+[200/243] done 4W A074
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230504/4W.A174.DPE*')
+[225/243] done 4W B28
+Finished day 20230504
+  Stations done: 240, no triggers: 0, skipped: 0, errors: 3
+Picking S phases: date 5 / 7
+2023 05 05
+Using 16 workers for ~243 stations
+[1/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D04.DPE*')
+[2/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D05.DPE*')
+[25/243] done 4W A024
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.A174.DPE*')
+[50/243] done 4W A132
+[69/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D04.DPE*')
+[70/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D05.DPE*')
+[75/243] done 4W B39
+[100/243] done 4W 2D15
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.A174.DPE*')
+[125/243] done 4W A109
+[150/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D04.DPE*')
+[151/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.2D05.DPE*')
+[175/243] done 4W 2D12
+[200/243] done 4W A100
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230505/4W.A174.DPE*')
+[225/243] done 4W B09
+Finished day 20230505
+  Stations done: 234, no triggers: 0, skipped: 0, errors: 9
+Picking S phases: date 6 / 7
+2023 05 06
+Using 16 workers for ~243 stations
+[1/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D04.DPE*')
+[2/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D05.DPE*')
+[7/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A000.DPE*')
+[8/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A004.DPE*')
+[9/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A009.DPE*')
+[10/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A014.DPE*')
+[11/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A019.DPE*')
+[12/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A024.DPE*')
+[13/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A029.DPE*')
+[14/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A034.DPE*')
+[15/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A039.DPE*')
+[16/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A044.DPE*')
+[25/243] done 4W 2D18
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A174.DPE*')
+[43/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A181.DPE*')
+[50/243] done 4W A179
+[69/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D04.DPE*')
+[70/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D05.DPE*')
+[75/243] done 4W B48
+[88/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A000.DPE*')
+[89/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A004.DPE*')
+[90/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A009.DPE*')
+[91/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A014.DPE*')
+[92/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A019.DPE*')
+[93/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A024.DPE*')
+[94/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A029.DPE*')
+[95/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A034.DPE*')
+[96/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A039.DPE*')
+[97/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A044.DPE*')
+[100/243] done 4W 2D08
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A174.DPE*')
+[124/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A181.DPE*')
+[125/243] done 4W A100
+[150/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D04.DPE*')
+[151/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.2D05.DPE*')
+[169/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A000.DPE*')
+[170/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A004.DPE*')
+[171/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A009.DPE*')
+[172/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A014.DPE*')
+[173/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A019.DPE*')
+[174/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A024.DPE*')
+[175/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A029.DPE*')
+[176/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A034.DPE*')
+[177/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A039.DPE*')
+[178/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A044.DPE*')
+[200/243] done 4W A074
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A174.DPE*')
+[205/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230506/4W.A181.DPE*')
+[225/243] done 4W B03
+Finished day 20230506
+  Stations done: 201, no triggers: 0, skipped: 0, errors: 42
+Picking S phases: date 7 / 7
+2023 05 07
+Using 16 workers for ~243 stations
+[1/243] error read 4W 2D06: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D06.DPE*')
+[2/243] error read 4W 2D12: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D12.DPE*')
+[3/243] error read 4W 2D10: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D10.DPE*')
+[4/243] error read 4W 2D15: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D15.DPE*')
+[5/243] error read 4W 2D14: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D14.DPE*')
+[6/243] error read 4W 2D09: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D09.DPE*')
+[7/243] error read 4W 2D08: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D08.DPE*')
+[8/243] error read 4W 2D13: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D13.DPE*')
+[9/243] error read 4W 2D07: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D07.DPE*')
+[10/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D04.DPE*')
+[11/243] error read 4W 2D11: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D11.DPE*')
+[12/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D05.DPE*')
+[13/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A019.DPE*')
+[14/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A009.DPE*')
+[15/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A000.DPE*')
+[16/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A014.DPE*')
+[17/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A044.DPE*')
+[18/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A039.DPE*')
+[19/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A034.DPE*')
+[20/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A004.DPE*')
+[21/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A024.DPE*')
+[22/243] error read 4W A059: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A059.DPE*')
+[23/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A029.DPE*')
+[25/243] done 4W 2D03
+[35/243] error read 4W A144: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A144.DPE*')
+[40/243] error read 4W A169: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A169.DPE*')
+[41/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A174.DPE*')
+[42/243] error read 4W A179: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A179.DPE*')
+[43/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A181.DPE*')
+[50/243] done 4W A089
+[56/243] error read 4W C05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C05.DPE*')
+[59/243] error read 4W C21: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C21.DPE*')
+[60/243] error read 4W C25: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C25.DPE*')
+[62/243] error read 4W C56: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C56.DPE*')
+[63/243] error read 4W C62: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C62.DPE*')
+[64/243] error read 4W C69: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C69.DPE*')
+[65/243] error read 4W C72: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C72.DPE*')
+[69/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D04.DPE*')
+[70/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D05.DPE*')
+[71/243] error read 4W 2D06: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D06.DPE*')
+[72/243] error read 4W 2D07: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D07.DPE*')
+[73/243] error read 4W 2D08: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D08.DPE*')
+[74/243] error read 4W 2D09: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D09.DPE*')
+[75/243] error read 4W 2D10: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D10.DPE*')
+[76/243] error read 4W 2D11: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D11.DPE*')
+[77/243] error read 4W 2D12: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D12.DPE*')
+[78/243] error read 4W 2D13: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D13.DPE*')
+[79/243] error read 4W 2D14: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D14.DPE*')
+[80/243] error read 4W 2D15: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D15.DPE*')
+[88/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A000.DPE*')
+[89/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A004.DPE*')
+[90/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A009.DPE*')
+[91/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A014.DPE*')
+[92/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A019.DPE*')
+[93/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A024.DPE*')
+[94/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A029.DPE*')
+[95/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A034.DPE*')
+[96/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A039.DPE*')
+[97/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A044.DPE*')
+[100/243] error read 4W A059: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A059.DPE*')
+[116/243] error read 4W A144: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A144.DPE*')
+[121/243] error read 4W A169: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A169.DPE*')
+[122/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A174.DPE*')
+[123/243] error read 4W A179: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A179.DPE*')
+[124/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A181.DPE*')
+[125/243] done 4W A084
+[137/243] error read 4W C05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C05.DPE*')
+[140/243] error read 4W C21: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C21.DPE*')
+[141/243] error read 4W C25: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C25.DPE*')
+[143/243] error read 4W C56: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C56.DPE*')
+[144/243] error read 4W C62: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C62.DPE*')
+[145/243] error read 4W C69: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C69.DPE*')
+[146/243] error read 4W C72: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C72.DPE*')
+[150/243] error read 4W 2D04: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D04.DPE*')
+[151/243] error read 4W 2D05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D05.DPE*')
+[152/243] error read 4W 2D06: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D06.DPE*')
+[153/243] error read 4W 2D07: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D07.DPE*')
+[154/243] error read 4W 2D08: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D08.DPE*')
+[155/243] error read 4W 2D09: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D09.DPE*')
+[156/243] error read 4W 2D10: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D10.DPE*')
+[157/243] error read 4W 2D11: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D11.DPE*')
+[158/243] error read 4W 2D12: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D12.DPE*')
+[159/243] error read 4W 2D13: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D13.DPE*')
+[160/243] error read 4W 2D14: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D14.DPE*')
+[161/243] error read 4W 2D15: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.2D15.DPE*')
+[169/243] error read 4W A000: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A000.DPE*')
+[170/243] error read 4W A004: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A004.DPE*')
+[171/243] error read 4W A009: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A009.DPE*')
+[172/243] error read 4W A014: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A014.DPE*')
+[173/243] error read 4W A019: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A019.DPE*')
+[174/243] error read 4W A024: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A024.DPE*')
+[175/243] error read 4W A029: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A029.DPE*')
+[176/243] error read 4W A034: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A034.DPE*')
+[177/243] error read 4W A039: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A039.DPE*')
+[178/243] error read 4W A044: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A044.DPE*')
+[181/243] error read 4W A059: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A059.DPE*')
+[197/243] error read 4W A144: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A144.DPE*')
+[200/243] done 4W A064
+[202/243] error read 4W A169: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A169.DPE*')
+[203/243] error read 4W A174: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A174.DPE*')
+[204/243] error read 4W A179: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A179.DPE*')
+[205/243] error read 4W A181: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.A181.DPE*')
+[218/243] error read 4W C05: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C05.DPE*')
+[221/243] error read 4W C21: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C21.DPE*')
+[222/243] error read 4W C25: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C25.DPE*')
+[224/243] error read 4W C56: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C56.DPE*')
+[225/243] error read 4W C62: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C62.DPE*')
+[226/243] error read 4W C69: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C69.DPE*')
+[227/243] error read 4W C72: Exception('No file matching file pattern: ../../Data/waveform_sac/20230507/4W.C72.DPE*')
+Finished day 20230507
+  Stations done: 138, no triggers: 0, skipped: 0, errors: 105
+Done at Thu Nov 20 13:12:58 PST 2025

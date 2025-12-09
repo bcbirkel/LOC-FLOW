@@ -383,7 +383,7 @@ def main():
         matched_events = {(ref_picker, ref_stage): ref_event}
         for (picker, stage), events in all_catalogs.items():
             if picker == ref_picker and stage == ref_stage: continue
-            match = find_nearest_event(ref_event, events, 120)
+            match = find_nearest_event(ref_event, events, 120, 10)
             if match:
                 matched_events[(picker, stage)] = match
                 print(f"  Found match for {picker}/{stage}: event at {match['origin_time']}")
