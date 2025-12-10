@@ -785,13 +785,28 @@ def main():
                  args=["visible", visibility])
         )
 
+    # Define compass properties
+    compass_lon = XMIN + (XMAX - XMIN) * 0.1
+    compass_lat = YMAX - (YMAX - YMIN) * 0.1
+    compass_z = ZMIN + (ZMAX - ZMIN) * 0.05  # Place it near the top surface
+    compass_d_lat = (YMAX - YMIN) * 0.05
+    compass_d_lon = (XMAX - XMIN) * 0.05
+
     scene_settings = dict(
         xaxis_title="Longitude",
         yaxis_title="Latitude",
         zaxis_title="Depth (km)",
-        xaxis=dict(range=[XMIN, XMAX]),
-        yaxis=dict(range=[YMIN, YMAX]),
-        zaxis=dict(range=[ZMAX, ZMIN]),  # Inverted Z-axis for depth
+        xaxis=dict(range=[XMIN, XMAX], showticklabels=True, showbackground=False),
+        yaxis=dict(range=[YMIN, YMAX], showticklabels=True, showbackground=False),
+        zaxis=dict(range=[ZMAX, ZMIN], showticklabels=True, showbackground=False),  # Inverted Z-axis for depth
+        camera=dict(eye=dict(x=1.8, y=1.8, z=1.8)),
+        annotations=[
+            # Compass
+            dict(x=compass_lon, y=compass_lat + compass_d_lat, z=compass_z, text="N", showarrow=False, font=dict(color='black', size=14, family='Arial')),
+            dict(x=compass_lon, y=compass_lat - compass_d_lat, z=compass_z, text="S", showarrow=False, font=dict(color='black', size=14, family='Arial')),
+            dict(x=compass_lon + compass_d_lon, y=compass_lat, z=compass_z, text="E", showarrow=False, font=dict(color='black', size=14, family='Arial')),
+            dict(x=compass_lon - compass_d_lon, y=compass_lat, z=compass_z, text="W", showarrow=False, font=dict(color='black', size=14, family='Arial')),
+        ]
     )
     if all_lats_for_aspect:
         mean_lat = np.mean(all_lats_for_aspect)
