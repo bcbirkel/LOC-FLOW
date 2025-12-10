@@ -672,6 +672,7 @@ def main():
     traces_metadata = []
     has_regional_events = False
     has_stations = False
+    all_lats_for_aspect = []
 
     stage_color_map = {
         'Initial': ['#ff6666', '#ff0000', '#cc0000'],          # Reds
@@ -699,6 +700,7 @@ def main():
                 marker=dict(size=2.5, color='grey'),
                 name='Regional Events'
             ))
+            all_lats_for_aspect.extend(regional_data['lat'])
             has_regional_events = True
 
     if PLOT_STATIONS:
@@ -714,6 +716,7 @@ def main():
                 hovertext=station_data['hovertext'],
                 hoverinfo='text'
             ))
+            all_lats_for_aspect.extend(station_data['lat'])
             has_stations = True
 
     for stage in stages_to_plot:
@@ -741,6 +744,7 @@ def main():
                     name=f"{picker} - {stage}",
                     visible=True
                 ))
+                all_lats_for_aspect.extend(data['lat'])
                 traces_metadata.append({'picker': picker, 'stage': stage})
 
     # Create buttons for pickers
@@ -781,16 +785,29 @@ def main():
                  args=["visible", visibility])
         )
 
+    scene_settings = dict(
+        xaxis_title="Longitude",
+        yaxis_title="Latitude",
+        zaxis_title="Depth (km)",
+        xaxis=dict(range=[XMIN, XMAX]),
+        yaxis=dict(range=[YMIN, YMAX]),
+        zaxis=dict(range=[ZMAX, ZMIN]),  # Inverted Z-axis for depth
+    )
+    if all_lats_for_aspect:
+        mean_lat = np.mean(all_lats_for_aspect)
+        km_per_deg_lat = 111.32
+        km_per_deg_lon = km_per_deg_lat * np.cos(np.deg2rad(mean_lat))
+
+        range_lon_km = (XMAX - XMIN) * km_per_deg_lon
+        range_lat_km = (YMAX - YMIN) * km_per_deg_lat
+        range_dep_km = ZMAX - ZMIN
+
+        scene_settings['aspectmode'] = 'manual'
+        scene_settings['aspectratio'] = dict(x=range_lon_km, y=range_lat_km, z=range_dep_km)
+
     fig.update_layout(
         title="Interactive 3D Earthquake Locations",
-        scene=dict(
-            xaxis_title="Longitude",
-            yaxis_title="Latitude",
-            zaxis_title="Depth (km)",
-            xaxis=dict(range=[XMIN, XMAX]),
-            yaxis=dict(range=[YMIN, YMAX]),
-            zaxis=dict(range=[ZMAX, ZMIN]),  # Inverted Z-axis for depth
-        ),
+        scene=scene_settings,
         legend=dict(title="Catalogs", traceorder='normal'),
         margin=dict(r=200),  # Add right margin for buttons
         updatemenus=[
