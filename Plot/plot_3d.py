@@ -796,10 +796,10 @@ def main():
         xaxis_title="Longitude",
         yaxis_title="Latitude",
         zaxis_title="Depth (km)",
-        xaxis=dict(range=[XMIN, XMAX], showticklabels=True, showbackground=False),
-        yaxis=dict(range=[YMIN, YMAX], showticklabels=True, showbackground=False),
-        zaxis=dict(range=[ZMAX, ZMIN], showticklabels=True, showbackground=False),  # Inverted Z-axis for depth
-        camera=dict(eye=dict(x=1.8, y=1.8, z=1.8)),
+        xaxis=dict(range=[XMIN, XMAX], showticklabels=True, showbackground=True),
+        yaxis=dict(range=[YMIN, YMAX], showticklabels=True, showbackground=True),
+        zaxis=dict(range=[ZMAX, ZMIN], showticklabels=True, showbackground=True),  # Inverted Z-axis for depth
+        camera=dict(eye=dict(x=2.5, y=2.5, z=2.5)),
         annotations=[
             # Compass
             dict(x=compass_lon, y=compass_lat + compass_d_lat, z=compass_z, text="N", showarrow=False, font=dict(color='black', size=14, family='Arial')),
