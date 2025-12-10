@@ -187,7 +187,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     cross_strike_dist = rotated_coords[1, :]
 
     # --- 4. Define Cross Sections ---
-    num_sections = 8
+    num_sections = 6
     min_along = np.min(along_strike_dist)
     max_along = np.max(along_strike_dist)
 
@@ -273,8 +273,48 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     ax_map.grid(True)
     ax_map.legend()
 
+    # --- Plot Along-strike Profile ---
+    ax_along = axes[0, 1]
+    ax_along.scatter(along_strike_dist, dep, s=15, c=dep, cmap='viridis_r', vmin=ZMIN, vmax=ZMAX, alpha=0.7)
+    if len(along_strike_dist) > 1:
+        m_along, b_along = np.polyfit(along_strike_dist, dep, 1)
+        x_line = np.array(ax_along.get_xlim())
+        y_line = m_along * x_line + b_along
+        ax_along.plot(x_line, y_line, 'r-', lw=1.5, alpha=0.2)
+        dip_along = np.rad2deg(np.arctan(m_along))
+        ax_along.text(0.05, 0.95, f'Avg Dip: ~{dip_along:.1f}°',
+                      transform=ax_along.transAxes, va='top', ha='left',
+                      bbox=dict(facecolor='white', alpha=0.5, edgecolor='none', pad=0.2))
+
+    ax_along.set_title('Along-strike Profile')
+    ax_along.set_xlabel('Along-strike distance (km)')
+    ax_along.set_ylabel('Depth (km)')
+    ax_along.set_ylim(ZMAX, ZMIN) # Inverted
+    ax_along.set_aspect('equal', adjustable='box')
+    ax_along.grid(True)
+
+    # --- Plot Cross-strike Profile ---
+    ax_cross = axes[0, 2]
+    ax_cross.scatter(cross_strike_dist, dep, s=15, c=dep, cmap='viridis_r', vmin=ZMIN, vmax=ZMAX, alpha=0.7)
+    if len(cross_strike_dist) > 1:
+        m_cross, b_cross = np.polyfit(cross_strike_dist, dep, 1)
+        x_line = np.array(ax_cross.get_xlim())
+        y_line = m_cross * x_line + b_cross
+        ax_cross.plot(x_line, y_line, 'r-', lw=1.5, alpha=0.2)
+        dip_cross = np.rad2deg(np.arctan(m_cross))
+        ax_cross.text(0.05, 0.95, f'Avg Dip: ~{dip_cross:.1f}°',
+                      transform=ax_cross.transAxes, va='top', ha='left',
+                      bbox=dict(facecolor='white', alpha=0.5, edgecolor='none', pad=0.2))
+
+    ax_cross.set_title('Cross-strike Profile')
+    ax_cross.set_xlabel('Cross-strike distance (km)')
+    ax_cross.set_ylabel('Depth (km)')
+    ax_cross.set_ylim(ZMAX, ZMIN) # Inverted
+    ax_cross.set_aspect('equal', adjustable='box')
+    ax_cross.grid(True)
+
     # --- Plot Cross Sections ---
-    axes_cs = axes.flatten()[1:]
+    axes_cs = axes.flatten()[3:]
     for i, center_dist in enumerate(section_centers):
         ax = axes_cs[i]
         mask = np.abs(along_strike_dist - center_dist) < section_width / 2
