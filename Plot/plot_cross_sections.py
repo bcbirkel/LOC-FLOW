@@ -224,7 +224,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
 
     # --- Plot Map View (top-left) ---
     ax_map = axes[0, 0]
-    sc = ax_map.scatter(x, y, s=15, c=dep, cmap='viridis_r', alpha=0.7, zorder=10)
+    sc = ax_map.scatter(x, y, s=15, c=dep, cmap='viridis_r', vmin=ZMIN, vmax=ZMAX, alpha=0.7, zorder=10)
     plt.colorbar(sc, ax=ax_map, label='Depth (km)', shrink=0.8)
 
     # Plot trend line
@@ -281,7 +281,24 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
         n_events_in_section = np.sum(mask)
 
         if n_events_in_section > 0:
-            ax.scatter(cross_strike_dist[mask], dep[mask], s=15, alpha=0.7)
+            cs_x = cross_strike_dist[mask]
+            cs_dep = dep[mask]
+            ax.scatter(cs_x, cs_dep, s=15, c=cs_dep, cmap='viridis_r', vmin=ZMIN, vmax=ZMAX, alpha=0.7)
+
+            if n_events_in_section > 1:
+                # Fit line to determine dip
+                m_cs, b_cs = np.polyfit(cs_x, cs_dep, 1)
+
+                # Plot line
+                x_line = np.array(cross_lim)
+                y_line = m_cs * x_line + b_cs
+                ax.plot(x_line, y_line, 'r-', lw=1.5)
+
+                # Calculate and annotate dip
+                dip = np.rad2deg(np.arctan(m_cs))
+                ax.text(0.05, 0.95, f'Dip: {dip:.1f}°',
+                        transform=ax.transAxes, va='top', ha='left',
+                        bbox=dict(facecolor='white', alpha=0.5, edgecolor='none', pad=0.2))
 
         label = chr(ord('A') + i)
         ax.set_title(f"Section {label}-{label}' @ {center_dist:.1f} km ({n_events_in_section} events)")
