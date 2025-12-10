@@ -822,34 +822,36 @@ def main():
 
     fig.update_layout(
         title="Interactive 3D Earthquake Locations",
+        width=1200,
+        height=900,
         scene=scene_settings,
         legend=dict(title="Catalogs", traceorder='normal'),
-        margin=dict(r=200),  # Add right margin for buttons
+        margin=dict(r=200, b=150),  # Add right margin for legend, bottom for buttons
         updatemenus=[
             dict(
                 type="buttons",
                 direction="down",
                 buttons=picker_buttons,
-                x=1.1,
-                xanchor="left",
-                y=0.7,
+                x=0.3,
+                xanchor="center",
+                y=-0.15,
                 yanchor="top"
             ),
             dict(
                 type="buttons",
                 direction="down",
                 buttons=stage_buttons,
-                x=1.1,
-                xanchor="left",
-                y=0.4,
+                x=0.7,
+                xanchor="center",
+                y=-0.15,
                 yanchor="top"
             ),
         ],
         annotations=[
-            dict(text="Pickers", x=1.02, y=0.72, xref="paper", yref="paper",
-                 align="left", showarrow=False, xanchor="left", yanchor="bottom"),
-            dict(text="Stages", x=1.02, y=0.42, xref="paper", yref="paper",
-                 align="left", showarrow=False, xanchor="left", yanchor="bottom")
+            dict(text="Pickers", x=0.3, y=-0.08, xref="paper", yref="paper",
+                 align="center", showarrow=False, xanchor="center", yanchor="bottom"),
+            dict(text="Stages", x=0.7, y=-0.08, xref="paper", yref="paper",
+                 align="center", showarrow=False, xanchor="center", yanchor="bottom")
         ]
     )
 
