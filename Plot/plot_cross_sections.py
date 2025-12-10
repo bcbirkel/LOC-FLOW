@@ -60,7 +60,7 @@ STAGE_DATA_DEFINITIONS = {
 # Plotting region (manually specify) - for initial data filtering
 XMIN, XMAX = 85, 86.5         # Longitude
 YMIN, YMAX = 27, 28.5           # Latitude
-ZMIN, ZMAX = -5, 25           # Depth
+ZMIN, ZMAX = 0, 20           # Depth
 
 # --- END CONFIGURATION ---
 
@@ -191,7 +191,7 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
     min_along = np.min(along_strike_dist)
     max_along = np.max(along_strike_dist)
 
-    # Create 7 equally spaced sections
+    # Create 8 equally spaced sections
     total_range = max_along - min_along
     if total_range == 0:
         total_range = 1.0  # km, arbitrary width when no along-strike extent
@@ -292,11 +292,11 @@ def process_and_plot_catalog(data, picker, stage, output_dir):
                 # Plot line
                 x_line = np.array(cross_lim)
                 y_line = m_cs * x_line + b_cs
-                ax.plot(x_line, y_line, 'r-', lw=1.5)
+                ax.plot(x_line, y_line, 'r-', lw=1.5, alpha=0.2)
 
                 # Calculate and annotate dip
                 dip = np.rad2deg(np.arctan(m_cs))
-                ax.text(0.05, 0.95, f'Dip: {dip:.1f}°',
+                ax.text(0.05, 0.95, f'Avg X-sect Dip: ~{dip:.1f}°',
                         transform=ax.transAxes, va='top', ha='left',
                         bbox=dict(facecolor='white', alpha=0.5, edgecolor='none', pad=0.2))
 
