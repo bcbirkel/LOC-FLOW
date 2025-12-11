@@ -65,7 +65,7 @@ def main():
     fig.suptitle(f'VELEST 1D Velocity Models from {picker}', fontsize=16)
 
     # Create a mapping from model name (e.g., 'model1') to a color
-    unique_model_names = sorted([m['name'] for m in models_data.values()])
+    unique_model_names = sorted([m['name'] for m in models_data.values()], key=lambda name: int(name.replace('model', '')))
     if unique_model_names:
         colors = plt.cm.viridis(np.linspace(0, 1, len(unique_model_names)))
         color_map = {name: colors[i] for i, name in enumerate(unique_model_names)}
