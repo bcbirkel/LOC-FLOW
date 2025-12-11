@@ -25,8 +25,8 @@ OUTPUT_DIR = './RecordSectionPicks'
 
 STATION_PREFIXES = ['2D', 'A', 'B', 'C']
 COMPONENTS = ['N', 'E', 'Z'] # Order for plot columns
-PLOT_WINDOW_BEFORE_S = 5
-PLOT_WINDOW_AFTER_S = 25
+PLOT_WINDOW_BEFORE_S = 0
+PLOT_WINDOW_AFTER_S = 15
 # --- END CONFIGURATION ---
 
 def load_events_by_day(tbl_path):
@@ -210,25 +210,25 @@ def main():
                             data = data / (np.max(np.abs(data)) or 1)
                             times = tr.times("matplotlib")
                             
-                            ax.plot(times, data + offset, 'k-', linewidth=0.5)
+                            ax.plot(times, data + offset, 'k-', linewidth=0.3)
                             y_labels.append(tr.stats.station)
                             y_ticks.append(offset)
                             
                             station_picks = event_picks.get(tr.stats.station)
                             if station_picks:
-                                pick_line_height = 1.1 # Half-height of pick line, waveform is normalized to +/- 1.0
+                                pick_line_height = 0.8 # Half-height of pick line, waveform is normalized to +/- 1.0
                                 if 'P' in station_picks:
                                     pick_time_abs = origin_time + timedelta(seconds=station_picks['P'])
                                     pick_time_mpl = mdates.date2num(pick_time_abs)
                                     ax.plot([pick_time_mpl, pick_time_mpl],
                                             [offset - pick_line_height, offset + pick_line_height],
-                                            'r-', linewidth=1.5)
+                                            'r-', linewidth=2.0)
                                 if 'S' in station_picks:
                                     pick_time_abs = origin_time + timedelta(seconds=station_picks['S'])
                                     pick_time_mpl = mdates.date2num(pick_time_abs)
                                     ax.plot([pick_time_mpl, pick_time_mpl],
                                             [offset - pick_line_height, offset + pick_line_height],
-                                            'b-', linewidth=1.5)
+                                            'b-', linewidth=2.0)
 
                             offset -= vertical_gap
 
