@@ -124,7 +124,7 @@ def main():
                     print(f"    No SAC files found for stations in station_list for {date_str}.")
                     continue
                 
-                st = obspy.read(files_to_read)
+                st = obspy.read(*files_to_read)
                 st.merge(method=1, fill_value='latest')
             except Exception as e:
                 print(f"    Could not load waveforms for {date_str}. Error: {e}")
@@ -139,17 +139,13 @@ def main():
                 plot_start_time = origin_time - timedelta(seconds=PLOT_WINDOW_BEFORE_S)
                 plot_end_time = origin_time + timedelta(seconds=PLOT_WINDOW_AFTER_S)
                 
-                print(f"      DEBUG: Day stream has {len(st)} traces before trimming.")
-                print(f"      DEBUG: Trimming to window: {plot_start_time.isoformat()} to {plot_end_time.isoformat()}")
                 event_st = st.copy().trim(obspy.UTCDateTime(plot_start_time), obspy.UTCDateTime(plot_end_time))
-                print(f"      DEBUG: Event stream has {len(event_st)} traces after trimming.")
 
 
                 # Determine which station prefixes have data and how many stations for each
                 stations_per_prefix = {}
                 for prefix in STATION_PREFIXES:
                     traces = event_st.select(network='4W', station=f'{prefix}*')
-                    print(f"      DEBUG: Found {len(traces)} traces for prefix '{prefix}*'")
                     if traces:
                         num_stations = len(set(tr.stats.station for tr in traces))
                         if num_stations > 0:
