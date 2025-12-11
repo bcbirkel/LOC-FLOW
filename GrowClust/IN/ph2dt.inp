@@ -1,6 +1,6 @@
 * ph2dt.inp - input control file for program ph2dt
 * Input station file:
-../../hypoDD_dtct/station.dat
+../../hypoDD_dtct/QMigrate/station.dat
 * Input phase file:
 ./hypoDD.pha
 *MINWGHT: min. pick weight allowed [0]

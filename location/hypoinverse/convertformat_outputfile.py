@@ -22,7 +22,7 @@ def format_convert(inputfile,outputfile,deletefile,nEH,nEZ,ngap,nrms):
                 nn = nn + 1
                 RMS = float(line[48:52]) / 100
                 gap = int(line[42:45])
-                dep = float(line[31:36])/100
+                dep = float(line[31:36])/100 - 2.0 #adjust to compensate for hypoinverse model being pushed down by avg station elev (2km)
                 EH = float(line[85:89])/100
                 EZ = float(line[89:93])/100
                 mag = float(line[123:126])/100

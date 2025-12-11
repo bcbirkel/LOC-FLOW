@@ -10,7 +10,7 @@ RMS 4 0.16 1.5 3        /Residual weighting - BB change, originally RMS 4 0.16 1
 ERR .10                 /BB changed from 0.1
 *POS 1.8
 MIN 5                  /min number of stations - BB changed from 5
-*ZTR 10                  /trial depth
+ZTR 8                  /trial depth
 *WET 1. .5 .2 .1       /weighting by pick quality
 *PRE 3, 3 0 0 9        /magnitude
 * OUTPUT
@@ -20,10 +20,10 @@ TOP F
 STA 'station.dat'
 LET 5 2 0                               /Net Sta Chn
 TYP Read in crustal model(s):
-*CRH 1 'vel_model_P.crh'		/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
-*CRH 2 'vel_model_S.crh' 	/read crust model for Vs
-CRE 1 'vel_model_P.crh'	5 T	/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
-CRE 2 'vel_model_S.crh' 5 T	/read crust model for Vs
+CRH 1 'vel_model_P.crh'		/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
+CRH 2 'vel_model_S.crh' 	/read crust model for Vs
+*CRE 1 'vel_model_P.crh'	5 T	/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
+*CRE 2 'vel_model_S.crh' 5 T	/read crust model for Vs
 SAL 1 2
 PHS 'hypoinput.arc'		        /input phase file
 

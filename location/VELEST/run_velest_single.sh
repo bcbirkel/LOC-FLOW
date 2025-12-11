@@ -17,7 +17,7 @@ vel=../../REAL/tt_db/mymodel_welev.nd # velocity model directory
 
 # phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
 # phasein=../../REAL/phase_allday.txt # use the relocated SA locations
-picker="PhaseNet" #("STALTA" "PhaseNet" "QMigrate")
+picker="STALTA" #("STALTA" "PhaseNet" "QMigrate")
 
 echo "=============================="
 echo " Running VELEST for $picker"
@@ -217,6 +217,11 @@ then
         if [[ $i -eq $max_iter ]]; then
             echo "Maximum number of iterations ($max_iter) reached."
         fi
+
+        echo "Relocating all events with model: $final_model"
+        perl convertformat_updated.pl $lat $lon $distmax 1 $station "$final_model" $phasein
+        mv sta.COR velest.sta # use updated station corrections
+        velest
     done
 
     # 2. run velest to relocate all events using the final model
@@ -246,7 +251,7 @@ perl convertoutput.pl $stationgap $resmax $relocatalog $deletedcatalog
 wc -l initial.cat | awk '{ printf "before selection: %d events\n",$1}'
 wc -l new.cat | awk '{ printf "after selection: %d events\n",$1}'
 
-# mkdir -p "$picker" && mv *.cat velest.sta velout.mod *.OUT *.CHECK *.pha *.mod *.cmn *.CNV "$picker"/ 2>/dev/null
+mkdir -p "$picker" && mv model*.nd *.cat *.sta *.OUT *.CHECK *.pha *.mod *.cmn *.CNV "$picker"/ 2>/dev/null
 
 echo "Finished picker: $picker"
 echo

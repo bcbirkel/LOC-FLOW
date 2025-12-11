@@ -2,13 +2,15 @@
 phasein="phase_sel_all.txt"
 stationin="../../Data/station.dat"
 velocityin="../../REAL/tt_db/mymodel_welev.nd"
-# velocityin="/project2/okaya_201/LOC-FLOW/location/VELEST/model1.nd"
+
 pickers=("STALTA" "PhaseNet" "QMigrate")
 
 for picker in "${pickers[@]}"; do
     echo "================================="
     echo " Running Hypoinverse for $picker"
     echo "================================="
+
+    # velocityin=../VELEST/$picker/velest_incr.mod
 
     ####step 1 (cookbook 3.2 step 3a)##### create the velocity model, pay more attentation
     python mk_velmodel.py $velocityin
@@ -34,15 +36,15 @@ for picker in "${pickers[@]}"; do
 
     ####step 4 (cookbook 3.2 step 3d)####### run hypoinverse
     ###convert to readable format
-    nEH=10       #  horizontal uncertainty no larger than this
-    nEZ=10      #  vertical uncertainty no larger than this
-    ngap=360    #  station gap no larger than this
+    nEH=5       #  horizontal uncertainty no larger than this
+    nEZ=5      #  vertical uncertainty no larger than this
+    ngap=300    #  station gap no larger than this
     nrms=1.0    #  travetime residual no larger than this
 
     python convertformat_outputfile.py hypoOut.arc new.cat dele.cat $nEH $nEZ $ngap $nrms
     #Format: date, hh, mm, ss, lat, lon, dep, mag, rms, err_horizonal, err_dep, num
 
-    mkdir -p "$picker" && mv *.arc *.cat *.crh *.dat *.del *.sum "$picker"/ 2>/dev/null
+    mkdir -p "$picker" && mv *.arc *.cat *.crh *.dat *.del *.sum *.prt "$picker"/ 2>/dev/null
 
     echo "Finished picker: $picker"
     echo

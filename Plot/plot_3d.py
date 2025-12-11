@@ -110,7 +110,7 @@ DX, DY, DZ = 0.2, 0.2, 5      # Ticks step
 # 2D map view (lon vs lat)
 # VIEW = (0, 90)
 # 3D view
-VIEW = (23, 15)
+VIEW = (20, 5)
 # 2D depth view (lon vs dep)
 # VIEW = (0, 0)
 

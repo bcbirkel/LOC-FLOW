@@ -24,7 +24,7 @@ for picker in "${pickers[@]}"; do
 
         # BB change: flip lat/lon!!
         awk '{print($4,$1,$2)}' $stationin > $stationout
-        rm $phaseout #delete previous phase file
+        # rm $phaseout #delete previous phase file
 
         if (($hypo == 0))
         then    

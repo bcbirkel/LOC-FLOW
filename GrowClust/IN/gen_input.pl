@@ -1,13 +1,15 @@
 #!/usr/bin/perl
-$phasein = "../../hypoDD_dtct/hypoDD.pha"; #phase file
-$event = "../../hypoDD_dtct/hypoDD.reloc"; #events for hypoDD 
+$picker="QMigrate";
+
+$phasein = "../../hypoDD_dtct/$picker/hypoDD.pha"; #phase file
+$event = "../../hypoDD_dtct/$picker/hypoDD.reloc"; #events for hypoDD 
 $phaseout = "hypoDD.pha"; #updated phase file using hypoDD relocations
 $stationin = "../../Data/station.dat"; #station list
 $stationout = "stlist.txt"; #station list for growclust
 $eventout = "evlist.txt"; #events for growclust 
-$velin = "../../REAL/tt_db/mymodel.nd"; #velocity model
+$velin = "../../REAL/tt_db/mymodel_welev.nd"; #velocity model
 $velout = "vzmodel.txt"; #velocity model for growclust
-$maxdep = 20; #maximum depth in the traveltime table
+$maxdep = 40; #maximum depth in the traveltime table
 $useall = 1;  #0: only use available events from hypoDD.reloc (dt.ct)
               #1: use all events, only update locations from hypoDD.reloc (dt.ct)
 
@@ -22,7 +24,7 @@ close(JK);
 open(NS,">$stationout");
 foreach $_(@par){
     chomp(@par);
-    ($lon,$lat,$net,$sta,$comp,$elev) = split(" ");
+    ($lat,$lon,$net,$sta,$comp,$elev) = split(" ");
     print NS "$sta $lat $lon\n";
 }
 close(NS);

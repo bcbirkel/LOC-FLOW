@@ -52,7 +52,7 @@ for picker in "${pickers[@]}"; do
     python convertformat_outputfile.py hypoOut.arc new.cat dele.cat $nEH $nEZ $ngap $nrms
     #Format: date, hh, mm, ss, lat, lon, dep, mag, rms, err_horizonal, err_dep, num
 
-    mkdir -p "$picker" && mv *.arc *.cat *.crh *.dat *.del *.sum "$picker"/ 2>/dev/null
+    mkdir -p "$picker" && mv *.arc *.cat *.crh *.dat *.del *.sum *.prt "$picker"/ 2>/dev/null
 
     echo "Finished picker: $picker"
     echo

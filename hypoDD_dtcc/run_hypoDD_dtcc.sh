@@ -8,10 +8,11 @@ picker='QMigrate'
 phasein=../hypoDD_dtct/$picker/hypoDD.pha #phase file used in hypoDD_dtct
 relocation=../hypoDD_dtct/$picker/hypoDD.reloc #locations in hypoDD_dtct
 phaseout=./hypoDD.pha; #phase format for hypoDD
-stationin=../Data/station_filt.dat; #station list
-stationout=station.dat; #station format by hypoDD
+# stationin=../Data/station_filt.dat; #station list
+# stationout=station.dat; #station format by hypoDD
+stationout=../hypoDD_dtct/$picker/station.dat
 
-awk '{print($4,$1,$2)}' $stationin > $stationout
+# awk '{print($4,$1,$2)}' $stationin > $stationout
 
 ##############################step 1 (cookbook 5a)#####################
 #generate a new hypoDD.pha for hypoDD (dt.cc)

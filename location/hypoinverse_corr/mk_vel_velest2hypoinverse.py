@@ -23,7 +23,7 @@ def model_format(modelin):
         if begin != layers and kk == 1:
             # print line
             vp = float(line.split()[0])
-            dep = float(line.split()[1])+5.0-2.0 # push all of v model down by 5km to use CRE command in hypoinverse
+            dep = float(line.split()[1])+2.0 # push all of v model down by avg station elev
             if dep < 0:
                 dep = 0.0
             gg.write('{:4.2f}  {:5.2f}\n'.format(vp, dep))
@@ -31,7 +31,7 @@ def model_format(modelin):
             kk = 2
         if kk == 2 and len(line) > 5:
             vs = float(line.split()[0])
-            dep = float(line.split()[1])+5.0-2.0 # push all of v model down by 5km to use CRE command in hypoinverse
+            dep = float(line.split()[1])+2.0 # push all of v model down by avg station elev
             if dep < 0:
                 dep = 0.0
             hh.write('{:4.2f}  {:5.2f}\n'.format(vs, dep))

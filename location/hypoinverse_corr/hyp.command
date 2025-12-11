@@ -20,11 +20,11 @@ TOP F
 STA 'station.dat'
 LET 5 2 0                               /Net Sta Chn
 TYP Read in crustal model(s):
-*CRH 1 'vel_model_P.crh'		/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
-CRE 1 'vel_model_P.crh'	5 T	/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
+CRH 1 'vel_model_P.crh'		/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
+*CRE 1 'vel_model_P.crh'	5 T	/read crust model for Vp, here depth 0 is relative to the averge elevation of stations 
 DEL 1 'P.del'               /read P delay time at specific stations
-*CRH 2 'vel_model_S.crh' 	/read crust model for Vs
-CRE 2 'vel_model_S.crh' 5 T	/read crust model for Vs
+CRH 2 'vel_model_S.crh' 	/read crust model for Vs
+*CRE 2 'vel_model_S.crh' 5 T	/read crust model for Vs
 DEL 2 'S.del'               /read S delay time at specific stations
 SAL 1 2
 PHS 'hypoinput.arc'		        /input phase file

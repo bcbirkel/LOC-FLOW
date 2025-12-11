@@ -40,7 +40,7 @@ if($isingle == 1){
     $ittmax = 99;
     $invertratio = 0;
 }else{
-    $ittmax = 99;
+    $ittmax = 19;
     $invertratio = 3;
 }
 
