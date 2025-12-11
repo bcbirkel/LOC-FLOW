@@ -6,14 +6,14 @@ import os
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
-
+picker = "QMigrate"
 def main():
     """
     Finds all VELEST model*.nd files, plots their P and S wave velocity
     profiles, and saves the resulting figure.
     """
     # Path is relative to the script's location in Plot/
-    search_path = '../location/VELEST/*/model*.nd'
+    search_path = f'../location/VELEST/{picker}/model*.nd'
     model_files = sorted(glob.glob(search_path))
 
     if not model_files:
@@ -62,7 +62,7 @@ def main():
     ax1 = fig.add_subplot(gs[0, 0])
     ax2 = fig.add_subplot(gs[0, 1], sharey=ax1)
 
-    fig.suptitle('VELEST 1D Velocity Models', fontsize=16)
+    fig.suptitle(f'VELEST 1D Velocity Models from {picker}', fontsize=16)
 
     # Create a mapping from model name (e.g., 'model1') to a color
     unique_model_names = sorted([m['name'] for m in models_data.values()])
