@@ -17,11 +17,13 @@ BASE_DIR_TBL = './'
 OUTPUT_DIR = './Picks'
 # --- END CONFIGURATION ---
 
-def load_tbl_origins(tbl_path):
-    """Loads origin times from a .tbl file into a dict keyed by event ID."""
-    origins = {}
+def load_tbl_data(tbl_path):
+    """Loads origin times and full lines from a .tbl file into a dict keyed by event ID."""
+    tbl_data = {}
     with open(tbl_path, 'r') as f:
         for line in f:
+            line = line.strip()
+            if not line: continue
             parts = line.split()
             # eqID, year, julian day, month, day, hour, min, sec, ...
             eqID = int(parts[0])
@@ -33,24 +35,29 @@ def load_tbl_origins(tbl_path):
             sec_float = float(parts[7])
             microsecond = int((sec_float - int(sec_float)) * 1_000_000)
 
-            origins[eqID] = datetime.datetime(
+            origin_time = datetime.datetime(
                 year, month, day, hour, minute, int(sec_float), microsecond
             )
-    return origins
+            tbl_data[eqID] = {'origin': origin_time, 'line': line}
+    return tbl_data
 
-def write_picks_file(eqID, picks, picker_short, output_dir):
+def write_picks_file(eqID, picks, picker, picker_short, output_dir, header_line):
     """Writes picks for a single event to a .picks file."""
+    picker_output_dir = os.path.join(output_dir, picker)
+    os.makedirs(picker_output_dir, exist_ok=True)
     filename = f"{picker_short}.{eqID:03d}.picks"
-    filepath = os.path.join(output_dir, filename)
+    filepath = os.path.join(picker_output_dir, filename)
 
     with open(filepath, 'w') as f:
+        f.write(f"# {header_line}\n")
         for station, phase, pick_time in picks:
             f.write(f"{station} {phase} {pick_time:.4f}\n")
 
-def process_pha_file(pha_path, tbl_origins, picker_short, output_dir):
+def process_pha_file(pha_path, tbl_data, picker, picker_short, output_dir):
     """Processes a hypoDD.pha file, adjusts pick times, and writes .picks files."""
     current_event_picks = []
     current_event_id = None
+    current_header_line = None
     origin_diff_sec = None
 
     with open(pha_path, 'r') as f:
@@ -63,11 +70,12 @@ def process_pha_file(pha_path, tbl_origins, picker_short, output_dir):
             if line.startswith('#'):
                 # Write out the previous event's data before processing the new one
                 if current_event_id is not None and origin_diff_sec is not None and current_event_picks:
-                    write_picks_file(current_event_id, current_event_picks, picker_short, output_dir)
+                    write_picks_file(current_event_id, current_event_picks, picker, picker_short, output_dir, current_header_line)
 
                 # Reset for the new event
                 current_event_picks = []
                 current_event_id = None
+                current_header_line = None
                 origin_diff_sec = None
 
                 # Parse new header
@@ -88,9 +96,11 @@ def process_pha_file(pha_path, tbl_origins, picker_short, output_dir):
                     year, month, day, hour, minute, int(sec_float), microsecond
                 )
 
-                if eqID in tbl_origins:
+                if eqID in tbl_data:
                     current_event_id = eqID
-                    tbl_origin = tbl_origins[eqID]
+                    tbl_event_data = tbl_data[eqID]
+                    tbl_origin = tbl_event_data['origin']
+                    current_header_line = tbl_event_data['line']
                     origin_diff = tbl_origin - pha_origin
                     origin_diff_sec = origin_diff.total_seconds()
                 else:
@@ -107,11 +117,13 @@ def process_pha_file(pha_path, tbl_origins, picker_short, output_dir):
                 phase = parts[3]
 
                 adjusted_pick_time = pha_pick_time - origin_diff_sec
+                if adjusted_pick_time < 0:
+                    print(f"  -> WARNING: Negative pick time ({adjusted_pick_time:.4f}s) calculated for event {current_event_id}, station {station}, phase {phase}.")
                 current_event_picks.append((station, phase, adjusted_pick_time))
 
     # Write the very last event in the file after the loop finishes
     if current_event_id is not None and origin_diff_sec is not None and current_event_picks:
-        write_picks_file(current_event_id, current_event_picks, picker_short, output_dir)
+        write_picks_file(current_event_id, current_event_picks, picker, picker_short, output_dir, current_header_line)
 
 
 def main():
@@ -132,10 +144,10 @@ def main():
 
         print(f"Processing picker: {picker}")
         # 1. Load origin times from the relocated .tbl catalog
-        tbl_origins = load_tbl_origins(tbl_file)
+        tbl_data = load_tbl_data(tbl_file)
 
         # 2. Process the .pha file to adjust picks and write output files
-        process_pha_file(pha_file, tbl_origins, picker_short, OUTPUT_DIR)
+        process_pha_file(pha_file, tbl_data, picker, picker_short, OUTPUT_DIR)
         print(f"  -> Finished processing {picker}.")
 
 if __name__ == '__main__':
