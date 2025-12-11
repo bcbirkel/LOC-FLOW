@@ -95,14 +95,6 @@ def main():
                 print(f"  Waveform directory not found for {date_str}, skipping day.")
                 continue
 
-            print(f"  Loading waveforms for {date_str}...")
-            try:
-                st = obspy.read(os.path.join(waveform_dir, '4W.*.*.SAC'))
-                st.merge(method=1, fill_value='latest')
-            except Exception as e:
-                print(f"    Could not load waveforms for {date_str}. Error: {e}")
-                continue
-
             for event in sorted(events, key=lambda x: x['origin']):
                 event_id = event['id']
                 origin_time = event['origin']
@@ -117,6 +109,18 @@ def main():
 
                 plot_start_time = origin_time - timedelta(seconds=PLOT_WINDOW_BEFORE_S)
                 plot_end_time = origin_time + timedelta(seconds=PLOT_WINDOW_AFTER_S)
+
+                try:
+                    st = obspy.read(
+                        os.path.join(waveform_dir, '4W.*.*.SAC'),
+                        starttime=obspy.UTCDateTime(plot_start_time),
+                        endtime=obspy.UTCDateTime(plot_end_time)
+                    )
+                    st.merge(method=1, fill_value='latest')
+                except Exception as e:
+                    print(f"      Could not load waveforms for event {event_id}. Error: {e}")
+                    plt.close(fig)
+                    continue
 
                 for row, prefix in enumerate(STATION_PREFIXES):
                     for col, comp in enumerate(COMPONENTS):
