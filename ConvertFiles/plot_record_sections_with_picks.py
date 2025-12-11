@@ -16,8 +16,8 @@ import matplotlib.dates as mdates
 
 # --- CONFIGURATION ---
 PICKER_MAP = {
-    'STALTA': 'sl',
-    'PhaseNet': 'pn',
+    # 'STALTA': 'sl',
+    # 'PhaseNet': 'pn',
     'QMigrate': 'qm'
 }
 BASE_DIR_TBL = './'
