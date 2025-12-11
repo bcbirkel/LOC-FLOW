@@ -125,7 +125,7 @@ def main():
                     continue
                 
                 st = obspy.Stream()
-                chunk_size = 200 # Read in chunks to avoid "too many arguments" error
+                chunk_size = 1 # Read in chunks to avoid "too many arguments" error
                 for i in range(0, len(files_to_read), chunk_size):
                     chunk = files_to_read[i:i+chunk_size]
                     st += obspy.read(*chunk)
