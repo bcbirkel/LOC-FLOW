@@ -216,12 +216,19 @@ def main():
                             
                             station_picks = event_picks.get(tr.stats.station)
                             if station_picks:
+                                pick_line_height = 1.1 # Half-height of pick line, waveform is normalized to +/- 1.0
                                 if 'P' in station_picks:
                                     pick_time_abs = origin_time + timedelta(seconds=station_picks['P'])
-                                    ax.plot([mdates.date2num(pick_time_abs)], [offset], 'r|', markersize=10, mew=1.5)
+                                    pick_time_mpl = mdates.date2num(pick_time_abs)
+                                    ax.plot([pick_time_mpl, pick_time_mpl],
+                                            [offset - pick_line_height, offset + pick_line_height],
+                                            'r-', linewidth=1.5)
                                 if 'S' in station_picks:
                                     pick_time_abs = origin_time + timedelta(seconds=station_picks['S'])
-                                    ax.plot([mdates.date2num(pick_time_abs)], [offset], 'b|', markersize=10, mew=1.5)
+                                    pick_time_mpl = mdates.date2num(pick_time_abs)
+                                    ax.plot([pick_time_mpl, pick_time_mpl],
+                                            [offset - pick_line_height, offset + pick_line_height],
+                                            'b-', linewidth=1.5)
 
                             offset -= vertical_gap
 
