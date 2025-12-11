@@ -124,7 +124,11 @@ def main():
                     print(f"    No SAC files found for stations in station_list for {date_str}.")
                     continue
                 
-                st = obspy.read(*files_to_read)
+                st = obspy.Stream()
+                chunk_size = 200 # Read in chunks to avoid "too many arguments" error
+                for i in range(0, len(files_to_read), chunk_size):
+                    chunk = files_to_read[i:i+chunk_size]
+                    st += obspy.read(*chunk)
                 st.merge(method=1, fill_value='latest')
             except Exception as e:
                 print(f"    Could not load waveforms for {date_str}. Error: {e}")
