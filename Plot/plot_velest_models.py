@@ -13,7 +13,7 @@ def main():
     profiles, and saves the resulting figure.
     """
     # Path is relative to the script's location in Plot/
-    search_path = '../location/VELEST/model*.nd'
+    search_path = '../location/VELEST/*/model*.nd'
     model_files = sorted(glob.glob(search_path))
 
     if not model_files:

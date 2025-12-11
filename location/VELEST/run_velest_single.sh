@@ -97,79 +97,140 @@ then
     velest
 elif (($mode == 2))
 then
-    if [[ $# -lt 2 ]]; then
-        echo "Usage for mode 2: $0 2 input_model.nd" >&2
+    if [[ $# -lt 3 ]]; then
+        echo "Usage for mode 2: $0 2 input_model.nd max_iterations" >&2
         exit 1
     fi
-    vel_iter=$2
+    vel_iter_initial=$2
+    max_iter=$3
 
-    # Determine output file name
-    if [[ $vel_iter =~ model([0-9]+)\.nd$ ]]; then
-        num=${BASH_REMATCH[1]}
-        outfile="model$((num + 1)).nd"
-    else
-        # if input is not modelN.nd, e.g. mymodel.nd, create model1.nd
-        outfile="model1.nd"
-    fi
+    echo "Running VELEST iterative model update for up to $max_iter iterations."
+    echo "Initial model: $vel_iter_initial"
 
-    echo "Running VELEST iteration with input model $vel_iter, output will be $outfile"
-    # 1. update location, velocity, station correction using high-quanlity events and picks
-    perl convertformat_updated.pl $lat $lon $distmax 0 $station "$vel_iter" $phasein_best
-    # run velest
-    velest
+    cp "$vel_iter_initial" "model0.nd"
+    declare -a changes
+    final_model="model0.nd"
 
-    # Convert velout.mod to next iteration model file
-    infile="velout.mod"
-    echo "Converting VELEST output model $infile to $outfile"
-    # Constants for the last 3 columns
-    DENSITY=2.6
-    QP=1456.0
-    QS=600.0
-    awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
-    BEGIN { state = 0; }
-    /Output model:/ { state = 1; next }
-    state == 1 && NF == 1 { num_p_layers = $1; p_count = 0; state = 2; next }
-    state == 2 && NF >= 2 {
-        vp[$2] = $1
-        p_count++
-        if (p_count == num_p_layers) { state = 3 }
-        next
-    }
-    state == 3 && NF == 1 { num_s_layers = $1; s_count = 0; state = 4; next }
-    state == 4 && NF >= 2 {
-        vs[$2] = $1
-        s_count++
-        if (s_count == num_s_layers) { state = 5 }
-        next
-    }
-    END {
-        n = 0
-        for (d_str in vp) {
-            if (d_str in vs) { depth_list[++n] = d_str }
+    for (( i=1; i<=$max_iter; i++ )); do
+        vel_iter="model$((i-1)).nd"
+        outfile="model$i.nd"
+
+        echo "========================================="
+        echo " Running VELEST iteration $i / $max_iter"
+        echo " Input: $vel_iter, Output: $outfile"
+        echo "========================================="
+
+        # 1. run velest to update velocity model
+        perl convertformat_updated.pl $lat $lon $distmax 0 $station "$vel_iter" $phasein_best
+        velest
+
+        # Convert velout.mod to next iteration model file
+        infile="velout.mod"
+        echo "Converting VELEST output model $infile to $outfile"
+        # Constants for the last 3 columns
+        DENSITY=2.6
+        QP=1456.0
+        QS=600.0
+        awk -v dens="$DENSITY" -v qp="$QP" -v qs="$QS" '
+        BEGIN { state = 0; }
+        /Output model:/ { state = 1; next }
+        state == 1 && NF == 1 { num_p_layers = $1; p_count = 0; state = 2; next }
+        state == 2 && NF >= 2 {
+            vp[$2] = $1
+            p_count++
+            if (p_count == num_p_layers) { state = 3 }
+            next
         }
-        for (i = 1; i <= n; i++) {
-            for (j = i + 1; j <= n; j++) {
-                if (depth_list[i]+0 > depth_list[j]+0) {
-                    tmp = depth_list[i]; depth_list[i] = depth_list[j]; depth_list[j] = tmp
+        state == 3 && NF == 1 { num_s_layers = $1; s_count = 0; state = 4; next }
+        state == 4 && NF >= 2 {
+            vs[$2] = $1
+            s_count++
+            if (s_count == num_s_layers) { state = 5 }
+            next
+        }
+        END {
+            n = 0
+            for (d_str in vp) {
+                if (d_str in vs) { depth_list[++n] = d_str }
+            }
+            for (i = 1; i <= n; i++) {
+                for (j = i + 1; j <= n; j++) {
+                    if (depth_list[i]+0 > depth_list[j]+0) {
+                        tmp = depth_list[i]; depth_list[i] = depth_list[j]; depth_list[j] = tmp
+                    }
                 }
             }
-        }
-        for (i = 1; i <= n; i++) {
-            d = depth_list[i]
-            printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
-        }
-    }' "$infile" > "$outfile"
-    echo "Wrote converted model to: $outfile"
+            for (i = 1; i <= n; i++) {
+                d = depth_list[i]
+                printf "%5.2f %10.5f %10.5f %10.5f %9.1f %9.1f\n", d, vp[d], vs[d], dens, qp, qs
+            }
+        }' "$infile" > "$outfile"
+        echo "Wrote converted model to: $outfile"
 
-    # 2. run velest to relocate all events using the newly created model and station corrections
-    echo "Relocating all events with the new model: $outfile"
-    perl convertformat_updated.pl $lat $lon $distmax 1 $station "$outfile" $phasein
+        # Calculate sum of absolute changes from previous model
+        read dVp dVs <<< $(awk '
+            FNR==NR { vp_prev[FNR]=$2; vs_prev[FNR]=$3; next }
+            FNR > length(vp_prev) { exit } # Stop if layer counts differ
+            {
+                vp_abs_diff = $2 - vp_prev[FNR]; if (vp_abs_diff < 0) vp_abs_diff = -vp_abs_diff;
+                vs_abs_diff = $3 - vs_prev[FNR]; if (vs_abs_diff < 0) vs_abs_diff = -vs_abs_diff;
+                total_vp_diff += vp_abs_diff
+                total_vs_diff += vs_abs_diff
+            }
+            END { print total_vp_diff, total_vs_diff }
+        ' "$vel_iter" "$outfile")
+
+        if [[ -z "$dVp" || -z "$dVs" ]]; then
+            echo "Warning: Could not calculate velocity change, possibly due to mismatched layers. Stopping iteration."
+            final_model="$vel_iter"
+            break
+        else
+            total_change=$(echo "$dVp + $dVs" | bc)
+        fi
+        changes+=($total_change)
+        echo "Iteration $i: Sum of absolute changes (Vp+Vs) = $total_change"
+
+        final_model="$outfile" # Update final model each iteration
+
+        # Check for convergence after at least 3 iterations
+        if [[ $i -ge 3 ]]; then
+            idx=$i-1 # index in changes array
+            c1=${changes[$idx-2]}
+            c2=${changes[$idx-1]}
+            c3=${changes[$idx]}
+
+            is_stable=0
+            if (( $(echo "$c1 == 0" | bc -l) )) || (( $(echo "$c2 == 0" | bc -l) )); then
+                is_stable=0
+            else
+                cond1=$(echo "scale=4; val=(($c3 - $c2) / $c2); val < 0.05 && val > -0.05" | bc -l)
+                cond2=$(echo "scale=4; val=(($c2 - $c1) / $c1); val < 0.05 && val > -0.05" | bc -l)
+                if [[ $cond1 -eq 1 && $cond2 -eq 1 ]]; then is_stable=1; fi
+            fi
+
+            if [[ $is_stable -eq 1 ]]; then
+                echo "Convergence reached after $i iterations. Model has stabilized."
+                break
+            fi
+        fi
+
+        if [[ $i -eq $max_iter ]]; then
+            echo "Maximum number of iterations ($max_iter) reached."
+        fi
+    done
+
+    # 2. run velest to relocate all events using the final model
+    echo "Relocating all events with the final model: $final_model"
+    perl convertformat_updated.pl $lat $lon $distmax 1 $station "$final_model" $phasein
     mv sta.COR velest.sta # use updated station corrections
     velest
 else
-echo 'please choose your location mode 0, 1 or 2'
-echo 'bash run_velest.sh 0, 1 or 2'
-exit
+    echo 'please choose your location mode 0, 1 or 2'
+    echo 'Usage:'
+    echo "  bash $0 0"
+    echo "  bash $0 1"
+    echo "  bash $0 2 input_model.nd max_iterations"
+    exit
 fi
 
 ####################### step 3 (cookbook 3.2, 3c)###################
