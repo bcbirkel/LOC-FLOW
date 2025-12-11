@@ -136,7 +136,7 @@ def main():
                 # Determine which station prefixes have data and how many stations for each
                 stations_per_prefix = {}
                 for prefix in STATION_PREFIXES:
-                    traces = event_st.select(network='4W', station=f'{prefix}*')
+                    traces = event_st.select(station=f'{prefix}*')
                     if traces:
                         num_stations = len(set(tr.stats.station for tr in traces))
                         if num_stations > 0:
