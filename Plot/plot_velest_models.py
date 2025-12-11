@@ -78,9 +78,23 @@ def main(picker):
         try:
             picker_name = os.path.basename(os.path.dirname(model['path']))
             label = f"{picker_name}-{model['name']}"
-            color = color_map.get(model['name'])
+            
+            is_final_model = (model_num == sorted_keys[-1])
+            color = 'red' if is_final_model else color_map.get(model['name'])
+            linewidth = 2.5 if is_final_model else 1.0
+            zorder = 10 if is_final_model else 1
 
             depth, vp, vs = model['depth'], model['vp'], model['vs']
+
+            if is_final_model:
+                # Add shaded regions for low velocity layers from the final model
+                layer_bottoms = np.append(depth[1:], depth[-1] + 5)
+                for i in range(1, len(vp)):
+                    if vp[i] < vp[i-1]:
+                        ax1.axhspan(depth[i], layer_bottoms[i], color='gray', alpha=0.3, zorder=0)
+                for i in range(1, len(vs)):
+                    if vs[i] < vs[i-1]:
+                        ax2.axhspan(depth[i], layer_bottoms[i], color='gray', alpha=0.3, zorder=0)
 
             # Create coordinates for a step plot. Velocity is constant within a layer.
             x_vp = np.repeat(vp, 2)
@@ -95,10 +109,10 @@ def main(picker):
             y_depth = np.append(y_depth, last_depth)
 
             # Plot Vp profile
-            ax1.plot(x_vp, y_depth, label=label, color=color)
+            ax1.plot(x_vp, y_depth, label=label, color=color, linewidth=linewidth, zorder=zorder)
 
             # Plot Vs profile
-            ax2.plot(x_vs, y_depth, label=label, color=color)
+            ax2.plot(x_vs, y_depth, label=label, color=color, linewidth=linewidth, zorder=zorder)
 
         except Exception as e:
             print(f"Warning: Could not process model {model_num}. Error: {e}")
