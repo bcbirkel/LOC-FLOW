@@ -100,13 +100,6 @@ def main():
                 origin_time = event['origin']
                 print(f"    Processing event {event_id} at {origin_time.isoformat()}")
 
-                picks_file = os.path.join(BASE_DIR_PICKS, picker, f'{picker_short}.{event_id:03d}.picks')
-                event_picks = load_picks(picks_file)
-
-                fig, axes = plt.subplots(len(STATION_PREFIXES), len(COMPONENTS),
-                                         figsize=(18, 24), sharex=True, constrained_layout=True)
-                fig.suptitle(f'Event {event_id:03d} ({picker}) - {origin_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]} UTC', fontsize=16)
-
                 plot_start_time = origin_time - timedelta(seconds=PLOT_WINDOW_BEFORE_S)
                 plot_end_time = origin_time + timedelta(seconds=PLOT_WINDOW_AFTER_S)
 
@@ -119,10 +112,33 @@ def main():
                     st.merge(method=1, fill_value='latest')
                 except Exception as e:
                     print(f"      Could not load waveforms for event {event_id}. Error: {e}")
-                    plt.close(fig)
                     continue
 
-                for row, prefix in enumerate(STATION_PREFIXES):
+                # Determine which station prefixes have data and how many stations for each
+                stations_per_prefix = {}
+                for prefix in STATION_PREFIXES:
+                    traces = st.select(network='4W', station=f'{prefix}*')
+                    if traces:
+                        num_stations = len(set(tr.stats.station for tr in traces))
+                        if num_stations > 0:
+                            stations_per_prefix[prefix] = num_stations
+
+                if not stations_per_prefix:
+                    print(f"      No waveform data found for any station group for event {event_id}. Skipping plot.")
+                    continue
+
+                prefixes_with_data = list(stations_per_prefix.keys())
+                height_ratios = [stations_per_prefix[p] for p in prefixes_with_data]
+
+                picks_file = os.path.join(BASE_DIR_PICKS, picker, f'{picker_short}.{event_id:03d}.picks')
+                event_picks = load_picks(picks_file)
+
+                fig, axes = plt.subplots(len(prefixes_with_data), len(COMPONENTS),
+                                         figsize=(18, 24), sharex=True, constrained_layout=True,
+                                         gridspec_kw={'height_ratios': height_ratios}, squeeze=False)
+                fig.suptitle(f'Event {event_id:03d} ({picker}) - {origin_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]} UTC', fontsize=16)
+
+                for row, prefix in enumerate(prefixes_with_data):
                     for col, comp in enumerate(COMPONENTS):
                         ax = axes[row, col]
                         if row == 0:
@@ -143,7 +159,7 @@ def main():
                         offset = (len(sorted_traces) - 1) * vertical_gap
                         
                         for tr in sorted_traces:
-                            tr_cut = tr.copy().trim(obspy.UTCDateTime(plot_start_time), obspy.UTCDateTime(plot_end_time))
+                            tr_cut = tr.copy() # Already trimmed when reading
                             if not tr_cut.data.any(): continue
 
                             data = tr_cut.data
@@ -169,8 +185,9 @@ def main():
                         ax.set_yticklabels(y_labels)
                         ax.set_ylim(-1, len(sorted_traces) * vertical_gap)
                 
-                ax.xaxis_date()
-                ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+                # Set common x-axis properties for the bottom row of plots
+                axes[-1, 0].xaxis_date()
+                axes[-1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
                 plt.setp(axes[-1, :], xlabel='Time (UTC)')
                 fig.autofmt_xdate(rotation=30, ha='right')
 
