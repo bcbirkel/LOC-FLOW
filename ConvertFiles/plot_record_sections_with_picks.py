@@ -142,29 +142,6 @@ def main():
         print(f"  Waveform directory not found for {date_str}, skipping day.")
         return
 
-    print(f"  Loading waveforms for {date_str}...")
-    try:
-        # Build a list of SAC files to read based on the station list
-        files_to_read = []
-        for station in station_list:
-            files_to_read.extend(glob.glob(os.path.join(waveform_dir, f'4W.{station}.*.SAC')))
-
-        if not files_to_read:
-            print(f"    No SAC files found for stations in station_list for {date_str}.")
-            return
-        
-        st = obspy.Stream()
-        chunk_size = 1 # Read in chunks to avoid "too many arguments" error
-        for i in range(0, len(files_to_read), chunk_size):
-            chunk = files_to_read[i:i+chunk_size]
-            st += obspy.read(*chunk)
-        st.merge(method=1, fill_value='latest')
-    except Exception as e:
-        print(f"    Could not load waveforms for {date_str}. Error: {e}")
-        return
-
-    print_memory_usage(f"After loading waveforms for {date_str}")
-
     for event in sorted(events, key=lambda x: x['origin']):
         event_id = event['id']
         origin_time = event['origin']
@@ -173,9 +150,23 @@ def main():
 
         plot_start_time = origin_time - timedelta(seconds=PLOT_WINDOW_BEFORE_S)
         plot_end_time = origin_time + timedelta(seconds=PLOT_WINDOW_AFTER_S)
-        
-        event_st = st.copy().trim(obspy.UTCDateTime(plot_start_time), obspy.UTCDateTime(plot_end_time))
 
+        # Load waveform data for this specific event window to conserve memory
+        try:
+            event_st = obspy.Stream()
+            for station in station_list:
+                station_files = glob.glob(os.path.join(waveform_dir, f'4W.{station}.*.SAC'))
+                for f in station_files:
+                    try:
+                        # This will read only the required segment from each file
+                        event_st += obspy.read(f, starttime=obspy.UTCDateTime(plot_start_time), endtime=obspy.UTCDateTime(plot_end_time))
+                    except (TypeError, IndexError):
+                        # This can happen if a file contains no data in the requested window
+                        pass
+            event_st.merge(method=1, fill_value='latest')
+        except Exception as e:
+            print(f"    Could not load waveforms for event {event_id}. Error: {e}")
+            continue
 
         # Determine which station prefixes have data and how many stations for each
         stations_per_prefix = {}
@@ -286,7 +277,6 @@ def main():
         print_memory_usage(f"After event {event_id}")
 
     # Explicitly clear large objects and run garbage collection
-    del st
     del events
     del events_by_day
     gc.collect()

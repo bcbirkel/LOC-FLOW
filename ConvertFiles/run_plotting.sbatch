@@ -9,7 +9,7 @@
 # --- SLURM Configuration ---
 #SBATCH --partition=epyc-64
 #SBATCH --account=okaya_201
-#SBATCH --mem=32G
+#SBATCH --mem=40G
 #SBATCH --job-name=plot_picks
 #SBATCH --output=slurm_logs/plot_%A_%a.out
 #SBATCH --error=slurm_logs/plot_%A_%a.err

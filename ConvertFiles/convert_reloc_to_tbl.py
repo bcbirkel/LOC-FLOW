@@ -37,9 +37,9 @@ def main():
                     lat = float(parts[1])
                     lon = float(parts[2])
                     depth = float(parts[3])
-                    err_EW = float(parts[7]) / 1000.0 # meters to km
-                    err_NS = float(parts[8]) / 1000.0
-                    err_Z = float(parts[9]) / 1000.0 
+                    err_EW = float(parts[7])
+                    err_NS = float(parts[8])
+                    err_Z = float(parts[9])
                     year = int(parts[10])
                     month = int(parts[11])
                     day = int(parts[12])
