@@ -6,8 +6,9 @@ import os
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
-picker = "QMigrate"
-def main():
+pickers = ["QMigrate", "PhaseNet", "STALTA"]
+
+def main(picker):
     """
     Finds all VELEST model*.nd files, plots their P and S wave velocity
     profiles, and saves the resulting figure.
@@ -129,9 +130,10 @@ def main():
         table.scale(1, 1.5)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    output_filename = 'velest_model_profiles.png'
+    output_filename = f'velest_model_profiles_{picker}.png'
     plt.savefig(output_filename)
     print(f"Saved plot to {output_filename}")
 
 if __name__ == '__main__':
-    main()
+    for picker in pickers:
+        main(picker)
