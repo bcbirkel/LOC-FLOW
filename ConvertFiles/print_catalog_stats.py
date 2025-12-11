@@ -100,6 +100,49 @@ def calculate_pick_stats(picker_name, num_days, num_stations):
     return avg_p, avg_s
 
 
+def print_individual_stats_console(picker_name, events, num_stations):
+    """Calculates and prints statistics for a loaded catalog to the console."""
+    print(f"\n--- Statistics for {picker_name} ---")
+
+    num_events = len(events)
+    print(f"Total Events: {num_events}")
+
+    if num_events == 0:
+        return
+
+    dates = [e['origin'] for e in events]
+    min_date, max_date = min(dates), max(dates)
+    num_days = (max_date - min_date).days + 1
+    print(f"Date Range:   {min_date.strftime('%Y-%m-%d')} to {max_date.strftime('%Y-%m-%d')} ({num_days} days)")
+
+    lon = np.array([e['lon'] for e in events])
+    lat = np.array([e['lat'] for e in events])
+    depth = np.array([e['depth'] for e in events])
+    mag = np.array([e['mag'] for e in events])
+    err_ns = np.array([e['err_ns'] for e in events])
+    err_ew = np.array([e['err_ew'] for e in events])
+    err_z = np.array([e['err_z'] for e in events])
+
+    print("\nLocation:")
+    print(f"  Longitude:  {np.min(lon):.4f} to {np.max(lon):.4f}")
+    print(f"  Latitude:   {np.min(lat):.4f} to {np.max(lat):.4f}")
+    print(f"  Depth (km): {np.min(depth):.3f} to {np.max(depth):.3f} (Mean: {np.mean(depth):.3f})")
+
+    print("\nMagnitude:")
+    print(f"  Range: {np.min(mag):.2f} to {np.max(mag):.2f}")
+    print(f"  Mean:  {np.mean(mag):.2f}, Median: {np.median(mag):.2f}")
+
+    print("\nLocation Errors (km):")
+    print(f"  North-South (err_NS): Mean={np.mean(err_ns):.4f}, Median={np.median(err_ns):.4f}, Std={np.std(err_ns):.4f}")
+    print(f"  East-West (err_EW):   Mean={np.mean(err_ew):.4f}, Median={np.median(err_ew):.4f}, Std={np.std(err_ew):.4f}")
+    print(f"  Vertical (err_Z):     Mean={np.mean(err_z):.4f}, Median={np.median(err_z):.4f}, Std={np.std(err_z):.4f}")
+
+    avg_p, avg_s = calculate_pick_stats(picker_name, num_days, num_stations)
+    print("\nPick Statistics:")
+    print(f"  Avg P picks/station/day: {avg_p:.2f}")
+    print(f"  Avg S picks/station/day: {avg_s:.2f}")
+
+
 def calculate_individual_stats(picker_name, events, num_stations):
     """Calculates statistics for a loaded catalog and returns them as a dict."""
     stats = {}
@@ -138,6 +181,41 @@ def calculate_individual_stats(picker_name, events, num_stations):
     stats['Avg P picks/sta/day'] = f"{avg_p:.2f}"
     stats['Avg S picks/sta/day'] = f"{avg_s:.2f}"
     return stats
+
+
+def print_comparison_stats_console(picker1, picker2, common_events):
+    """Calculates and prints statistics for common events between two catalogs to the console."""
+    print(f"\n--- Comparison: {picker1} vs {picker2} ---")
+    
+    if not common_events:
+        print("  No common events found within time window.")
+        return
+        
+    print(f"  Found {len(common_events)} common events.")
+
+    dist_diffs = []
+    depth_diffs = []
+    err_ns_diffs = []
+    err_ew_diffs = []
+    err_z_diffs = []
+
+    for e1, e2 in common_events:
+        dist_m, _, _ = gps2dist_azimuth(e1['lat'], e1['lon'], e2['lat'], e2['lon'])
+        dist_diffs.append(dist_m / 1000.0)
+        depth_diffs.append(abs(e1['depth'] - e2['depth']))
+        
+        err_ns_diffs.append(abs(e1['err_ns'] - e2['err_ns']))
+        err_ew_diffs.append(abs(e1['err_ew'] - e2['err_ew']))
+        err_z_diffs.append(abs(e1['err_z'] - e2['err_z']))
+
+    print("\n  Absolute Location Differences:")
+    print(f"    Horizontal (km): Mean={np.mean(dist_diffs):.4f}, Median={np.median(dist_diffs):.4f}")
+    print(f"    Vertical (km):   Mean={np.mean(depth_diffs):.4f}, Median={np.median(depth_diffs):.4f}")
+
+    print("\n  Absolute Error Differences (km):")
+    print(f"    err_NS: Mean={np.mean(err_ns_diffs):.4f}, Median={np.median(err_ns_diffs):.4f}")
+    print(f"    err_EW: Mean={np.mean(err_ew_diffs):.4f}, Median={np.median(err_ew_diffs):.4f}")
+    print(f"    err_Z:  Mean={np.mean(err_z_diffs):.4f}, Median={np.median(err_z_diffs):.4f}")
 
 
 def find_common_events(cat1, cat2, time_window_s=10, dist_window_km=0.5):
@@ -220,22 +298,30 @@ def main():
         except Exception as e:
             print(f"Error processing {tbl_file}: {e}")
 
-    # --- Calculate Stats ---
+    # --- Calculate and Print Individual Stats ---
     individual_stats = {}
     for picker, events in all_catalogs.items():
+        print_individual_stats_console(picker, events, num_stations)
         individual_stats[picker] = calculate_individual_stats(picker, events, num_stations)
-    
+
+    # --- Calculate and Print Comparison Stats ---
+    print("\n" + "="*50)
+    print(" " * 15 + "CATALOG COMPARISONS")
+    print("="*50)
+
     comparison_stats = {}
     for picker1, picker2 in itertools.combinations(all_catalogs.keys(), 2):
         cat1 = all_catalogs[picker1]
         cat2 = all_catalogs[picker2]
         common_events = find_common_events(cat1, cat2)
+        print_comparison_stats_console(picker1, picker2, common_events)
         key = f"{picker1} vs {picker2}"
         comparison_stats[key] = calculate_comparison_stats(picker1, picker2, common_events)
 
     # --- Prepare Data for Tables ---
     # Individual stats table
-    ind_headers = ['Statistic'] + PICKERS
+    available_pickers = sorted(list(individual_stats.keys()))
+    ind_headers = ['Statistic'] + available_pickers
     ind_stat_keys = [
         'Total Events', 'Date Range', 'Duration (days)', 'Lon Range', 'Lat Range',
         'Depth Range (km)', 'Mean Depth (km)', 'Mag Range', 'Mean Magnitude',
@@ -244,7 +330,7 @@ def main():
     ]
     ind_rows = []
     for key in ind_stat_keys:
-        row = [key] + [individual_stats.get(p, {}).get(key, 'N/A') for p in PICKERS]
+        row = [key] + [individual_stats.get(p, {}).get(key, 'N/A') for p in available_pickers]
         ind_rows.append(row)
 
     # Comparison stats table
