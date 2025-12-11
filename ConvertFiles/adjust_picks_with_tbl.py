@@ -73,9 +73,9 @@ def process_pha_file(pha_path, tbl_origins, picker_short, output_dir):
                 # Parse new header
                 parts = line.split()
                 # Format: # year month day hour minute second lat lon depth a b c d eqID
-                if len(parts) < 14: continue
+                if len(parts) < 15: continue
 
-                eqID = int(parts[13])
+                eqID = int(parts[14])
                 year = int(parts[1])
                 month = int(parts[2])
                 day = int(parts[3])
