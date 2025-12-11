@@ -20,29 +20,66 @@ def main():
         print(f"No model files found at '{search_path}'. Exiting.")
         return
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8), sharey=True)
+    # --- Data Loading and Processing ---
+    models_data = {}
+    for file_path in model_files:
+        try:
+            model_name = os.path.splitext(os.path.basename(file_path))[0]
+            model_num = int(model_name.replace('model', ''))
+            data = np.loadtxt(file_path)
+            models_data[model_num] = {
+                'depth': data[:, 0], 'vp': data[:, 1], 'vs': data[:, 2],
+                'path': file_path, 'name': model_name
+            }
+        except (ValueError, IndexError) as e:
+            print(f"Warning: Could not parse model number from {file_path}. Skipping. Error: {e}")
+            continue
+
+    # --- Calculate Velocity Changes for Table ---
+    table_data = []
+    sorted_keys = sorted(models_data.keys())
+    for i in range(1, len(sorted_keys)):
+        prev_model_num = sorted_keys[i-1]
+        curr_model_num = sorted_keys[i]
+
+        prev_model = models_data[prev_model_num]
+        curr_model = models_data[curr_model_num]
+
+        if len(prev_model['vp']) != len(curr_model['vp']):
+            print(f"Warning: Skipping model comparison between {prev_model['name']} and {curr_model['name']} due to different layer counts.")
+            continue
+
+        vp_diff = np.sum(np.abs(curr_model['vp'] - prev_model['vp']))
+        vs_diff = np.sum(np.abs(curr_model['vs'] - prev_model['vs']))
+
+        update_str = f"model{prev_model_num} → model{curr_model_num}"
+        table_data.append([update_str, f"{vp_diff:.2f}", f"{vs_diff:.2f}"])
+
+
+    # --- Plotting Setup ---
+    fig = plt.figure(figsize=(12, 10))
+    gs = fig.add_gridspec(2, 2, height_ratios=[3, 1])
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1], sharey=ax1)
+
     fig.suptitle('VELEST 1D Velocity Models', fontsize=16)
 
     # Create a mapping from model name (e.g., 'model1') to a color
-    unique_model_names = sorted(list(set([os.path.splitext(os.path.basename(f))[0] for f in model_files])))
+    unique_model_names = sorted([m['name'] for m in models_data.values()])
     if unique_model_names:
         colors = plt.cm.viridis(np.linspace(0, 1, len(unique_model_names)))
         color_map = {name: colors[i] for i, name in enumerate(unique_model_names)}
     else:
         color_map = {}
 
-
-    for file_path in model_files:
+    for model_num in sorted_keys:
+        model = models_data[model_num]
         try:
-            # Extract picker and model name for the label
-            model_name = os.path.splitext(os.path.basename(file_path))[0]
-            picker_name = os.path.basename(os.path.dirname(file_path))
-            label = f"{picker_name}-{model_name}"
-            color = color_map.get(model_name)
+            picker_name = os.path.basename(os.path.dirname(model['path']))
+            label = f"{picker_name}-{model['name']}"
+            color = color_map.get(model['name'])
 
-            # Load data: depth, Vp, Vs
-            data = np.loadtxt(file_path)
-            depth, vp, vs = data[:, 0], data[:, 1], data[:, 2]
+            depth, vp, vs = model['depth'], model['vp'], model['vs']
 
             # Create coordinates for a step plot. Velocity is constant within a layer.
             x_vp = np.repeat(vp, 2)
@@ -63,7 +100,7 @@ def main():
             ax2.plot(x_vs, y_depth, label=label, color=color)
 
         except Exception as e:
-            print(f"Warning: Could not process file {file_path}. Error: {e}")
+            print(f"Warning: Could not process model {model_num}. Error: {e}")
 
     # Configure P-wave velocity plot
     ax1.set_title('P-wave Velocity (Vp)')
@@ -80,6 +117,16 @@ def main():
 
     # Invert depth axis for both plots
     ax1.invert_yaxis()
+
+    # --- Add Table ---
+    if table_data:
+        ax_table = fig.add_subplot(gs[1, :])
+        ax_table.axis('off')
+        col_labels = ['Model Update', 'Σ|ΔVp|', 'Σ|ΔVs|']
+        table = ax_table.table(cellText=table_data, colLabels=col_labels, loc='center', cellLoc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1, 1.5)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     output_filename = 'velest_model_profiles.png'
