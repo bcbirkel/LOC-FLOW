@@ -6,6 +6,7 @@ import os
 import re
 from datetime import datetime, timedelta
 import obspy
+from obspy.geodetics import gps2dist_azimuth
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -38,6 +39,7 @@ def load_events_by_day(tbl_path):
             year, month, day = int(parts[1]), int(parts[3]), int(parts[4])
             hour, minute = int(parts[5]), int(parts[6])
             sec_float = float(parts[7])
+            lon, lat = float(parts[8]), float(parts[9])
             microsecond = int((sec_float - int(sec_float)) * 1_000_000)
 
             origin_time = datetime(year, month, day, hour, minute, int(sec_float), microsecond)
@@ -45,7 +47,7 @@ def load_events_by_day(tbl_path):
 
             if date_str not in events:
                 events[date_str] = []
-            events[date_str].append({'id': event_id, 'origin': origin_time})
+            events[date_str].append({'id': event_id, 'origin': origin_time, 'lat': lat, 'lon': lon})
     return events
 
 def load_picks(picks_path):
@@ -64,6 +66,18 @@ def load_picks(picks_path):
             picks[station][phase] = pick_time
     return picks
 
+def load_station_data(station_file_path):
+    """Loads station coordinates from the station file."""
+    stations = {}
+    with open(station_file_path, 'r') as f:
+        for line in f:
+            parts = line.split()
+            # lat lon net station ...
+            if len(parts) >= 4:
+                lat, lon, station = float(parts[0]), float(parts[1]), parts[3]
+                stations[station] = {'lat': lat, 'lon': lon}
+    return stations
+
 def get_station_number(station_name, prefix):
     """Extracts the numeric part of a station name for sorting."""
     try:
@@ -76,6 +90,9 @@ def main():
     """Main function to generate record section plots."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print(f"Output will be saved in: {os.path.abspath(OUTPUT_DIR)}")
+
+    station_locs = load_station_data('../Data/station_filt.dat')
+    station_list = list(station_locs.keys())
 
     for picker, picker_short in PICKER_MAP.items():
         tbl_file = os.path.join(BASE_DIR_TBL, f'{picker}.hypoDD.tbl')
@@ -95,29 +112,31 @@ def main():
                 print(f"  Waveform directory not found for {date_str}, skipping day.")
                 continue
 
+            print(f"  Loading waveforms for {date_str}...")
+            try:
+                st = obspy.read(os.path.join(waveform_dir, '4W.*.*.SAC'))
+                st.merge(method=1, fill_value='latest')
+                # Filter stream to only include stations from the list
+                st = st.select(station=",".join(station_list))
+            except Exception as e:
+                print(f"    Could not load waveforms for {date_str}. Error: {e}")
+                continue
+
             for event in sorted(events, key=lambda x: x['origin']):
                 event_id = event['id']
                 origin_time = event['origin']
+                event_lat, event_lon = event['lat'], event['lon']
                 print(f"    Processing event {event_id} at {origin_time.isoformat()}")
 
                 plot_start_time = origin_time - timedelta(seconds=PLOT_WINDOW_BEFORE_S)
                 plot_end_time = origin_time + timedelta(seconds=PLOT_WINDOW_AFTER_S)
-
-                try:
-                    st = obspy.read(
-                        os.path.join(waveform_dir, '4W.*.*.SAC'),
-                        starttime=obspy.UTCDateTime(plot_start_time),
-                        endtime=obspy.UTCDateTime(plot_end_time)
-                    )
-                    st.merge(method=1, fill_value='latest')
-                except Exception as e:
-                    print(f"      Could not load waveforms for event {event_id}. Error: {e}")
-                    continue
+                
+                event_st = st.copy().trim(obspy.UTCDateTime(plot_start_time), obspy.UTCDateTime(plot_end_time))
 
                 # Determine which station prefixes have data and how many stations for each
                 stations_per_prefix = {}
                 for prefix in STATION_PREFIXES:
-                    traces = st.select(network='4W', station=f'{prefix}*')
+                    traces = event_st.select(network='4W', station=f'{prefix}*')
                     if traces:
                         num_stations = len(set(tr.stats.station for tr in traces))
                         if num_stations > 0:
@@ -139,13 +158,26 @@ def main():
                 fig.suptitle(f'Event {event_id:03d} ({picker}) - {origin_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]} UTC', fontsize=16)
 
                 for row, prefix in enumerate(prefixes_with_data):
+                    # Find nearest station in this group
+                    min_dist_km = float('inf')
+                    nearest_station = None
+                    prefix_stations = set(tr.stats.station for tr in event_st.select(network='4W', station=f'{prefix}*'))
+                    
+                    for station_name in prefix_stations:
+                        if station_name in station_locs:
+                            stat_loc = station_locs[station_name]
+                            dist_m, _, _ = gps2dist_azimuth(event_lat, event_lon, stat_loc['lat'], stat_loc['lon'])
+                            if dist_m / 1000.0 < min_dist_km:
+                                min_dist_km = dist_m / 1000.0
+                                nearest_station = station_name
+
                     for col, comp in enumerate(COMPONENTS):
                         ax = axes[row, col]
                         if row == 0:
                             ax.set_title(f'Component {comp}')
                         ax.set_ylabel(f'Stations {prefix}*', rotation=90, size='large', labelpad=20)
 
-                        traces_to_plot = st.select(network='4W', station=f'{prefix}*', channel=f'*{comp}')
+                        traces_to_plot = event_st.select(network='4W', station=f'{prefix}*', channel=f'*{comp}')
                         
                         if not traces_to_plot:
                             ax.text(0.5, 0.5, 'No Data', ha='center', va='center', transform=ax.transAxes)
@@ -159,12 +191,11 @@ def main():
                         offset = (len(sorted_traces) - 1) * vertical_gap
                         
                         for tr in sorted_traces:
-                            tr_cut = tr.copy() # Already trimmed when reading
-                            if not tr_cut.data.any(): continue
+                            if not tr.data.any(): continue
 
-                            data = tr_cut.data
+                            data = tr.data
                             data = data / (np.max(np.abs(data)) or 1)
-                            times = tr_cut.times("matplotlib")
+                            times = tr.times("matplotlib")
                             
                             ax.plot(times, data + offset, 'k-', linewidth=0.5)
                             y_labels.append(tr.stats.station)
@@ -184,6 +215,12 @@ def main():
                         ax.set_yticks(y_ticks)
                         ax.set_yticklabels(y_labels)
                         ax.set_ylim(-1, len(sorted_traces) * vertical_gap)
+
+                        # Bold the nearest station label
+                        if nearest_station:
+                            for label in ax.get_yticklabels():
+                                if label.get_text() == nearest_station:
+                                    label.set_weight('bold')
                 
                 # Set common x-axis properties for the bottom row of plots
                 axes[-1, 0].xaxis_date()
