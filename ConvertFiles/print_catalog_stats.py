@@ -140,30 +140,40 @@ def calculate_individual_stats(picker_name, events, num_stations):
     return stats
 
 
-def find_common_events(cat1, cat2, time_window_s=10):
-    """Finds common events between two catalogs based on origin time."""
+def find_common_events(cat1, cat2, time_window_s=10, dist_window_km=0.5):
+    """Finds common events between two catalogs based on origin time and location."""
     cat1_sorted = sorted(cat1, key=lambda e: e['origin'])
     cat2_sorted = sorted(cat2, key=lambda e: e['origin'])
-    
+
     common_events = []
     i, j = 0, 0
     time_window = timedelta(seconds=time_window_s)
-    
+    dist_window_m = dist_window_km * 1000.0
+
     while i < len(cat1_sorted) and j < len(cat2_sorted):
         event1 = cat1_sorted[i]
         event2 = cat2_sorted[j]
-        
+
         time_diff = event1['origin'] - event2['origin']
-        
+
         if abs(time_diff) <= time_window:
-            common_events.append((event1, event2))
-            i += 1
-            j += 1
+            dist_m, _, _ = gps2dist_azimuth(event1['lat'], event1['lon'], event2['lat'], event2['lon'])
+            if dist_m <= dist_window_m:
+                common_events.append((event1, event2))
+                i += 1
+                j += 1
+            # If no distance match, advance the earlier event to find other pairs
+            elif event1['origin'] < event2['origin']:
+                i += 1
+            else:
+                j += 1
         elif time_diff < -time_window:
+            # event1 is too early for event2, advance event1
             i += 1
         else: # time_diff > time_window
+            # event2 is too early for event1, advance event2
             j += 1
-            
+
     return common_events
 
 def calculate_comparison_stats(picker1, picker2, common_events):
