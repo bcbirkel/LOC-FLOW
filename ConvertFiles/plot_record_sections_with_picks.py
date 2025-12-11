@@ -5,6 +5,8 @@
 import os
 import re
 import glob
+import gc
+import psutil
 from datetime import datetime, timedelta
 import obspy
 from obspy.geodetics import gps2dist_azimuth
@@ -28,6 +30,12 @@ COMPONENTS = ['N', 'E', 'Z'] # Order for plot columns
 PLOT_WINDOW_BEFORE_S = 0
 PLOT_WINDOW_AFTER_S = 15
 # --- END CONFIGURATION ---
+
+def print_memory_usage(label=""):
+    """Prints current memory usage."""
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    print(f"DEBUG Memory ({label}): {mem_info.rss / 1024 ** 2:.2f} MB")
 
 def load_events_by_day(tbl_path):
     """Loads events from a .tbl file and groups them by day."""
@@ -92,6 +100,8 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print(f"Output will be saved in: {os.path.abspath(OUTPUT_DIR)}")
 
+    print_memory_usage("Initial")
+
     station_locs = load_station_data('../Data/station_filt.dat')
     station_list = list(station_locs.keys())
 
@@ -108,6 +118,7 @@ def main():
         events_by_day = load_events_by_day(tbl_file)
 
         for date_str, events in sorted(events_by_day.items()):
+            print_memory_usage(f"Start of day {date_str}")
             waveform_dir = os.path.join(BASE_DIR_WAVEFORMS, date_str)
             if not os.path.exists(waveform_dir):
                 print(f"  Waveform directory not found for {date_str}, skipping day.")
@@ -133,6 +144,8 @@ def main():
             except Exception as e:
                 print(f"    Could not load waveforms for {date_str}. Error: {e}")
                 continue
+
+            print_memory_usage(f"After loading waveforms for {date_str}")
 
             for event in sorted(events, key=lambda x: x['origin']):
                 event_id = event['id']
@@ -251,6 +264,13 @@ def main():
                 output_filename = os.path.join(picker_output_dir, f'{picker_short}.{event_id:03d}.pickplot.png')
                 plt.savefig(output_filename, dpi=150)
                 plt.close(fig)
+                print_memory_usage(f"After event {event_id}")
+
+            # Explicitly clear large objects and run garbage collection
+            del st
+            del events
+            gc.collect()
+            print_memory_usage(f"End of day {date_str}")
     print("\nDone.")
 
 if __name__ == '__main__':
