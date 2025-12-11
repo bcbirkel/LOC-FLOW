@@ -1,38 +1,51 @@
 #!/bin/bash -w
 phasein="phase_sel_all.txt"
 stationin="../../Data/station.dat"
-velocityin="../../REAL/tt_db/mymodel.nd"
+velocityin="../../REAL/tt_db/mymodel_welev.nd"
 # velocityin="/project2/okaya_201/LOC-FLOW/location/VELEST/model1.nd"
-picker="PhaseNet"
+pickers=("STALTA" "PhaseNet" "QMigrate")
 
-####step 1 (cookbook 3.2 step 3a)##### create the velocity model, pay more attentation
-python mk_velmodel.py $velocityin
+for picker in "${pickers[@]}"; do
+    echo "================================="
+    echo " Running Hypoinverse for $picker"
+    echo "================================="
 
-#please run mk_velmodel.py to convert the Vp and Vs models
-#maybe need to mannually adjust the velocities
-#Note: the hypoinverse cannot allow two layers have the same velocity
-#      and not allowed low velocity layer
-#If you get consistent depths, you have this issue! 
-#Slightly ajdust the model (e.g., increase vel a little bit with depth)
+    ####step 1 (cookbook 3.2 step 3a)##### create the velocity model, pay more attentation
+    python mk_velmodel.py $velocityin
 
-####step 2 (cookbook 3.2 step 3b)##### create the phase file
-#merge REAL's phase file into one file
-cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
+    #please run mk_velmodel.py to convert the Vp and Vs models
+    #maybe need to mannually adjust the velocities
+    #Note: the hypoinverse cannot allow two layers have the same velocity
+    #      and not allowed low velocity layer
+    #If you get consistent depths, you have this issue! 
+    #Slightly ajdust the model (e.g., increase vel a little bit with depth)
 
-python mk_inputfile.py $phasein $stationin > hypoinput.arc
-rm $phasein
+    ####step 2 (cookbook 3.2 step 3b)##### create the phase file
+    #merge REAL's phase file into one file
+    cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
 
-####step 3 (cookbook 3.2 step 3c)####### run hypoinverse
-hyp1.40 <hyp.command
-#hypoinverse cannot handle negative magnitude (manual, P48)
-#negative magnitudes will be replaced by 0.0 here
+    python mk_inputfile.py $phasein $stationin > hypoinput.arc
+    rm $phasein
 
-####step 4 (cookbook 3.2 step 3d)####### run hypoinverse
-###convert to readable format
-nEH=10       #  horizontal uncertainty no larger than this
-nEZ=10      #  vertical uncertainty no larger than this
-ngap=360    #  station gap no larger than this
-nrms=1.0    #  travetime residual no larger than this
+    ####step 3 (cookbook 3.2 step 3c)####### run hypoinverse
+    hyp1.40 <hyp.command
+    #hypoinverse cannot handle negative magnitude (manual, P48)
+    #negative magnitudes will be replaced by 0.0 here
 
-python convertformat_outputfile.py hypoOut.arc new.cat dele.cat $nEH $nEZ $ngap $nrms
-#Format: date, hh, mm, ss, lat, lon, dep, mag, rms, err_horizonal, err_dep, num
+    ####step 4 (cookbook 3.2 step 3d)####### run hypoinverse
+    ###convert to readable format
+    nEH=10       #  horizontal uncertainty no larger than this
+    nEZ=10      #  vertical uncertainty no larger than this
+    ngap=360    #  station gap no larger than this
+    nrms=1.0    #  travetime residual no larger than this
+
+    python convertformat_outputfile.py hypoOut.arc new.cat dele.cat $nEH $nEZ $ngap $nrms
+    #Format: date, hh, mm, ss, lat, lon, dep, mag, rms, err_horizonal, err_dep, num
+
+    mkdir -p "$picker" && mv *.arc *.cat *.crh *.dat *.del *.sum "$picker"/ 2>/dev/null
+
+    echo "Finished picker: $picker"
+    echo
+done
+
+echo "All pickers completed."
