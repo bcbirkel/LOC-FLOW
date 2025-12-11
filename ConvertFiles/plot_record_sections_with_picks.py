@@ -4,6 +4,7 @@
 #
 import os
 import re
+import glob
 from datetime import datetime, timedelta
 import obspy
 from obspy.geodetics import gps2dist_azimuth
@@ -114,10 +115,17 @@ def main():
 
             print(f"  Loading waveforms for {date_str}...")
             try:
-                st = obspy.read(os.path.join(waveform_dir, '4W.*.*.SAC'))
+                # Build a list of SAC files to read based on the station list
+                files_to_read = []
+                for station in station_list:
+                    files_to_read.extend(glob.glob(os.path.join(waveform_dir, f'4W.{station}.*.SAC')))
+
+                if not files_to_read:
+                    print(f"    No SAC files found for stations in station_list for {date_str}.")
+                    continue
+                
+                st = obspy.read(files_to_read)
                 st.merge(method=1, fill_value='latest')
-                # Filter stream to only include stations from the list
-                st = st.select(station=",".join(station_list))
             except Exception as e:
                 print(f"    Could not load waveforms for {date_str}. Error: {e}")
                 continue
