@@ -264,6 +264,7 @@ def main():
                 output_filename = os.path.join(picker_output_dir, f'{picker_short}.{event_id:03d}.pickplot.png')
                 plt.savefig(output_filename, dpi=150)
                 plt.close(fig)
+                del fig, axes, event_st
                 print_memory_usage(f"After event {event_id}")
 
             # Explicitly clear large objects and run garbage collection
@@ -271,6 +272,10 @@ def main():
             del events
             gc.collect()
             print_memory_usage(f"End of day {date_str}")
+
+        del events_by_day
+        gc.collect()
+        print_memory_usage(f"After picker {picker}")
     print("\nDone.")
 
 if __name__ == '__main__':
