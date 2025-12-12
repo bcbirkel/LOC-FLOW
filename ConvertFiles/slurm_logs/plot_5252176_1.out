@@ -1,0 +1,36 @@
+==========================================
+SLURM_JOB_ID = 5252177
+SLURM_JOB_NODELIST = b10-16
+TMPDIR = /tmp/SLURM_5252177
+==========================================
+Running in SLURM task mode.
+Task ID: 1
+Picker:  PhaseNet
+Date:    20230410
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 73.73 MB
+
+--- Processing Picker: PhaseNet for Date: 20230410 ---
+DEBUG Memory (Start of day 20230410): 73.99 MB
+    Processing event 1 at 2023-04-10T11:32:18.589999
+DEBUG Memory (After event 1): 5584.40 MB
+    Processing event 2 at 2023-04-10T16:53:34.200000
+DEBUG Memory (After event 2): 5667.25 MB
+    Processing event 3 at 2023-04-10T17:27:54.219999
+DEBUG Memory (After event 3): 5676.50 MB
+    Processing event 4 at 2023-04-10T19:33:16.440000
+DEBUG Memory (After event 4): 5692.50 MB
+    Processing event 5 at 2023-04-10T19:50:38.119999
+DEBUG Memory (After event 5): 5668.11 MB
+    Processing event 6 at 2023-04-10T21:45:06.280000
+DEBUG Memory (After event 6): 5670.30 MB
+    Processing event 7 at 2023-04-10T23:21:46.840000
+DEBUG Memory (After event 7): 5691.39 MB
+    Processing event 8 at 2023-04-10T23:22:09.640000
+DEBUG Memory (After event 8): 5707.65 MB
+    Processing event 9 at 2023-04-10T23:23:29.160000
+DEBUG Memory (After event 9): 5723.52 MB
+DEBUG Memory (End of day 20230410): 5723.52 MB
+
+Done.
+Task 1 finished.

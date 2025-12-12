@@ -1,0 +1,44 @@
+==========================================
+SLURM_JOB_ID = 5252204
+SLURM_JOB_NODELIST = b09-21
+TMPDIR = /tmp/SLURM_5252204
+==========================================
+Running in SLURM task mode.
+Task ID: 28
+Picker:  PhaseNet
+Date:    20230507
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 73.75 MB
+
+--- Processing Picker: PhaseNet for Date: 20230507 ---
+DEBUG Memory (Start of day 20230507): 74.01 MB
+    Processing event 757 at 2023-05-07T06:09:50.200000
+DEBUG Memory (After event 757): 1360.21 MB
+    Processing event 758 at 2023-05-07T13:33:19.820000
+DEBUG Memory (After event 758): 1246.82 MB
+    Processing event 759 at 2023-05-07T14:28:39.990000
+DEBUG Memory (After event 759): 1246.80 MB
+    Processing event 760 at 2023-05-07T14:34:05.780000
+DEBUG Memory (After event 760): 1262.91 MB
+    Processing event 761 at 2023-05-07T14:36:33.789999
+DEBUG Memory (After event 761): 1245.55 MB
+    Processing event 762 at 2023-05-07T17:22:40.759999
+DEBUG Memory (After event 762): 1259.69 MB
+    Processing event 763 at 2023-05-07T17:52:37.119999
+DEBUG Memory (After event 763): 1259.58 MB
+    Processing event 764 at 2023-05-07T19:42:56.100000
+DEBUG Memory (After event 764): 1293.40 MB
+    Processing event 765 at 2023-05-07T20:40:33.079999
+DEBUG Memory (After event 765): 1279.12 MB
+    Processing event 766 at 2023-05-07T20:40:39.280000
+DEBUG Memory (After event 766): 1274.18 MB
+    Processing event 767 at 2023-05-07T21:44:08.919999
+DEBUG Memory (After event 767): 1273.35 MB
+    Processing event 768 at 2023-05-07T22:37:35.719999
+DEBUG Memory (After event 768): 1273.35 MB
+    Processing event 769 at 2023-05-07T23:27:15.640000
+DEBUG Memory (After event 769): 1273.35 MB
+DEBUG Memory (End of day 20230507): 1273.35 MB
+
+Done.
+Task 28 finished.

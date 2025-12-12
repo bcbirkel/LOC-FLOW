@@ -1,0 +1,9 @@
+==========================================
+SLURM_JOB_ID = 5252223
+SLURM_JOB_NODELIST = b15-12
+TMPDIR = /tmp/SLURM_5252223
+==========================================
+Running in SLURM task mode.
+Task ID: 47
+Picker:  QMigrate
+Date:    20230428

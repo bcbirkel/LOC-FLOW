@@ -1,0 +1,28 @@
+Individual Catalog Statistics
+Statistic,PhaseNet,QMigrate
+Total Events,739,729
+Date Range,2023-04-10 to 2023-05-07,2023-04-10 to 2023-05-08
+Duration (days),28,28
+Lon Range,85.4217 to 85.7153,85.4211 to 85.7200
+Lat Range,27.7989 to 27.9599,27.8083 to 27.9743
+Depth Range (km),6.476 to 17.460,2.509 to 16.866
+Mean Depth (km),13.036,12.295
+Mag Range,0.00 to 0.00,0.00 to 2.50
+Mean Magnitude,0.00,0.40
+Median Magnitude,0.00,0.30
+Mean Err_NS (km),0.0303,0.0347
+Mean Err_EW (km),0.0314,0.0394
+Mean Err_Z (km),0.0219,0.0276
+Avg P picks/sta/day,7.88,11.66
+Avg S picks/sta/day,7.09,10.30
+
+Catalog Comparison Statistics
+Comparison Statistic,PhaseNet vs QMigrate
+Common Events,376
+Mean Horiz. Diff (km),0.2979
+Median Horiz. Diff (km),0.2974
+Mean Vert. Diff (km),0.8403
+Median Vert. Diff (km),0.7995
+Mean Err_NS Diff (km),0.0072
+Mean Err_EW Diff (km),0.0128
+Mean Err_Z Diff (km),0.0076

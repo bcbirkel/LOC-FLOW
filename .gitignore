@@ -22,3 +22,6 @@ Plot/record_sections/picker_stages/
 src/FDTCC/bin/
 src/GrowClust/SRC/growclust
 src/REAL/bin/
+
+# too large for github
+Pick/PhaseNet/coarse_stations/results/picks.csv

@@ -1,0 +1,50 @@
+==========================================
+SLURM_JOB_ID = 5252218
+SLURM_JOB_NODELIST = b05-05
+TMPDIR = /tmp/SLURM_5252218
+==========================================
+Running in SLURM task mode.
+Task ID: 42
+Picker:  QMigrate
+Date:    20230423
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 74.16 MB
+
+--- Processing Picker: QMigrate for Date: 20230423 ---
+DEBUG Memory (Start of day 20230423): 74.41 MB
+    Processing event 354 at 2023-04-23T04:06:13.669999
+DEBUG Memory (After event 354): 5662.67 MB
+    Processing event 355 at 2023-04-23T04:52:02.009999
+DEBUG Memory (After event 355): 5721.68 MB
+    Processing event 356 at 2023-04-23T05:13:33.130000
+DEBUG Memory (After event 356): 5705.62 MB
+    Processing event 357 at 2023-04-23T07:51:46.539999
+DEBUG Memory (After event 357): 5727.20 MB
+    Processing event 358 at 2023-04-23T11:07:46.820000
+DEBUG Memory (After event 358): 5731.43 MB
+    Processing event 360 at 2023-04-23T17:00:08.919999
+DEBUG Memory (After event 360): 5731.53 MB
+    Processing event 361 at 2023-04-23T17:42:41.899999
+DEBUG Memory (After event 361): 5731.90 MB
+    Processing event 362 at 2023-04-23T17:42:48
+DEBUG Memory (After event 362): 5732.12 MB
+    Processing event 364 at 2023-04-23T20:28:31.519999
+DEBUG Memory (After event 364): 5732.12 MB
+    Processing event 365 at 2023-04-23T20:41:44.079999
+DEBUG Memory (After event 365): 5730.80 MB
+    Processing event 366 at 2023-04-23T21:00:47.759999
+DEBUG Memory (After event 366): 5730.74 MB
+    Processing event 367 at 2023-04-23T21:25:01.919999
+DEBUG Memory (After event 367): 5718.45 MB
+    Processing event 368 at 2023-04-23T21:26:25.940000
+DEBUG Memory (After event 368): 5718.44 MB
+    Processing event 369 at 2023-04-23T21:27:27.359999
+DEBUG Memory (After event 369): 5718.44 MB
+    Processing event 370 at 2023-04-23T21:56:48.880000
+DEBUG Memory (After event 370): 5718.14 MB
+    Processing event 371 at 2023-04-23T23:17:10.480000
+DEBUG Memory (After event 371): 5718.12 MB
+DEBUG Memory (End of day 20230423): 5718.12 MB
+
+Done.
+Task 42 finished.

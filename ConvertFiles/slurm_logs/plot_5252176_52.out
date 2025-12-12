@@ -1,0 +1,42 @@
+==========================================
+SLURM_JOB_ID = 5252228
+SLURM_JOB_NODELIST = b10-16
+TMPDIR = /tmp/SLURM_5252228
+==========================================
+Running in SLURM task mode.
+Task ID: 52
+Picker:  QMigrate
+Date:    20230503
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 73.84 MB
+
+--- Processing Picker: QMigrate for Date: 20230503 ---
+DEBUG Memory (Start of day 20230503): 74.10 MB
+    Processing event 643 at 2023-05-03T00:31:11.849999
+DEBUG Memory (After event 643): 5653.47 MB
+    Processing event 645 at 2023-05-03T03:38:25.379999
+DEBUG Memory (After event 645): 5717.41 MB
+    Processing event 646 at 2023-05-03T03:40:36.170000
+DEBUG Memory (After event 646): 5716.62 MB
+    Processing event 647 at 2023-05-03T03:40:58.990000
+DEBUG Memory (After event 647): 5701.12 MB
+    Processing event 648 at 2023-05-03T06:27:10.099999
+DEBUG Memory (After event 648): 5701.25 MB
+    Processing event 649 at 2023-05-03T16:40:55.719999
+DEBUG Memory (After event 649): 5701.25 MB
+    Processing event 650 at 2023-05-03T17:00:09.480000
+DEBUG Memory (After event 650): 5701.26 MB
+    Processing event 651 at 2023-05-03T17:26:40.520000
+DEBUG Memory (After event 651): 5701.26 MB
+    Processing event 652 at 2023-05-03T21:08:51.159999
+DEBUG Memory (After event 652): 5701.26 MB
+    Processing event 653 at 2023-05-03T21:19:52.219999
+DEBUG Memory (After event 653): 5701.26 MB
+    Processing event 654 at 2023-05-03T23:05:15.880000
+DEBUG Memory (After event 654): 5701.26 MB
+    Processing event 655 at 2023-05-03T23:31:31.120000
+DEBUG Memory (After event 655): 5701.29 MB
+DEBUG Memory (End of day 20230503): 5701.29 MB
+
+Done.
+Task 52 finished.

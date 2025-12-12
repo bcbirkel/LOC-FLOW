@@ -1,0 +1,62 @@
+==========================================
+SLURM_JOB_ID = 5252178
+SLURM_JOB_NODELIST = b10-16
+TMPDIR = /tmp/SLURM_5252178
+==========================================
+Running in SLURM task mode.
+Task ID: 2
+Picker:  PhaseNet
+Date:    20230411
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 73.50 MB
+
+--- Processing Picker: PhaseNet for Date: 20230411 ---
+DEBUG Memory (Start of day 20230411): 73.76 MB
+    Processing event 10 at 2023-04-11T01:03:49.990000
+DEBUG Memory (After event 10): 5602.64 MB
+    Processing event 11 at 2023-04-11T03:09:13.369999
+DEBUG Memory (After event 11): 5690.96 MB
+    Processing event 12 at 2023-04-11T03:15:48.439999
+DEBUG Memory (After event 12): 5700.84 MB
+    Processing event 13 at 2023-04-11T03:20:04.599999
+DEBUG Memory (After event 13): 5716.87 MB
+    Processing event 14 at 2023-04-11T07:17:13.560000
+DEBUG Memory (After event 14): 5732.57 MB
+    Processing event 15 at 2023-04-11T07:32:28.199999
+DEBUG Memory (After event 15): 5739.70 MB
+    Processing event 16 at 2023-04-11T12:55:14.509999
+DEBUG Memory (After event 16): 5739.65 MB
+    Processing event 17 at 2023-04-11T15:16:07.919999
+DEBUG Memory (After event 17): 5769.53 MB
+    Processing event 18 at 2023-04-11T17:31:50.200000
+DEBUG Memory (After event 18): 5775.31 MB
+    Processing event 19 at 2023-04-11T17:31:57.500000
+DEBUG Memory (After event 19): 5789.75 MB
+    Processing event 20 at 2023-04-11T17:32:08.359999
+DEBUG Memory (After event 20): 5805.84 MB
+    Processing event 21 at 2023-04-11T18:16:25.940000
+DEBUG Memory (After event 21): 5805.41 MB
+    Processing event 22 at 2023-04-11T18:16:33.200000
+DEBUG Memory (After event 22): 5804.86 MB
+    Processing event 23 at 2023-04-11T18:28:06.919999
+DEBUG Memory (After event 23): 5806.09 MB
+    Processing event 24 at 2023-04-11T18:45:29.760000
+DEBUG Memory (After event 24): 5807.89 MB
+    Processing event 25 at 2023-04-11T18:48:38.200000
+DEBUG Memory (After event 25): 5806.25 MB
+    Processing event 26 at 2023-04-11T19:13:01.639999
+DEBUG Memory (After event 26): 5802.87 MB
+    Processing event 27 at 2023-04-11T19:38:40.719999
+DEBUG Memory (After event 27): 5803.00 MB
+    Processing event 28 at 2023-04-11T20:30:42.179999
+DEBUG Memory (After event 28): 5802.95 MB
+    Processing event 29 at 2023-04-11T21:12:44.259999
+DEBUG Memory (After event 29): 5802.78 MB
+    Processing event 30 at 2023-04-11T22:39:43.299999
+DEBUG Memory (After event 30): 5802.30 MB
+    Processing event 31 at 2023-04-11T23:09:10.740000
+DEBUG Memory (After event 31): 5802.65 MB
+DEBUG Memory (End of day 20230411): 5802.65 MB
+
+Done.
+Task 2 finished.

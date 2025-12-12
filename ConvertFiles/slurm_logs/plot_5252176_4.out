@@ -1,0 +1,9 @@
+==========================================
+SLURM_JOB_ID = 5252180
+SLURM_JOB_NODELIST = b10-16
+TMPDIR = /tmp/SLURM_5252180
+==========================================
+Running in SLURM task mode.
+Task ID: 4
+Picker:  PhaseNet
+Date:    20230413

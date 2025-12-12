@@ -1,0 +1,70 @@
+==========================================
+SLURM_JOB_ID = 5252212
+SLURM_JOB_NODELIST = b10-16
+TMPDIR = /tmp/SLURM_5252212
+==========================================
+Running in SLURM task mode.
+Task ID: 36
+Picker:  QMigrate
+Date:    20230417
+Output will be saved in: /project2/okaya_201/LOC-FLOW/ConvertFiles/RecordSectionPicks
+DEBUG Memory (Initial): 73.70 MB
+
+--- Processing Picker: QMigrate for Date: 20230417 ---
+DEBUG Memory (Start of day 20230417): 73.96 MB
+    Processing event 201 at 2023-04-17T00:36:13.609999
+DEBUG Memory (After event 201): 5659.50 MB
+    Processing event 202 at 2023-04-17T01:18:21.079999
+DEBUG Memory (After event 202): 5705.61 MB
+    Processing event 203 at 2023-04-17T01:33:17.699999
+DEBUG Memory (After event 203): 5738.12 MB
+    Processing event 204 at 2023-04-17T01:43:46.600000
+DEBUG Memory (After event 204): 5740.13 MB
+    Processing event 205 at 2023-04-17T04:47:35.289999
+DEBUG Memory (After event 205): 5744.07 MB
+    Processing event 206 at 2023-04-17T09:35:43.579999
+DEBUG Memory (After event 206): 5744.65 MB
+    Processing event 207 at 2023-04-17T12:41:35.210000
+DEBUG Memory (After event 207): 5746.39 MB
+    Processing event 208 at 2023-04-17T13:57:12.750000
+DEBUG Memory (After event 208): 5749.70 MB
+    Processing event 209 at 2023-04-17T14:15:43.399999
+DEBUG Memory (After event 209): 5750.37 MB
+    Processing event 210 at 2023-04-17T14:20:47.740000
+DEBUG Memory (After event 210): 5750.55 MB
+    Processing event 211 at 2023-04-17T14:34:58.289999
+DEBUG Memory (After event 211): 5750.56 MB
+    Processing event 212 at 2023-04-17T14:37:01.760000
+DEBUG Memory (After event 212): 5750.64 MB
+    Processing event 213 at 2023-04-17T15:00:12.769999
+DEBUG Memory (After event 213): 5750.53 MB
+    Processing event 214 at 2023-04-17T15:27:27.730000
+DEBUG Memory (After event 214): 5750.54 MB
+    Processing event 215 at 2023-04-17T15:45:39.009999
+DEBUG Memory (After event 215): 5750.51 MB
+    Processing event 216 at 2023-04-17T16:29:18.160000
+DEBUG Memory (After event 216): 5750.54 MB
+    Processing event 217 at 2023-04-17T17:10:03.020000
+DEBUG Memory (After event 217): 5749.83 MB
+    Processing event 218 at 2023-04-17T17:20:24.460000
+DEBUG Memory (After event 218): 5749.82 MB
+    Processing event 219 at 2023-04-17T18:19:15.500000
+DEBUG Memory (After event 219): 5749.78 MB
+    Processing event 220 at 2023-04-17T20:09:49.619999
+DEBUG Memory (After event 220): 5749.74 MB
+    Processing event 221 at 2023-04-17T20:19:37.200000
+DEBUG Memory (After event 221): 5749.74 MB
+    Processing event 222 at 2023-04-17T21:32:38.759999
+DEBUG Memory (After event 222): 5749.58 MB
+    Processing event 223 at 2023-04-17T21:47:33.479999
+DEBUG Memory (After event 223): 5749.54 MB
+    Processing event 224 at 2023-04-17T21:57:28.800000
+DEBUG Memory (After event 224): 5749.54 MB
+    Processing event 225 at 2023-04-17T22:16:01.120000
+DEBUG Memory (After event 225): 5749.49 MB
+    Processing event 226 at 2023-04-17T22:39:38.460000
+DEBUG Memory (After event 226): 5749.61 MB
+DEBUG Memory (End of day 20230417): 5749.61 MB
+
+Done.
+Task 36 finished.
