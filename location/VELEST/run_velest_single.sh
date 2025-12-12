@@ -17,7 +17,7 @@ vel=../../REAL/tt_db/mymodel_welev.nd # velocity model directory
 
 # phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
 # phasein=../../REAL/phase_allday.txt # use the relocated SA locations
-picker="STALTA" #("STALTA" "PhaseNet" "QMigrate")
+picker="QMigrate" #("STALTA" "PhaseNet" "QMigrate")
 
 echo "=============================="
 echo " Running VELEST for $picker"

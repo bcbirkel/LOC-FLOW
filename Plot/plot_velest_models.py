@@ -122,13 +122,13 @@ def main(picker):
     ax1.set_xlabel('Velocity (km/s)')
     ax1.set_ylabel('Depth (km)')
     ax1.grid(True)
-    ax1.legend()
+    # ax1.legend()
 
     # Configure S-wave velocity plot
     ax2.set_title('S-wave Velocity (Vs)')
     ax2.set_xlabel('Velocity (km/s)')
     ax2.grid(True)
-    ax2.legend()
+    # ax2.legend()
 
     # Invert depth axis for both plots
     ax1.invert_yaxis()

@@ -17,7 +17,7 @@ vel=../../REAL/tt_db/mymodel_welev.nd # velocity model directory
 
 # phasein_best=../../REAL/phase_best_allday.txt # use the SA locations (for mode = 0 only)
 # phasein=../../REAL/phase_allday.txt # use the relocated SA locations
-picker="PhaseNet" #("STALTA" "PhaseNet" "QMigrate")
+picker="QMigrate" #("STALTA" "PhaseNet" "QMigrate")
 
 echo "=============================="
 echo " Running VELEST for $picker"
@@ -25,6 +25,27 @@ echo "=============================="
 
 phasein_best=../../hypoDD_dtct/$picker/hypoDD_best.pha
 phasein=../../hypoDD_dtct/$picker/hypoDD.pha
+
+detect_model_type () {
+    local model="$1"
+
+    # Strip comments and blank lines, inspect first real content
+    first_line=$(grep -v '^\s*#' "$model" | grep -v '^\s*$' | head -n 1)
+
+    # Numeric ND: line starts with a number (possibly negative)
+    if [[ "$first_line" =~ ^[[:space:]]*-?[0-9]+ ]]; then
+        echo "nd"
+        return
+    fi
+
+    # VELEST MOD: look for canonical strings
+    if grep -qiE "P-VELOCITY MODEL|S-VELOCITY MODEL|vel,depth,vdamp|Init.*modell" "$model"; then
+        echo "mod"
+        return
+    fi
+
+    echo "unknown"
+}
 
 ####################### step 2 (cookbook 3.2, 3b)#####################
 # run velest with different options
@@ -107,7 +128,54 @@ then
     echo "Running VELEST iterative model update for up to $max_iter iterations."
     echo "Initial model: $vel_iter_initial"
 
-    cp "$vel_iter_initial" "model0.nd"
+    model_type=$(detect_model_type "$vel_iter_initial")
+    echo "Detected initial model type: $model_type"
+
+    case "$model_type" in
+        nd)
+            echo "Using numeric ND model directly"
+            cp "$vel_iter_initial" model0.nd
+            ;;
+
+        mod)
+            echo "Converting VELEST MOD → numeric ND"
+
+            # Extract numeric layers from VELEST mod
+            # This assumes standard VELEST formatting
+            awk '
+                BEGIN { inP=0; inS=0 }
+
+                /P-VELOCITY MODEL/ { inP=1; inS=0 }
+                /S-VELOCITY MODEL/ { inS=1; inP=0 }
+
+                # Parse layer lines: vel depth damp ...
+                (inP || inS) && $1 ~ /^-?[0-9]+(\.[0-9]+)?$/ && $2 ~ /^-?[0-9]+(\.[0-9]+)?$/ {
+                    vel = $1 + 0
+                    dep = $2 + 0
+                    if (inP) vp[dep] = vel
+                    else     vs[dep] = vel
+                    deps[dep] = 1
+                }
+
+                END {
+                    for (d in deps) {
+                        if ((d in vp) && (d in vs)) {
+                            printf "%8.2f %8.3f %8.3f 2.600 1456.0 600.0\n", d, vp[d], vs[d]
+                        }
+                    }
+                }
+            ' "$vel_iter_initial" | sort -n -k1,1 > model0.nd
+            ;;
+
+        *)
+            echo "ERROR: Cannot determine model type of '$vel_iter_initial'"
+            exit 1
+            ;;
+    esac
+
+    echo "model0.nd preview:"
+    head -n 5 model0.nd
+
     declare -a changes
     final_model="model0.nd"
 
@@ -120,6 +188,10 @@ then
         echo " Input: $vel_iter, Output: $outfile"
         echo "========================================="
 
+        echo "Using iteration model: $(readlink -f "$vel_iter")"
+        head -n 3 "$vel_iter"
+
+ 
         # 1. run velest to update velocity model
         perl convertformat_hypoDD.pl $lat $lon $distmax 0 $station "$vel_iter" $phasein_best
         velest
@@ -203,8 +275,8 @@ then
             if (( $(echo "$c1 == 0" | bc -l) )) || (( $(echo "$c2 == 0" | bc -l) )); then
                 is_stable=0
             else
-                cond1=$(echo "scale=4; val=(($c3 - $c2) / $c2); val < 0.05 && val > -0.05" | bc -l)
-                cond2=$(echo "scale=4; val=(($c2 - $c1) / $c1); val < 0.05 && val > -0.05" | bc -l)
+                cond1=$(echo "scale=4; val=(($c3 - $c2) / $c2); val < 0.01 && val > -0.01" | bc -l)
+                cond2=$(echo "scale=4; val=(($c2 - $c1) / $c1); val < 0.01 && val > -0.01" | bc -l)
                 if [[ $cond1 -eq 1 && $cond2 -eq 1 ]]; then is_stable=1; fi
             fi
 

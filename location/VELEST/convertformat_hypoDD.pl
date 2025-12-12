@@ -87,6 +87,17 @@ open(JK,"<$vel");
 @par = <JK>;
 close(JK);
 
+# --- sanity check: refuse VELEST-format model files ---
+my $preview = join("", @par[0..($#par < 20 ? $#par : 20)]);
+if ($preview =~ /P-VELOCITY MODEL|S-VELOCITY MODEL|vel,depth,vdamp/i) {
+    die "ERROR: Velocity model '$vel' looks like a VELEST .mod file, not a numeric .nd file (depth vp vs ...).\n";
+}
+
+# --- keep only numeric layer lines (e.g., depth vp vs den qp qs) ---
+@par = grep { $_ =~ /^\s*-?\d+(\.\d+)?\s+/ } @par;
+die "ERROR: No numeric layers found in velocity model '$vel'.\n" if scalar(@par) == 0;
+
+
 open(NV,">$newvel") or die "cannot write to file '$file' [$!]]\n";
 # the fist title line
 print NV "InitNepal1D-modell (mod1.1 EK280993)     Ref. station 2D12\n";
@@ -109,8 +120,7 @@ $nlayer = $i;
 #         print STDERR "Last layer Vp is $last_vp < 8.0, adding a mantle layer for VELEST.\n";
 #     }
 # }
-# my $out_nlayer = $nlayer + $add_mantle;
-my $out_nlayer = $nlayer;
+my $out_nlayer = $nlayer; #+ $add_mantle;
 print STDERR "DEBUG convertformat_updated.pl: Writing $out_nlayer layers to velest.mod\n";
 
 # the second line - indicate the number of layers for Vp
@@ -120,7 +130,7 @@ $vdamp = 1.0;
 # vp velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
-    ($hp,$vp,$vs,$den,$qp,$qs) = split(/\s+/,$par[$i]);
+    ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
     if ($i == 0) {
         printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
     } else {
@@ -143,7 +153,7 @@ $vdamp = 1.0;
 # vs velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
-    ($hs,$vp,$vs,$den,$qp,$qs) = split(/\s+/,$par[$i]);
+    ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
     if ($i == 0) {
         printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
     } else {
