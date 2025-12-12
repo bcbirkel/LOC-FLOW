@@ -120,7 +120,7 @@ $vdamp = 1.0;
 # vp velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
-    ($hp,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
+    ($hp,$vp,$vs,$den,$qp,$qs) = split(/\s+/,$par[$i]);
     if ($i == 0) {
         printf NV "%5.2f     %7.2f  %7.3f   P-VELOCITY MODEL\n",$vp,$hp,$vdamp;
     } else {
@@ -143,7 +143,7 @@ $vdamp = 1.0;
 # vs velocity
 for($i=0;$i<$nlayer;$i++){
     chomp($par[$i]);
-    ($hs,$vp,$vs,$den,$qp,$qs) = split(" ",$par[$i]);
+    ($hs,$vp,$vs,$den,$qp,$qs) = split(/\s+/,$par[$i]);
     if ($i == 0) {
         printf NV "%5.2f     %7.2f  %7.3f   S-VELOCITY MODEL\n",$vs,$hs,$vdamp;
     } else {
