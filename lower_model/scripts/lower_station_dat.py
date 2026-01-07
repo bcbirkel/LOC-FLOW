@@ -4,17 +4,18 @@ def lower_station_depth(input_file, output_file, depth_change_km=5.0):
     """
     Reads a station file, lowers the elevation of each station by depth_change_km,
     and writes to a new file.
-    Assumes station file format: STA LON LAT ELEV ...
+    Assumes station file format: lat lon net station chan depth elev
     and that elevation is in km.
     """
     with open(input_file, 'r') as f_in, open(output_file, 'w') as f_out:
         for line in f_in:
             parts = line.strip().split()
-            if len(parts) >= 4:
+            if len(parts) >= 7:
                 try:
-                    elev = float(parts[3])
+                    # elevation is the 7th column (index 6)
+                    elev = float(parts[6])
                     # Lowering a station means decreasing its elevation
-                    parts[3] = f"{elev - depth_change_km:.4f}"
+                    parts[6] = f"{elev - depth_change_km:.4f}"
                     f_out.write(" ".join(parts) + "\n")
                 except ValueError:
                     # Not a data line, write as is

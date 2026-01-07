@@ -2,32 +2,31 @@ this directory is for scripts which take output from REAL and QMigrate -- catalo
 
 VELEST input:
 ../../Data/station.dat
-../../REAL/tt_db/mymodel.nd
+../../REAL/tt_db/mymodel_welev.nd
 ../../REAL/phase_best_allday.txt [for mode=0 only]
 ../../REAL/phase_allday.txt
 
 hypoinverse input:
-../../REAL/tt_db/mymodel.nd
+../../REAL/tt_db/mymodel_welev.nd
 ../../REAL/*.phase_sel.txt
-../../REAL/tt_db/mymodel.nd
 ../../Data/station.dat
 
 therefore, files which need to be adjusted are:
 
 - station.dat
-- mymodel.nd
+- mymodel_welev.nd
 - phase_best_allday.txt
 - phase_allday.txt
 - *.phase_sel.txt
 
-To perform the depth lowering, execute the `run_lowering.sh` script from within this directory.
-Make sure it is executable (`chmod +x run_lowering.sh`).
+To perform the depth lowering, execute the `run_lowering.sh` script from within the `scripts` directory.
+Make sure it is executable (`chmod +x scripts/run_lowering.sh`).
 
-The script will copy the necessary files from the data directories, process them to adjust depths by 5km, and save the output with a `lowered_` prefix.
+The script will create a `model_files` directory. Inside, it will copy the necessary original files to `model_files/original` and save the processed files (with adjusted depths) in `model_files`, prefixed with `lowered_`.
 
 The logic for "lowering" is as follows:
-- For stations (`station.dat`), elevation is decreased by 5km.
-- For velocity model layers (`mymodel.nd`), depth is increased by 5km.
+- For stations (`station.dat`), elevation is decreased by 5km. The station file format is assumed to be `lat lon net station chan depth elev`.
+- For velocity model layers (`mymodel_welev.nd`), depth is increased by 5km. Additionally, new layers at 1, 2, 3, and 4 km depth are interpolated.
 - For earthquake events (phase files), depth is increased by 5km.
 
 This logic is implemented in the following Python scripts, which are called by `run_lowering.sh`:
