@@ -27,7 +27,9 @@ The script will create a `model_files` directory. Inside, it will copy the neces
 The logic for "lowering" is as follows:
 - For stations (`station.dat`), elevation is decreased by 5km. The station file format is assumed to be `lat lon net station chan depth elev`.
 - For velocity model layers (`mymodel_welev.nd`), depth is increased by 5km. Additionally, new layers at 1, 2, 3, and 4 km depth are interpolated.
-- For earthquake events (phase files), depth is increased by 5km.
+- For earthquake events (phase files), depth is increased by 5km. The script `lower_phase_files.py` handles two main formats:
+  - Event headers starting with `#` (`phase_allday.txt`/`phase_best_allday.txt`), where depth is the 9th column.
+  - Event lines starting with an event index (`*.phase_sel.txt`), where depth is the 10th column.
 
 This logic is implemented in the following Python scripts, which are called by `run_lowering.sh`:
 - `lower_station_dat.py`
