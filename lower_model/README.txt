@@ -1,4 +1,10 @@
-this directory is for scripts which take output from REAL and QMigrate -- catalogs and velocity models -- and lower all depths by 5km so that they are appropriately handled later in workflow.
+Brianna Birkel, last edited 1/8/26
+
+This directory is for scripts which take output from REAL and QMigrate (catalogs and velocity models) and 
+lower all depths so that they are appropriately handled later in workflow.
+
+** NOTE: Some depth changes are currently hardcoded. Check the three .py scripts to make sure the outputs are being lowered by
+         the correct amount.
 
 VELEST input:
 ../../Data/station.dat
@@ -20,7 +26,6 @@ therefore, files which need to be adjusted are:
 - *.phase_sel.txt
 
 To perform the depth lowering, execute the `run_lowering.sh` script from within the `scripts` directory.
-Make sure it is executable (`chmod +x scripts/run_lowering.sh`).
 
 The script will create a `model_files` directory. Inside, it will copy the necessary original files to `model_files/original` and save the processed files (with adjusted depths) in `model_files`, prefixed with `lowered_`.
 

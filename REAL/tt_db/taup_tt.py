@@ -4,14 +4,15 @@ import numpy as ny
 import sys
 from obspy.taup import TauPyModel
 from obspy.taup.taup_create import build_taup_model
-build_taup_model("mymodel.nd") 
+# build_taup_model("mymodel.nd") 
+build_taup_model("mymodel_lowered2.nd") 
 # when you prepare the model, please consider interpolating 
 # the velocity model above the majority of seismicity (e.g., a few km/layer)
 # so that VELEST (mode=0) can update it
 # TauP, velest, and hypoinverse don't like low velocity layers...
-model = TauPyModel(model="mymodel")
+model = TauPyModel(model="mymodel_lowered2")
 
-dist=0.8 #dist range in deg.
+dist=1.0 #dist range in deg.
 dep=40 #depth in km
 
 ddist=0.01 #dist interval, be exactly divided by dist

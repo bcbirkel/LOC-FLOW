@@ -59,12 +59,12 @@ for($i=0; $i<$nday; $i++){
     # -G(trx/trh/tdx/tdh)
     $G = "1.0/40/0.01/1";
     # -V(vp0/vs0/[s_vp0/s_vs0/ielev])
-    # $V = "6.5/3.75/5.0/2.75/0";
-    $V = "6.5/3.75";
+    $V = "6.5/3.75/5.0/2.75/1";
+    # $V = "6.5/3.75";
     # -S(np0/ns0/nps0/npsboth0/std0/dtps/nrt/[drt/nxd/rsel/ires])
     #$S = "3/2/8/2/0.5/0.1/1.8/0.35"; # for small grid size
     # $S = "10/8/20/10/0.5/0.1/1.2/0.1"; # for large grid size
-    $S = "10/8/20/12/0.5/0/1.5/0.1/2.0"; # for large grid size
+    $S = "10/8/20/12/0.5/0/1.5/0.3/2.0"; # for large grid size
     
     # thresholds may change with pickers, here for rough testing
     if ($picker==0){
@@ -76,8 +76,8 @@ for($i=0; $i<$nday; $i++){
     }else{
         printf STDERR "please choose 0: STALTA or 1: PhaseNet or 2: EQT/OBST";
     }
-    $station = "../Data/station_full_filt.dat";
-    $ttime = "./tt_db/ttdb.txt";
+    $station = "../lower_model/model_files/lowered2_station_full_filt.dat";
+    $ttime = "./tt_db/ttdb_lower2.txt";
 
     system("REAL -D$D -R$R -S$S -G$G -V$V $station $dir $ttime");
     print"REAL -D$D -R$R -S$S -G$G -V$V $station $dir $ttime\n";
