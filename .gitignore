@@ -25,3 +25,11 @@ src/REAL/bin/
 
 # too large for github
 Pick/PhaseNet/coarse_stations/results/picks.csv
+temp.p
+temp.s
+*phase_sel.txt
+*catalog_sel.txt
+*hypolocSA.dat
+*hypophase.dat
+*allday.txt
+
