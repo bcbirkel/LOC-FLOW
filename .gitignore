@@ -33,3 +33,21 @@ temp.s
 *hypophase.dat
 *allday.txt
 
+
+# Generated outputs / huge artifacts (keep local)
+Pick/PhaseNet/allstations/
+Pick/**/results/*.csv
+Pick/**/temp*.p
+Pick/**/temp*.s
+Plot/overlapping_events/
+REAL/runs_*/
+REAL/*.phase_sel.txt
+REAL/*.hypophase.dat
+REAL/*.hypolocSA.dat
+REAL/*.catalog_sel.txt
+
+# VELEST run outputs
+location/VELEST/**
+
+# Lower model generated outputs
+lower_model/model_files/
