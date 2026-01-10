@@ -1,6 +1,6 @@
 import sys
 
-def lower_phase_depth(input_file, output_file, depth_change_km=5.0):
+def lower_phase_depth(input_file, output_file, depth_change_km=0.75):
     """
     Reads a phase file, adds depth_change_km to the event depth,
     and writes to a new file.

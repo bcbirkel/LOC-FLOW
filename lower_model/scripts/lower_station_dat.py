@@ -1,6 +1,6 @@
 import sys
 
-def lower_station_depth(input_file, output_file, depth_change_km=2.0):
+def lower_station_depth(input_file, output_file, depth_change_km=0.75):
     """
     Reads a station file, lowers the elevation of each station by depth_change_km,
     and writes to a new file.

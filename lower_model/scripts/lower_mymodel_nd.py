@@ -1,6 +1,6 @@
 import sys
 
-def lower_model_depth(input_file, output_file, depth_change_km=5.0):
+def lower_model_depth(input_file, output_file, depth_change_km=0.75, interp=False):
     """
     Reads a velocity model file, adds depth_change_km to the depth of each layer,
     interpolates new layers between 0 and 5km, and writes to a new file.
@@ -23,21 +23,22 @@ def lower_model_depth(input_file, output_file, depth_change_km=5.0):
             else:
                 non_layer_lines.append(line)
     
-    layer_0km = next((layer for layer in lowered_layers if float(layer[0]) == 0.0), None)
-    layer_5km = next((layer for layer in lowered_layers if float(layer[0]) == 5.0), None)
+    if interp:
+        layer_0km = next((layer for layer in lowered_layers if float(layer[0]) == 0.0), None)
+        layer_5km = next((layer for layer in lowered_layers if float(layer[0]) == 5.0), None)
 
-    if layer_0km and layer_5km:
-        vp0, vs0 = float(layer_0km[1]), float(layer_0km[2])
-        vp5, vs5 = float(layer_5km[1]), float(layer_5km[2])
-        other_props = layer_0km[3:]
+        if layer_0km and layer_5km:
+            vp0, vs0 = float(layer_0km[1]), float(layer_0km[2])
+            vp5, vs5 = float(layer_5km[1]), float(layer_5km[2])
+            other_props = layer_0km[3:]
 
-        for d_km in range(1, 5): # For depths 1, 2, 3, 4 km
-            vp_interp = vp0 + (vp5 - vp0) * d_km / 5.0
-            vs_interp = vs0 + (vs5 - vs0) * d_km / 5.0
-            new_layer = [f"{float(d_km):.2f}", f"{vp_interp:.5f}", f"{vs_interp:.5f}"] + other_props
-            lowered_layers.append(new_layer)
+            for d_km in range(1, 5): # For depths 1, 2, 3, 4 km
+                vp_interp = vp0 + (vp5 - vp0) * d_km / 5.0
+                vs_interp = vs0 + (vs5 - vs0) * d_km / 5.0
+                new_layer = [f"{float(d_km):.2f}", f"{vp_interp:.5f}", f"{vs_interp:.5f}"] + other_props
+                lowered_layers.append(new_layer)
 
-    lowered_layers.sort(key=lambda x: float(x[0]))
+        lowered_layers.sort(key=lambda x: float(x[0]))
     
     with open(output_file, 'w') as f_out:
         if non_layer_lines:
