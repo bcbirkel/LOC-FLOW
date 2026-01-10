@@ -12,6 +12,7 @@ ORIGINAL_DIR="${OUTPUT_DIR}/original"
 DATA_DIR="../../Data"
 REAL_DIR="../../REAL"
 REAL_TT_DB_DIR="${REAL_DIR}/tt_db"
+LOC_FLOW_DIR="../../LOC-FLOW/location/VELEST/PhaseNet"
 
 echo "--- Starting depth lowering process ---"
 
@@ -24,6 +25,7 @@ mkdir -p "${ORIGINAL_DIR}"
 echo "Copying files to ${ORIGINAL_DIR}..."
 cp "${DATA_DIR}/station_full_filt.dat" "${ORIGINAL_DIR}/"
 cp "${REAL_TT_DB_DIR}/mymodel_welev.nd" "${ORIGINAL_DIR}/"
+cp "${LOC_FLOW_DIR}/final.CNV" "${ORIGINAL_DIR}/" 2>/dev/null || true
 # The following cp commands will not error if source files don't exist
 cp "${REAL_DIR}/phase_best_allday.txt" "${ORIGINAL_DIR}/" 2>/dev/null || true
 cp "${REAL_DIR}/phase_allday.txt" "${ORIGINAL_DIR}/" 2>/dev/null || true
@@ -58,6 +60,11 @@ for f in "${ORIGINAL_DIR}/"*.phase_sel.txt; do
         python3 lower_phase_files.py "$f" "${OUTPUT_DIR}/lowered_$fname"
     fi
 done
+
+if [ -f "${ORIGINAL_DIR}/final.CNV" ]; then
+    echo "Processing final.CNV..."
+    python3 lower_final_cnv.py "${ORIGINAL_DIR}/final.CNV" "${OUTPUT_DIR}/lowered_final.CNV"
+fi
 
 echo "--- Depth lowering process finished ---"
 echo "Original files are in ${ORIGINAL_DIR}."

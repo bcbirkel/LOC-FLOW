@@ -24,6 +24,7 @@ therefore, files which need to be adjusted are:
 - phase_best_allday.txt
 - phase_allday.txt
 - *.phase_sel.txt
+- final.CNV
 
 To perform the depth lowering, execute the `run_lowering.sh` script from within the `scripts` directory.
 
@@ -35,8 +36,10 @@ The logic for "lowering" is as follows:
 - For earthquake events (phase files), depth is increased by 5km. The script `lower_phase_files.py` handles two main formats:
   - Event headers starting with `#` (`phase_allday.txt`/`phase_best_allday.txt`), where depth is the 9th column.
   - Event lines starting with an event index (`*.phase_sel.txt`), where depth is the 10th column.
+- For earthquake events from VELEST (`final.CNV`), depth is increased by 5km. The script `lower_final_cnv.py` identifies event lines based on fixed-width columns and modifies the depth value.
 
 This logic is implemented in the following Python scripts, which are called by `run_lowering.sh`:
 - `lower_station_dat.py`
 - `lower_mymodel_nd.py`
 - `lower_phase_files.py`
+- `lower_final_cnv.py`
