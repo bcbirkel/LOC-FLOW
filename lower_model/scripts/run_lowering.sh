@@ -22,7 +22,7 @@ mkdir -p "${ORIGINAL_DIR}"
 
 # --- 1. Copy files ---
 echo "Copying files to ${ORIGINAL_DIR}..."
-cp "${DATA_DIR}/station.dat" "${ORIGINAL_DIR}/"
+cp "${DATA_DIR}/station_full_filt.dat" "${ORIGINAL_DIR}/"
 cp "${REAL_TT_DB_DIR}/mymodel_welev.nd" "${ORIGINAL_DIR}/"
 # The following cp commands will not error if source files don't exist
 cp "${REAL_DIR}/phase_best_allday.txt" "${ORIGINAL_DIR}/" 2>/dev/null || true
@@ -33,7 +33,7 @@ echo "Files copied."
 
 # --- 2. Process files ---
 echo "Processing station.dat..."
-python3 lower_station_dat.py "${ORIGINAL_DIR}/station.dat" "${OUTPUT_DIR}/lowered_station.dat"
+python3 lower_station_dat.py "${ORIGINAL_DIR}/station_full_filt.dat" "${OUTPUT_DIR}/lowered_station_full.dat"
 
 echo "Processing mymodel_welev.nd..."
 python3 lower_mymodel_nd.py "${ORIGINAL_DIR}/mymodel_welev.nd" "${OUTPUT_DIR}/lowered_mymodel.nd"
