@@ -1,8 +1,15 @@
 #!/bin/bash
-# This script copies required files and lowers depth values by 5km.
+# This script copies required files and lowers depth values by a specified amount.
 
 set -e
 set -u
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <depth_change_km>"
+    exit 1
+fi
+
+DEPTH_CHANGE_KM=$1
 
 # Output directories relative to this script's location
 OUTPUT_DIR="../model_files"
@@ -35,20 +42,20 @@ echo "Files copied."
 
 # --- 2. Process files ---
 echo "Processing station.dat..."
-python3 lower_station_dat.py "${ORIGINAL_DIR}/station_full_filt.dat" "${OUTPUT_DIR}/lowered_station_full.dat"
+python3 lower_station_dat.py "${ORIGINAL_DIR}/station_full_filt.dat" "${OUTPUT_DIR}/lowered_station_full.dat" "$DEPTH_CHANGE_KM"
 
 echo "Processing mymodel_welev.nd..."
-python3 lower_mymodel_nd.py "${ORIGINAL_DIR}/mymodel_welev.nd" "${OUTPUT_DIR}/lowered_mymodel.nd"
+python3 lower_mymodel_nd.py "${ORIGINAL_DIR}/mymodel_welev.nd" "${OUTPUT_DIR}/lowered_mymodel.nd" "$DEPTH_CHANGE_KM"
 
 echo "Processing phase files..."
 if [ -f "${ORIGINAL_DIR}/phase_best_allday.txt" ]; then
     echo "Processing phase_best_allday.txt..."
-    python3 lower_phase_files.py "${ORIGINAL_DIR}/phase_best_allday.txt" "${OUTPUT_DIR}/lowered_phase_best_allday.txt"
+    python3 lower_phase_files.py "${ORIGINAL_DIR}/phase_best_allday.txt" "${OUTPUT_DIR}/lowered_phase_best_allday.txt" "$DEPTH_CHANGE_KM"
 fi
 
 if [ -f "${ORIGINAL_DIR}/phase_allday.txt" ]; then
     echo "Processing phase_allday.txt..."
-    python3 lower_phase_files.py "${ORIGINAL_DIR}/phase_allday.txt" "${OUTPUT_DIR}/lowered_phase_allday.txt"
+    python3 lower_phase_files.py "${ORIGINAL_DIR}/phase_allday.txt" "${OUTPUT_DIR}/lowered_phase_allday.txt" "$DEPTH_CHANGE_KM"
 fi
 
 for f in "${ORIGINAL_DIR}/"*.phase_sel.txt; do
@@ -57,13 +64,13 @@ for f in "${ORIGINAL_DIR}/"*.phase_sel.txt; do
     if [ -e "$f" ]; then
         fname=$(basename "$f")
         echo "Processing $fname..."
-        python3 lower_phase_files.py "$f" "${OUTPUT_DIR}/lowered_$fname"
+        python3 lower_phase_files.py "$f" "${OUTPUT_DIR}/lowered_$fname" "$DEPTH_CHANGE_KM"
     fi
 done
 
 if [ -f "${ORIGINAL_DIR}/final.CNV" ]; then
     echo "Processing final.CNV..."
-    python3 lower_final_cnv.py "${ORIGINAL_DIR}/final.CNV" "${OUTPUT_DIR}/lowered_final.CNV"
+    python3 lower_final_cnv.py "${ORIGINAL_DIR}/final.CNV" "${OUTPUT_DIR}/lowered_final.CNV" "$DEPTH_CHANGE_KM"
 fi
 
 echo "--- Depth lowering process finished ---"

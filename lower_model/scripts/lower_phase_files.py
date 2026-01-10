@@ -1,6 +1,6 @@
 import sys
 
-def lower_phase_depth(input_file, output_file, depth_change_km=0.75):
+def lower_phase_depth(input_file, output_file, depth_change_km):
     """
     Reads a phase file, adds depth_change_km to the event depth,
     and writes to a new file.
@@ -44,10 +44,11 @@ def lower_phase_depth(input_file, output_file, depth_change_km=0.75):
                     f_out.write(line)  # Not an event line
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
+    if len(sys.argv) != 4:
+        print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file> <depth_change_km>")
         sys.exit(1)
     
     input_f = sys.argv[1]
     output_f = sys.argv[2]
-    lower_phase_depth(input_f, output_f)
+    depth_change = float(sys.argv[3])
+    lower_phase_depth(input_f, output_f, depth_change)
