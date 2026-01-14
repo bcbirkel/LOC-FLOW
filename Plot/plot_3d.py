@@ -765,11 +765,9 @@ def main():
                 all_lats_for_aspect.extend(data['lat'])
                 traces_metadata.append({'picker': picker, 'stage': stage})
 
-    # Create and add the average hypoDD surface if data is available
-    if len(hypoDD_lons) > 3:
+    # Create and add the median hypoDD surface if data is available
+    if len(hypoDD_lons) > 0:
         try:
-            from scipy.interpolate import griddata
-
             # Combine into a single array and filter out depth outliers (keep middle 80%)
             all_points = np.array([hypoDD_lons, hypoDD_lats, hypoDD_deps]).T
             depths = all_points[:, 2]
@@ -778,36 +776,30 @@ def main():
             mask = (depths >= p10) & (depths <= p90)
             filtered_points = all_points[mask]
 
-            if filtered_points.shape[0] > 3:
-                # Create a grid for interpolation
-                grid_x, grid_y = np.mgrid[XMIN:XMAX:100j, YMIN:YMAX:100j]
-                points = filtered_points[:, [0, 1]]
-                values = filtered_points[:, 2]
+            if filtered_points.shape[0] > 0:
+                # Calculate the median depth of the filtered events
+                median_depth = np.median(filtered_points[:, 2])
 
-                # Interpolate depth values onto the grid
-                grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
+                # Create a grid for the flat surface (2x2 is sufficient for a plane)
+                grid_x, grid_y = np.mgrid[XMIN:XMAX:2j, YMIN:YMAX:2j]
+                grid_z = np.full_like(grid_x, median_depth)
 
-                if not np.all(np.isnan(grid_z)):
-                    # Add surface trace, initially hidden
-                    fig.add_trace(go.Surface(
-                        x=grid_x[:, 0],
-                        y=grid_y[0, :],
-                        z=grid_z.T,
-                        colorscale='Viridis',
-                        opacity=0.5,
-                        showscale=False,
-                        name='hypoDD Average Surface',
-                        visible=True
-                    ))
-                    has_surface = True
+                # Add surface trace
+                fig.add_trace(go.Surface(
+                    x=grid_x[:, 0],
+                    y=grid_y[0, :],
+                    z=grid_z.T,
+                    colorscale='Viridis',
+                    opacity=0.5,
+                    showscale=False,
+                    name='hypoDD Median Surface',
+                    visible=True
+                ))
+                has_surface = True
             else:
                 print("Warning: Not enough points for hypoDD surface after depth filtering.")
-
-        except ImportError:
-            print("Warning: scipy is not installed. Cannot plot average hypoDD surface.")
-            print("Please install it with: pip install scipy")
         except Exception as e:
-            print(f"Warning: Could not create hypoDD average surface. Error: {e}")
+            print(f"Warning: Could not create hypoDD median surface. Error: {e}")
 
     # Create buttons for pickers
     num_special_traces = 0
@@ -912,8 +904,8 @@ def main():
 
     if has_surface:
         surface_buttons = [
-            dict(label="Show Avg Surface", method="restyle", args=[{"visible": [True]}, [-1]]),
-            dict(label="Hide Avg Surface", method="restyle", args=[{"visible": [False]}, [-1]])
+            dict(label="Show Median Surface", method="restyle", args=[{"visible": [True]}, [-1]]),
+            dict(label="Hide Median Surface", method="restyle", args=[{"visible": [False]}, [-1]])
         ]
         updatemenus.append(dict(
             type="buttons",
@@ -925,7 +917,7 @@ def main():
             yanchor="top"
         ))
         annotations.append(
-            dict(text="Avg Surface", x=0.5, y=-0.18, xref="paper", yref="paper",
+            dict(text="Median Surface", x=0.5, y=-0.18, xref="paper", yref="paper",
                  align="center", showarrow=False, xanchor="center", yanchor="bottom")
         )
 
