@@ -797,7 +797,7 @@ def main():
                         opacity=0.5,
                         showscale=False,
                         name='hypoDD Average Surface',
-                        visible=False
+                        visible=True
                     ))
                     has_surface = True
             else:

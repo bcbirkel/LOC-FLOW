@@ -52,7 +52,8 @@ def select_best_event_per_day(input_file, output_file):
             f.writelines(best_events_per_day[day_key]['event_data'])
 
 if __name__ == '__main__':
-    pickers = ["STALTA", "PhaseNet", "QMigrate"]
+    # pickers = ["STALTA", "PhaseNet", "QMigrate"]
+    pickers = ["PhaseNet"]
     for picker in pickers:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         input_pha = os.path.join(script_dir, picker, 'hypoDD.pha')

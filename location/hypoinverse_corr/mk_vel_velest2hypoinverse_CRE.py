@@ -22,10 +22,10 @@ def model_format(modelin):
             if dep == 'mantle':
                 kk = 1
             if kk == 0:
-                dep = float(dep) + 2.0 # push all of v model down by 2km for avg station elev
+                dep = float(dep) #+ 2.0 # push all of v model down by 2km for avg station elev
                 # dep = float(dep) + 5.0 - 2.0 # push all of v model down by 5km to use CRE command in hypoinverse
-                if dep < 0.0:
-                    dep = 0.0
+                # if dep < 0.0:
+                #     dep = 0.0
                 vp = float(line.split()[1])
                 gg.write('{:4.2f}  {:5.2f}\n'.format(vp, dep))
                 i=i+1
@@ -51,9 +51,9 @@ def model_format(modelin):
             if dep == 'mantle':
                 kk = 1
             if kk == 0:
-                dep = float(dep) + 2.0 # push all of v model down by AVG STATION ELEV (2KM) to use CRE command in hypoinverse
-                if dep < 0.0:
-                    dep = 0.0
+                dep = float(dep) #+ 2.0 # push all of v model down by AVG STATION ELEV (2KM) to use CRE command in hypoinverse
+                # if dep < 0.0:
+                #     dep = 0.0
                 vs = float(line.split()[2])
                 gg.write('{:4.2f}  {:5.2f}\n'.format(vs, dep))
     if len(line_more) != 0:

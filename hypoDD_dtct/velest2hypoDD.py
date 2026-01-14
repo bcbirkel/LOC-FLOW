@@ -51,34 +51,54 @@ def format_convert(phaseinput,phaseoutput,nrms,ngap,maxdep):
                     iok = 1
             else:
                 if (iok == 1 and line[0] != '\n'):
-                    line = line.strip('\n')
-                    if (len(line) == 84):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[14:20], float(line[22:28]), line[20]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[28:34], float(line[36:42]), line[34]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[42:48], float(line[50:56]), line[48]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[56:62], float(line[64:70]), line[62]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[70:76], float(line[78:84]), line[76]))
-                    if (len(line) == 70):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[14:20], float(line[22:28]), line[20]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[28:34], float(line[36:42]), line[34]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[42:48], float(line[50:56]), line[48]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[56:62], float(line[64:70]), line[62]))
-                    if (len(line) == 56):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[14:20], float(line[22:28]), line[20]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[28:34], float(line[36:42]), line[34]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[42:48], float(line[50:56]), line[48]))
-                    if (len(line) == 42):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[14:20], float(line[22:28]), line[20]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[28:34], float(line[36:42]), line[34]))
-                    if (len(line) == 28):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[14:20], float(line[22:28]), line[20]))
-                    if (len(line) == 14):
-                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(line[0:6], float(line[8:14]), line[6]))
+                    line = line.rstrip('\n')
+                    L = len(line)
+
+                    def looks_like_pick_start(s, j):
+                        # Need at least 6 chars: 4(sta) + pha + '0'
+                        if j + 6 > len(s):
+                            return False
+                        sta4 = s[j:j+4]
+                        pha  = s[j+4:j+5]
+                        z0   = s[j+5:j+6]
+                        # station field must not be blank; phase must be P/S; then '0'
+                        return (sta4.strip() != "") and (pha in ('P', 'S')) and (z0 == '0')
+
+                    i = 0
+                    while i < L:
+                        # Find the next pick start (in case the line isn't perfectly aligned)
+                        while i < L and not looks_like_pick_start(line, i):
+                            i += 1
+                        if i >= L or i + 6 > L:
+                            break
+
+                        sta4 = line[i:i+4]
+                        pha  = line[i+4:i+5]   # 'P' or 'S'
+                        # line[i+5] should be '0' by looks_like_pick_start()
+
+                        # Time begins after "P0"/"S0", with optional spaces
+                        k = i + 6
+                        while k < L and line[k] == ' ':
+                            k += 1
+
+                        # Time ends right before the next pick start
+                        j = k
+                        while j < L and not looks_like_pick_start(line, j):
+                            j += 1
+
+                        tstr = line[k:j].strip()   # can be "3.66" or "11.29" etc.
+
+                        try:
+                            t = float(tstr)
+                        except ValueError:
+                            # If parsing fails, skip ahead a bit to avoid infinite loops
+                            i = max(i + 6, j)
+                            continue
+
+                        g.write('{:<5s}    {:8.3f}   1.000   {:1s}\n'.format(sta4.strip(), t, pha))
+
+                        # Move to next pick
+                        i = j
 
     f.close()
     g.close()

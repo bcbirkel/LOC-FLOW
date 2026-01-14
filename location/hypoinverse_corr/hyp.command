@@ -8,9 +8,10 @@ H71 3 1 3			    /use new hypoinverse station format
 DIS 4 50 1 3            /Main Distance weighting
 RMS 4 0.16 1.5 3        /Residual weighting
 ERR .10
+CON 50 0.04 0.001       /BB add - 50 iterations to converge max
 *POS 1.8
-MIN 5                   /min number of stations
-ZTR 8                   /trial depth
+MIN 20                   /min number of stations
+ZTR 20 F                   /trial depth
 *WET 1. .5 .2 .1        /weighting by pick quanlity
 *PRE 3, 3 0 0 9         /magnitude
 * OUTPUT

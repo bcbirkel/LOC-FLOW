@@ -19,14 +19,14 @@ def model_format(staCOR, staReal):
     staNumber = len(open(staReal,"r").readlines())
     while ii <= staNumber:
         sta = get_line_context(staCOR, ii+1).split()[0]
-        print(f"sta = {sta}")
+        # print(f"sta = {sta}") 
         pdelay = float(get_line_context(staCOR, ii+1).split()[6])
         sdelay = float(get_line_context(staCOR, ii + 1).split()[7])
         net = get_line_context(staReal, ii).split()[2]
         latD, latM = decdeg2dms(float(get_line_context(staReal, ii).split()[0])) ## BB SWITCH LAT/LON!
         lonD, lonM = decdeg2dms(float(get_line_context(staReal, ii).split()[1]))
         eleva = int(float(get_line_context(staReal, ii).split()[5]) * 1000)
-        print(f"lon = {lonD}, lat = {latD}")
+        # print(f"lon = {lonD}, lat = {latD}")
         ii = ii + 1
         gg1.write('{:5s} {:2s} {:5.2f}\n'.format(sta, net, pdelay))
         gg2.write('{:5s} {:2s} {:5.2f}\n'.format(sta, net, sdelay))

@@ -6,7 +6,8 @@ import os
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
-pickers = ["QMigrate", "PhaseNet", "STALTA"]
+# pickers = ["QMigrate", "PhaseNet", "STALTA"]
+pickers = ["PhaseNet"]
 
 def main(picker):
     """

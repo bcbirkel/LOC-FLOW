@@ -3,16 +3,18 @@
 picker=STALTA
 
 phasein="phase_sel_all.txt"
-stationin="../../Data/station_all.dat"
+# stationin="../../Data/station_all.dat"
+stationin="../../Data/station_full_filt.dat"
 
-pickers=("STALTA" "PhaseNet" "QMigrate")
+# pickers=("STALTA" "PhaseNet" "QMigrate")
+pickers=("PhaseNet")
 
 for picker in "${pickers[@]}"; do
     echo "========================================================"
     echo " Running VELEST-Hypoinverse Correlation for $picker"
     echo "========================================================"
-    velest_sta_corr=../VELEST/$picker/velest.sta #velest's output (mode=0 only), renamed.
-    velest_vel=../VELEST/$picker/velest.mod #velest's output (mode=0), renamed.
+    velest_sta_corr=../VELEST/all_stations/$picker/velest.sta #velest's output (mode=0 only), renamed.
+    velest_vel=../VELEST/all_stations/$picker/velest.mod #velest's output (mode=0), renamed.
 
     ###only eligible to have enough reliable events to update vel. and sta. corr.in the VELEST step###
     ###you will get worse locations if your vel. and sta. corr. are not updated properly.
@@ -29,7 +31,8 @@ for picker in "${pickers[@]}"; do
 
     ####step 2 (cookbook 3.3 step 3b)##### create the phase file
     #merge REAL's phase file into one file
-    cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
+    # cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
+    cat ../../lower_model/model_files/lowered_2p0/*.phase_sel.txt > $phasein
     python mk_inputfile.py $phasein $stationin > hypoinput.arc
     # python mk_inputfile.py $phasein $velest_sta_corr > hypoinput.arc
     rm $phasein

@@ -10,11 +10,11 @@ def lower_cnv_depth(input_file, output_file, depth_change_km):
             # Heuristic for event header line in VELEST .CNV format.
             # Based on fixed columns for lat, lon, and depth.
             is_event_line = False
-            if len(line) > 49:
+            if len(line) > 67:
                 try:
-                    lat_char = line[29]
-                    lon_char = line[40]
-                    depth_str = line[43:49]
+                    lat_char = line[25]
+                    lon_char = line[35]
+                    depth_str = line[36:43]
                     float(depth_str)
                     if lat_char in 'NS' and lon_char in 'EW':
                         is_event_line = True
@@ -22,10 +22,10 @@ def lower_cnv_depth(input_file, output_file, depth_change_km):
                     is_event_line = False
             
             if is_event_line:
-                depth = float(line[43:49])
+                depth = float(line[36:43])
                 new_depth = depth + depth_change_km
                 new_depth_str = f"{new_depth:6.2f}"
-                new_line = line[:43] + new_depth_str + line[49:]
+                new_line = line[:37] + new_depth_str + line[43:]
                 f_out.write(new_line)
             else:
                 f_out.write(line)

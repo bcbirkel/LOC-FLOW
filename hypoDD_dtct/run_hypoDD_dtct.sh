@@ -3,7 +3,7 @@
 # picker="QMigrate"
 # picker="PhaseNet"
 phaseout=hypoDD.pha; #phase format for hypoDD
-stationin=../Data/station_filt.dat; #station list
+stationin=../Data/station_full_filt.dat; #station list
 stationout=station.dat; #station format by hypoDD
 
 

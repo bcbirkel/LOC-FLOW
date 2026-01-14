@@ -1,4 +1,4 @@
-Brianna Birkel, last edited 1/8/26
+Brianna Birkel, created 1/8/26
 
 This directory is for scripts which take output from REAL and QMigrate (catalogs and velocity models) and 
 lower all depths so that they are appropriately handled later in workflow.

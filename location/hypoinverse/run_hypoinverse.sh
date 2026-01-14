@@ -1,9 +1,11 @@
 #!/bin/bash -w
 phasein="phase_sel_all.txt"
-stationin="../../Data/station.dat"
-velocityin="../../REAL/tt_db/mymodel_welev.nd"
+stationin="../../Data/station_full_filt.dat"
+# velocityin="../../REAL/tt_db/mymodel_welev.nd"
+velocityin="../../lower_model/model_files/lowered_2p0/lowered_mymodel_noelev.nd"
 
-pickers=("STALTA" "PhaseNet" "QMigrate")
+# pickers=("STALTA" "PhaseNet" "QMigrate")
+pickers=("PhaseNet")
 
 for picker in "${pickers[@]}"; do
     echo "================================="
@@ -24,7 +26,8 @@ for picker in "${pickers[@]}"; do
 
     ####step 2 (cookbook 3.2 step 3b)##### create the phase file
     #merge REAL's phase file into one file
-    cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
+    # cat ../../REAL/runs/$picker/*.phase_sel.txt > $phasein
+    cat ../../lower_model/model_files/lowered_2p0/*.phase_sel.txt > $phasein
 
     python mk_inputfile.py $phasein $stationin > hypoinput.arc
     rm $phasein

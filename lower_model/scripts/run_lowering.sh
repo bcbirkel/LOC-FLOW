@@ -17,8 +17,8 @@ ORIGINAL_DIR="${OUTPUT_DIR}/original"
 
 # Source directories relative to this script's location
 DATA_DIR="../../Data"
-REAL_DIR="../../REAL"
-REAL_TT_DB_DIR="${REAL_DIR}/tt_db"
+REAL_DIR="../../REAL/runs/PhaseNet"
+REAL_TT_DB_DIR="../../REAL/tt_db"
 LOC_FLOW_DIR="../../LOC-FLOW/location/VELEST/PhaseNet"
 
 echo "--- Starting depth lowering process ---"
