@@ -690,6 +690,7 @@ def main():
     has_regional_events = False
     has_stations = False
     all_lats_for_aspect = []
+    has_surface = False
 
     stage_color_map = {
         'Initial': ['#ff6666', '#ff0000', '#cc0000'],          # Reds
@@ -768,26 +769,40 @@ def main():
     if len(hypoDD_lons) > 3:
         try:
             from scipy.interpolate import griddata
-            # Create a grid for interpolation
-            grid_x, grid_y = np.mgrid[XMIN:XMAX:100j, YMIN:YMAX:100j]
-            points = np.array([hypoDD_lons, hypoDD_lats]).T
-            values = np.array(hypoDD_deps)
-            
-            # Interpolate depth values onto the grid
-            grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
 
-            if not np.all(np.isnan(grid_z)):
-                # Add surface trace, initially not visible
-                fig.add_trace(go.Surface(
-                    x=grid_x[:, 0],
-                    y=grid_y[0, :],
-                    z=grid_z.T,
-                    colorscale='Viridis',
-                    opacity=0.5,
-                    showscale=False,
-                    name='hypoDD Average Surface',
-                    visible='legendonly'
-                ))
+            # Combine into a single array and filter out depth outliers (keep middle 80%)
+            all_points = np.array([hypoDD_lons, hypoDD_lats, hypoDD_deps]).T
+            depths = all_points[:, 2]
+            p10 = np.percentile(depths, 10)
+            p90 = np.percentile(depths, 90)
+            mask = (depths >= p10) & (depths <= p90)
+            filtered_points = all_points[mask]
+
+            if filtered_points.shape[0] > 3:
+                # Create a grid for interpolation
+                grid_x, grid_y = np.mgrid[XMIN:XMAX:100j, YMIN:YMAX:100j]
+                points = filtered_points[:, [0, 1]]
+                values = filtered_points[:, 2]
+
+                # Interpolate depth values onto the grid
+                grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
+
+                if not np.all(np.isnan(grid_z)):
+                    # Add surface trace, initially hidden
+                    fig.add_trace(go.Surface(
+                        x=grid_x[:, 0],
+                        y=grid_y[0, :],
+                        z=grid_z.T,
+                        colorscale='Viridis',
+                        opacity=0.5,
+                        showscale=False,
+                        name='hypoDD Average Surface',
+                        visible=False
+                    ))
+                    has_surface = True
+            else:
+                print("Warning: Not enough points for hypoDD surface after depth filtering.")
+
         except ImportError:
             print("Warning: scipy is not installed. Cannot plot average hypoDD surface.")
             print("Please install it with: pip install scipy")
@@ -867,39 +882,62 @@ def main():
         scene_settings['aspectmode'] = 'manual'
         scene_settings['aspectratio'] = dict(x=range_lon_km, y=range_lat_km, z=range_dep_km)
 
+    updatemenus = [
+        dict(
+            type="buttons",
+            direction="down",
+            buttons=picker_buttons,
+            x=0.3,
+            xanchor="center",
+            y=-0.15,
+            yanchor="top"
+        ),
+        dict(
+            type="buttons",
+            direction="down",
+            buttons=stage_buttons,
+            x=0.7,
+            xanchor="center",
+            y=-0.15,
+            yanchor="top"
+        ),
+    ]
+
+    annotations = [
+        dict(text="Pickers", x=0.3, y=-0.08, xref="paper", yref="paper",
+             align="center", showarrow=False, xanchor="center", yanchor="bottom"),
+        dict(text="Stages", x=0.7, y=-0.08, xref="paper", yref="paper",
+             align="center", showarrow=False, xanchor="center", yanchor="bottom")
+    ]
+
+    if has_surface:
+        surface_buttons = [
+            dict(label="Show Avg Surface", method="restyle", args=[{"visible": [True]}, [-1]]),
+            dict(label="Hide Avg Surface", method="restyle", args=[{"visible": [False]}, [-1]])
+        ]
+        updatemenus.append(dict(
+            type="buttons",
+            direction="right",
+            buttons=surface_buttons,
+            x=0.5,
+            xanchor="center",
+            y=-0.25,
+            yanchor="top"
+        ))
+        annotations.append(
+            dict(text="Avg Surface", x=0.5, y=-0.18, xref="paper", yref="paper",
+                 align="center", showarrow=False, xanchor="center", yanchor="bottom")
+        )
+
     fig.update_layout(
         title="Interactive 3D Earthquake Locations",
         width=1200,
         height=900,
         scene=scene_settings,
         legend=dict(title="Catalogs", traceorder='normal'),
-        margin=dict(r=200, b=150),  # Add right margin for legend, bottom for buttons
-        updatemenus=[
-            dict(
-                type="buttons",
-                direction="down",
-                buttons=picker_buttons,
-                x=0.3,
-                xanchor="center",
-                y=-0.15,
-                yanchor="top"
-            ),
-            dict(
-                type="buttons",
-                direction="down",
-                buttons=stage_buttons,
-                x=0.7,
-                xanchor="center",
-                y=-0.15,
-                yanchor="top"
-            ),
-        ],
-        annotations=[
-            dict(text="Pickers", x=0.3, y=-0.08, xref="paper", yref="paper",
-                 align="center", showarrow=False, xanchor="center", yanchor="bottom"),
-            dict(text="Stages", x=0.7, y=-0.08, xref="paper", yref="paper",
-                 align="center", showarrow=False, xanchor="center", yanchor="bottom")
-        ]
+        margin=dict(r=200, b=200),  # Increased bottom margin for new buttons
+        updatemenus=updatemenus,
+        annotations=annotations
     )
 
     interactive_output = "3Dlocation_interactive.html"
