@@ -11,8 +11,11 @@ import plotly.graph_objects as go
 # --- CONFIGURATION ---
 
 # Define the pickers and location stages to create a grid of plots
-PICKERS = ['STALTA', 'PhaseNet', 'QMigrate']
+# PICKERS = ['STALTA', 'PhaseNet', 'QMigrate']
 STAGES = ['Initial', 'VELEST', 'hypoinverse', 'hypoinverse_corr', 'hypoDD_dtct']
+PICKERS = ['PhaseNet']
+# STAGES = ['Initial', 'VELEST','hypoDD_dtct']
+
 
 # Toggle which pickers and stages to plot
 # Set to False to exclude a picker column or a stage row
@@ -29,7 +32,7 @@ REGIONAL_EVENTS_FILE = 'Nepal_regional_events_starting2000.csv'
 
 # Add option to plot station locations
 PLOT_STATIONS = True
-STATION_FILE = '../Data/station_all.dat'
+STATION_FILE = '../Data/station_full_filt.dat'
 
 # This dictionary defines the data source for each stage.
 # For stages that follow a consistent path pattern for each picker,
