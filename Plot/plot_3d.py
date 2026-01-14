@@ -671,6 +671,20 @@ def main():
     plt.show()
 
     # --- Create Interactive Plotly HTML ---
+    # Collect all final hypoDD points to calculate an average surface
+    hypoDD_lons, hypoDD_lats, hypoDD_deps = [], [], []
+    final_hypoDD_stage = 'hypoDD_dtct'
+    if final_hypoDD_stage in stages_to_plot:
+        for picker in pickers_to_plot:
+            stage_info = get_catalog_info(picker, final_hypoDD_stage)
+            if not stage_info:
+                continue
+            data = load_data(stage_info)
+            if data and len(data['lon']) > 0:
+                hypoDD_lons.extend(data['lon'])
+                hypoDD_lats.extend(data['lat'])
+                hypoDD_deps.extend(data['dep'])
+
     fig = go.Figure()
     traces_metadata = []
     has_regional_events = False
@@ -749,6 +763,36 @@ def main():
                 ))
                 all_lats_for_aspect.extend(data['lat'])
                 traces_metadata.append({'picker': picker, 'stage': stage})
+
+    # Create and add the average hypoDD surface if data is available
+    if len(hypoDD_lons) > 3:
+        try:
+            from scipy.interpolate import griddata
+            # Create a grid for interpolation
+            grid_x, grid_y = np.mgrid[XMIN:XMAX:100j, YMIN:YMAX:100j]
+            points = np.array([hypoDD_lons, hypoDD_lats]).T
+            values = np.array(hypoDD_deps)
+            
+            # Interpolate depth values onto the grid
+            grid_z = griddata(points, values, (grid_x, grid_y), method='cubic')
+
+            if not np.all(np.isnan(grid_z)):
+                # Add surface trace, initially not visible
+                fig.add_trace(go.Surface(
+                    x=grid_x[:, 0],
+                    y=grid_y[0, :],
+                    z=grid_z.T,
+                    colorscale='Viridis',
+                    opacity=0.5,
+                    showscale=False,
+                    name='hypoDD Average Surface',
+                    visible='legendonly'
+                ))
+        except ImportError:
+            print("Warning: scipy is not installed. Cannot plot average hypoDD surface.")
+            print("Please install it with: pip install scipy")
+        except Exception as e:
+            print(f"Warning: Could not create hypoDD average surface. Error: {e}")
 
     # Create buttons for pickers
     num_special_traces = 0
