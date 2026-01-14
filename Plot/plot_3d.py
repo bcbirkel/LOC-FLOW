@@ -776,19 +776,31 @@ def main():
             mask = (depths >= p10) & (depths <= p90)
             filtered_points = all_points[mask]
 
-            if filtered_points.shape[0] > 0:
-                # Calculate the median depth of the filtered events
-                median_depth = np.median(filtered_points[:, 2])
+            if filtered_points.shape[0] > 2:  # Need at least 3 points to define a plane
+                # Fit a plane to the points to represent the dipping seismicity
+                median_point = np.median(filtered_points, axis=0)
+                centered_points = filtered_points - median_point
+                _, _, vh = np.linalg.svd(centered_points)
+                normal = vh[2, :]
 
-                # Create a grid for the flat surface (2x2 is sufficient for a plane)
-                grid_x, grid_y = np.mgrid[XMIN:XMAX:2j, YMIN:YMAX:2j]
-                grid_z = np.full_like(grid_x, median_depth)
+                # Create a grid for the surface. Use meshgrid for clarity.
+                lon_vals = np.array([XMIN, XMAX])
+                lat_vals = np.array([YMIN, YMAX])
+                lon_grid, lat_grid = np.meshgrid(lon_vals, lat_vals)
+
+                # Calculate z (depth) values for the plane
+                # Plane equation: a(x-x0)+b(y-y0)+c(z-z0)=0 => z = z0 - (a(x-x0) + b(y-y0))/c
+                if normal[2] != 0:
+                    dep_grid = median_point[2] - (normal[0] * (lon_grid - median_point[0]) + normal[1] * (lat_grid - median_point[1])) / normal[2]
+                else: # Handle vertical plane case, though unlikely
+                    print("Warning: Best-fit plane is vertical. Creating a flat surface at median depth instead.")
+                    dep_grid = np.full_like(lon_grid, median_point[2])
 
                 # Add surface trace
                 fig.add_trace(go.Surface(
-                    x=grid_x[:, 0],
-                    y=grid_y[0, :],
-                    z=grid_z.T,
+                    x=lon_vals,
+                    y=lat_vals,
+                    z=dep_grid,
                     colorscale='Viridis',
                     opacity=0.5,
                     showscale=False,
